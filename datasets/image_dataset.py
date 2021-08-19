@@ -3,6 +3,8 @@ import pydicom
 import pandas as pd
 from torch.utils.data import Dataset
 
+assert pydicom.pixel_data_handlers.pylibjpeg_handler.is_available()
+
 
 class ImageDataset(Dataset):
     """Dataset featuring raw meta data and the pydicom FileDataset of all images
@@ -31,6 +33,8 @@ class ImageDataset(Dataset):
             image_dir_path = os.path.join(study_path, sub_dir)
             if filename in os.listdir(image_dir_path):
                 break
+        else:
+            raise RuntimeError("404 file not found")
         image_path = os.path.join(image_dir_path, filename)
 
         dicom = pydicom.read_file(image_path)
