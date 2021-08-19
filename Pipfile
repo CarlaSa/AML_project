@@ -8,6 +8,7 @@ pydicom = "*"
 pylibjpeg = "*"
 torch = "*"
 pandas = "*"
+pylibjpeg-libjpeg = "*"
 
 [dev-packages]
 ipykernel = "*"
