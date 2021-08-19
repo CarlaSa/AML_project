@@ -7,7 +7,9 @@ assert pydicom.pixel_data_handlers.pylibjpeg_handler.is_available()
 
 
 class ImageDataset(Dataset):
-    """Dataset featuring raw meta data and the pydicom FileDataset of all images
+    """
+    Dataset featuring raw meta data (as Pandas Series) versus the pydicom
+    FileDataset for each image.
 
     Usage:
         data = ImageDataset("data/train", "data/train_image_level.csv")
@@ -22,6 +24,9 @@ class ImageDataset(Dataset):
 
     def __getitem__(self, index: int) -> tuple[pydicom.dataset.FileDataset,
                                                pd.core.series.Series]:
+        dicom: pydicom.dataset.FileDataset
+        meta: pd.core.series.Series
+
         meta = self.image_table.iloc[index]
         image_id = meta["id"].split("_image")[0]
         assert len(image_id) == 12
