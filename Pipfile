@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 pydicom = "*"
+torch = "*"
+pandas = "*"
 
 [dev-packages]
 ipykernel = "*"
