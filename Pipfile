@@ -9,6 +9,8 @@ pylibjpeg = "*"
 torch = "*"
 pandas = "*"
 pylibjpeg-libjpeg = "*"
+torchvision = "*"
+pillow = "*"
 
 [dev-packages]
 ipykernel = "*"
