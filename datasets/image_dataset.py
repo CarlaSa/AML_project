@@ -21,9 +21,11 @@ class ImageDataset(Dataset):
         data = ImageDataset("data/train", "data/train_image_level.csv")
     """
     image_table: pd.DataFrame
+    input_dir: str
 
     def __init__(self, input_dir: str, image_csv: str) -> None:
         self.image_table = pd.read_csv(image_csv)
+        self.input_dir = input_dir
 
     def __len__(self) -> int:
         return len(self.image_table)
@@ -39,7 +41,7 @@ class ImageDataset(Dataset):
 
         # find file
         filename = image_id + ".dcm"
-        study_path = os.path.join("data/train", meta["StudyInstanceUID"])
+        study_path = os.path.join(self.input_dir, meta["StudyInstanceUID"])
         for sub_dir in os.listdir(study_path):
             image_dir_path = os.path.join(study_path, sub_dir)
             if filename in os.listdir(image_dir_path):
