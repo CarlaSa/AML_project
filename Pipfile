@@ -11,6 +11,8 @@ pandas = "*"
 pylibjpeg-libjpeg = "*"
 torchvision = "*"
 pillow = "*"
+matplotlib = "*"
+tqdm = "*"
 
 [dev-packages]
 ipykernel = "*"
