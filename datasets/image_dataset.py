@@ -1,5 +1,6 @@
 import os
 import json
+import math
 import pydicom
 import numpy as np
 import pandas as pd
@@ -37,7 +38,7 @@ class ImageDataset(Dataset):
 
         meta = self.image_table.iloc[index]
         image_id = meta["id"].split("_image")[0]
-        assert len(image_id) == 12
+        assert len(image_id) == 12, "Corrupt CSV data. Is this the right file?"
 
         # find file
         filename = image_id + ".dcm"
@@ -61,23 +62,18 @@ class UniformImageDataset(Dataset):
 
     Usage:
         image_data = ImageDataset("data/train", "data/train_image_level.csv")
-        data = UniformImageDataset(image_data, img_size=(1000, 1000))
+        data = UniformImageDataset(image_data, img_size=(1024, 1024))
     """
     image_dataset: ImageDataset
     img_size: tuple[int, int]
-    transform: torchvision.transforms.Compose
+    max_bounding_boxes: int
 
     def __init__(self, image_dataset: ImageDataset,
-                 img_size: tuple[int, int] = (1000, 1000)):
+                 img_size: tuple[int, int] = (1024, 1024),
+                 max_bounding_boxes: int = 8):
         self.image_dataset = image_dataset
         self.img_size = img_size
-        self.transform = torchvision.transforms.Compose([
-            torchvision.transforms.Resize(img_size),
-            # torchvision.transforms.RandomCrop(crop_size) if not center \
-            # else torchvision.transforms.CenterCrop(crop_size),
-            # torchvision.transforms.RandomHorizontalFlip(),
-            torchvision.transforms.ToTensor(),
-        ])
+        self.max_bounding_boxes = max_bounding_boxes
 
     def __len__(self) -> int:
         return len(self.image_dataset)
@@ -86,19 +82,12 @@ class UniformImageDataset(Dataset):
         dicom, meta = self.image_dataset[index]
 
         img_array = dicom.pixel_array
-        orig_width, orig_height = img_array.shape
+        orig_height, orig_width = img_array.shape
         img = pil_image_from_array(img_array)
-        img = self.transform(img)
+        img = torchvision.transforms.Resize(self.img_size)(img)
+        img = torchvision.transforms.ToTensor()(img)
 
-        if isinstance(meta["boxes"], float):
-            # no bounding boxes
-            boxes = np.zeros((0, 4))
-        elif isinstance(meta["boxes"], str):
-            boxes = json.loads(meta["boxes"].replace("'", '"'))
-            boxes = np.array([[box[attribute] for attribute in BOX_ATTRIBUTES]
-                              for box in boxes])
-        else:
-            raise TypeError("unexpected type of 'boxes':", type(meta["boxes"]))
+        boxes = bounding_boxes_array(meta["boxes"], self.max_bounding_boxes)
 
         # resize box:
         # assuming that torchvision.transforms.Resize does rescale and not crop
@@ -109,6 +98,35 @@ class UniformImageDataset(Dataset):
         # TODO: RandomHorizontalFlip
 
         return img, boxes
+
+
+def bounding_boxes_mask(boxes: np.array, size: tuple[int, int]) -> np.array:
+    mask = np.zeros(size)
+    for i in range(boxes.shape[0]):
+        if sum(boxes[i]) == 0:
+            break
+        x, y, width, height = boxes[i]
+        mask[math.floor(x):math.ceil(x + width),
+             math.floor(y):math.ceil(y + height)] = 1
+    return mask
+
+
+def bounding_boxes_array(meta_boxes: str, max_bounding_boxes: int) -> np.array:
+    boxes = np.zeros((max_bounding_boxes, 4))
+    if isinstance(meta_boxes, float):
+        # No bounding boxes → nothing to change.
+        # This if condition is reserved for possible future use.
+        pass
+    elif isinstance(meta_boxes, str):
+        json_boxes = json.loads(meta_boxes.replace("'", '"'))
+        for i, box in enumerate(json_boxes):
+            # may throw an error if max_bounding_boxes is too low, which is
+            # absolutely intended:
+            boxes[i] = np.array([box[attribute]
+                                 for attribute in BOX_ATTRIBUTES])
+    else:
+        raise TypeError("unexpected type of 'meta_boxes':", type(meta_boxes))
+    return boxes
 
 
 def pil_image_from_array(array: np.array) -> PIL.Image:
