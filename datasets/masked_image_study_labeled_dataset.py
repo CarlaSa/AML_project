@@ -52,7 +52,7 @@ class MaskedImageStudyLabeledDataset(Dataset):
         return len(self.image_table)
 
     def __getitem__(self, index: int) -> tuple[torch.Tensor, np.array]:
-        image: torch.Tensor
+        img: torch.Tensor
         label: np.array
 
         meta = self.image_table.iloc[index]
