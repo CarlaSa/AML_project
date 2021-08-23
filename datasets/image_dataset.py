@@ -101,6 +101,13 @@ class UniformImageDataset(Dataset):
 
 
 def bounding_boxes_mask(boxes: np.array, size: tuple[int, int]) -> np.array:
+    """
+    Args:
+        boxes (np.array): 4 x X array with x, y, width, height
+        size (tuple): size of the image
+    Returns:
+        np.array: binary Box Mask, where 1 indicates a box and 0 not
+    """
     mask = np.zeros(size)
     for i in range(boxes.shape[0]):
         if sum(boxes[i]) == 0:
@@ -131,7 +138,7 @@ def bounding_boxes_array(meta_boxes: str, max_bounding_boxes: int) -> np.array:
 
 def pil_image_from_array(array: np.array) -> PIL.Image:
     """
-    Convert pixel_array to PIL image.
+    Convert pixel_array to PIL image (change the pixel value range to [0,255]).
 
     Mainly taken from
     https://stackoverflow.com/questions/42650233/how-to-access-rgb-pixel-arrays-from-dicom-files-using-pydicom
