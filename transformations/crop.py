@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from typing import Optional
+from typing import Optional, NamedTuple
 
 
 # TEMPORARY
@@ -21,6 +21,14 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
 
     height, width = img.shape
 
+    class Limits(NamedTuple):
+        right: float = 0.6 * width
+        left: float = 0.4 * width
+        top: float = 0.25 * height
+        bottom: float = 0.45 * height
+
+    limits = Limits()
+
     # Threshold to binarize the data in Background
     thresholds = Thresholds()
     thresholds.binary = np.mean(img)  # 150
@@ -34,10 +42,26 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     column_averages = np.mean(img, axis=0)
 
     # Set Thresholds
-    # 0.6*np.max(row_averages)  # 190/255
-    thresholds.transversal = np.mean(row_averages)
+    thresholds.transversal = 0.9 * np.mean(
+        column_averages)  # 0.6*np.max(row_averages)
+    # 190/255
     thresholds.longitudinal_top = 0.4*np.max(row_averages)  # 100/255
-    thresholds.longitudinal_bottom = 0.94*np.max(row_averages)  # 240/255
+    # 0.94*np.max(row_averages)  # 240/255
+    thresholds.longitudinal_bottom = np.min(
+        [1.3*np.mean(row_averages), 0.94*np.max(row_averages)])
+
+    # TEMPORARY
+    fig, ax = plt.subplots(1, 2)
+    ax[0].plot(column_averages)
+    ax[0].axhline(thresholds.transversal)
+    ax[0].axhline(np.mean(column_averages), color="black")
+    ax[0].set_title("Column Averages")
+    ax[1].plot(row_averages)
+    ax[1].axhline(thresholds.longitudinal_top)
+    ax[1].axhline(thresholds.longitudinal_bottom)
+    ax[1].axhline(np.mean(row_averages), color="black")
+    ax[1].set_title("Row Averages")
+    plt.show()
 
     # Crop left and right boundaries
     # Check condition: lower or higher threshold for each column
@@ -81,18 +105,10 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     bottom_crop = int(np.min(
         [height-1, bottom_crop + (bottom_crop-top_crop) * 0.0]))  # 0.18
 
-    # TEMPORARY
-    fig, ax = plt.subplots(1, 2)
-    ax[0].plot(column_averages)
-    ax[0].axhline(thresholds.transversal)
-    ax[0].axhline(np.mean(column_averages), color="black")
-    ax[0].set_title("Column Averages")
-    ax[1].plot(row_averages)
-    ax[1].axhline(thresholds.longitudinal_top)
-    ax[1].axhline(thresholds.longitudinal_bottom)
-    ax[1].axhline(np.mean(row_averages), color="black")
-    ax[1].set_title("Row Averages")
-    plt.show()
+    bottom_above_threshold = row_averages >= thresholds.longitudinal_bottom
+    bottom_above_threshold[:math.ceil(limits.bottom)] = False
+    bottom_crop = np.min([bottom_crop,
+                          np.argmax(bottom_above_threshold)])
 
     # Consider manual crop limits
     # TODO ANSTATT KEINEN CROP ANZUWENDEN WENN LIMITS ERREICHT WERDEN,
