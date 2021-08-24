@@ -19,7 +19,7 @@ def cropping(img: np.array) -> tuple[int, int, int, int]:
     column_averages = np.mean(img, axis=0)
 
     # Crop left and right boundaries
-    transversal_thresh = 0.5  # 190/255
+    transversal_thresh = 0.75*np.max(row_averages)  # 190/255
     # Check condition: lower or higher threshold for each column
     col_cond = column_averages > transversal_thresh
     # Set how many columns have to fullfill this condition subsequently
@@ -39,7 +39,7 @@ def cropping(img: np.array) -> tuple[int, int, int, int]:
     right_crop = width - 1 - np.argmax(merged_col_cond_right[::-1])
 
     # Get Cropping Edge for above boundary
-    longitudinal_thresh_top = 0.05  # 100/255
+    longitudinal_thresh_top = 0.4*np.max(row_averages)  # 100/255
     row_cond = row_averages > longitudinal_thresh_top
     cnt_crit_row = 3  # np.max([5, int(height*0.005)])
     merged_row_cond_top = row_cond[:-cnt_crit_row]
@@ -48,7 +48,7 @@ def cropping(img: np.array) -> tuple[int, int, int, int]:
     top_crop = np.argmax(merged_row_cond_top)
 
     # Get Cropping Edge for bottom boundary
-    longitudinal_thresh_bottom = 0.6  # 240/255
+    longitudinal_thresh_bottom = 0.94*np.max(row_averages)  # 240/255
     # Check when the row reaches the lung, i.e. whether the mean of the row is
     # lower than the threshold
     row_cond_bottom = row_averages < longitudinal_thresh_bottom
