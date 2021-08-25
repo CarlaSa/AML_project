@@ -13,6 +13,9 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     Crop to the relevant part of the image (lung)
     Mainly based on https://www.kaggle.com/davidbroberts/cropping-chest-x-rays
     """
+
+    max_aspect_ratio: float = 4/3
+
     class Thresholds:
         binary: float
         transversal: float
@@ -38,17 +41,12 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     img[img >= thresholds.binary] = 1
 
     # calculate the means of the columns and rows of the binarized image
-    row_averages = np.mean(img, axis=1)
     column_averages = np.mean(img, axis=0)
 
     # Set Thresholds
     thresholds.transversal = 0.9 * np.mean(
         column_averages)  # 0.6*np.max(row_averages)
     # 190/255
-    thresholds.longitudinal_top = 0.4*np.max(row_averages)  # 100/255
-    # 0.94*np.max(row_averages)  # 240/255
-    thresholds.longitudinal_bottom = np.min(
-        [1.3*np.mean(row_averages), 0.94*np.max(row_averages)])
 
     # TEMPORARY
     fig, ax = plt.subplots(1, 2)
@@ -56,12 +54,6 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     ax[0].axhline(thresholds.transversal)
     ax[0].axhline(np.mean(column_averages), color="black")
     ax[0].set_title("Column Averages")
-    ax[1].plot(row_averages)
-    ax[1].axhline(thresholds.longitudinal_top)
-    ax[1].axhline(thresholds.longitudinal_bottom)
-    ax[1].axhline(np.mean(row_averages), color="black")
-    ax[1].set_title("Row Averages")
-    plt.show()
 
     # Crop left and right boundaries
     # Check condition: lower or higher threshold for each column
@@ -80,7 +72,21 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     merged_col_cond_right = col_cond[cnt_crit_col:]
     for i in range(1, cnt_crit_col+1):
         merged_col_cond_right *= col_cond[cnt_crit_col-i:-i]
-    right_crop = width - 1 - np.argmax(merged_col_cond_right[::-1])
+    right_crop = width - np.argmax(merged_col_cond_right[::-1])
+
+    row_averages = np.mean(img[:, left_crop:right_crop], axis=1)
+
+    thresholds.longitudinal_top = 0.4*np.max(row_averages)  # 100/255
+    # 0.94*np.max(row_averages)  # 240/255
+    thresholds.longitudinal_bottom = np.min(
+        [1.3*np.mean(row_averages), 0.94*np.max(row_averages)])
+
+    ax[1].plot(row_averages)
+    ax[1].axhline(thresholds.longitudinal_top)
+    ax[1].axhline(thresholds.longitudinal_bottom)
+    ax[1].axhline(np.mean(row_averages), color="black")
+    ax[1].set_title("Row Averages")
+    plt.show()
 
     # Get Cropping Edge for above boundary
     row_cond = row_averages > thresholds.longitudinal_top
@@ -98,18 +104,29 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     merged_row_cond_bottom = row_cond_bottom[cnt_crit_row_bottom:]
     for i in range(1, cnt_crit_row_bottom+1):
         merged_row_cond_bottom *= row_cond_bottom[cnt_crit_row_bottom-i:-i]
-    bottom_crop = height - 1 - np.argmax(merged_row_cond_bottom[::-1])
-
-    # Add some pixels at the bottom for of padding such that
-    # the costophrenic angles are not cutted off
-    bottom_crop = int(np.min(
-        [height-1, bottom_crop + (bottom_crop-top_crop) * 0.0]))  # 0.18
+    bottom_crop = height - np.argmax(merged_row_cond_bottom[::-1])
 
     bottom_above_threshold = row_averages >= thresholds.longitudinal_bottom
     bottom_above_threshold[:math.ceil(limits.bottom)] = False
     bottom_crop = np.min([bottom_crop,
                           np.argmax(bottom_above_threshold)])
 
+    # Add some pixels at the bottom for of padding such that
+    # the costophrenic angles are not cutted off and also at the top
+    print("bot before", bottom_crop)
+    bottom_crop = int(np.min(
+        [height-1, bottom_crop + (bottom_crop-top_crop) * 0.1]))  # 0.18
+    print("bot after", bottom_crop)
+    top_crop = int(np.max(
+        [0, top_crop - (bottom_crop-top_crop) * 0.05]))
+
+    if (right_crop-left_crop)/(bottom_crop-top_crop) > max_aspect_ratio:
+        new_height = (right_crop-left_crop)/max_aspect_ratio
+        additional_height = new_height - (bottom_crop-top_crop)
+        bottom_crop += int(additional_height*4/7)
+        top_crop -= int(additional_height*3/7)
+        print("fixed aspect ratio")
+        print("bot after fixing aspect", bottom_crop)
     # Consider manual crop limits
     # TODO ANSTATT KEINEN CROP ANZUWENDEN WENN LIMITS ERREICHT WERDEN,
     # KÖNNTE MAN ES AUCH NOCHMALS MIT ANDEREM TRHESHOLD PROBIEREN
@@ -121,20 +138,32 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     if top_crop > 0.25*height:
         top_crop = 0
     if bottom_crop < 0.45*height:
-        bottom_crop = height-1
+        bottom_crop = height
+        print("exceeded bottom limit")
 
     if bounding_boxes is not None and bounding_boxes.sum() > 0:
         bounding_boxes = bounding_boxes[bounding_boxes[:, 2] != 0]
         if left_crop > np.min(bounding_boxes[:, 0]):
             left_crop = math.floor(np.min(bounding_boxes[:, 0]))
-            print("limited left crop to most left bounding box")
+            print("limited left crop to outermost bounding box")
         if top_crop > np.min(bounding_boxes[:, 1]):
             top_crop = math.floor(np.min(bounding_boxes[:, 1]))
+            print("limited top crop to outermost bounding box")
         if right_crop < np.max(bounding_boxes[:, 0] + bounding_boxes[:, 2]):
             right_crop = math.ceil(
                 np.max(bounding_boxes[:, 0] + bounding_boxes[:, 2]))
+            print("limited right crop to outermost bounding box")
         if bottom_crop < np.max(bounding_boxes[:, 1] + bounding_boxes[:, 3]):
             bottom_crop = math.ceil(
                 np.max(bounding_boxes[:, 1] + bounding_boxes[:, 3]))
+            print("limited bottom crop to outermost bounding box")
 
+    if left_crop < 0:
+        left_crop = 0
+    if right_crop > width:
+        right_crop = width
+    if top_crop < 0:
+        top_crop = 0
+    if bottom_crop > height:
+        bottom_crop = height
     return (left_crop, right_crop, top_crop, bottom_crop)
