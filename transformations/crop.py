@@ -114,14 +114,14 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     # TODO ANSTATT KEINEN CROP ANZUWENDEN WENN LIMITS ERREICHT WERDEN,
     # KÖNNTE MAN ES AUCH NOCHMALS MIT ANDEREM TRHESHOLD PROBIEREN
     if right_crop < 0.60*width:
-        right_crop = width-1
+        right_crop = width
     if left_crop > 0.40*width:
         left_crop = 0
         print("zeroed left crop")
     if top_crop > 0.25*height:
         top_crop = 0
     if bottom_crop < 0.45*height:
-        bottom_crop = height-1
+        bottom_crop = height
 
     if bounding_boxes is not None and bounding_boxes.sum() > 0:
         bounding_boxes = bounding_boxes[bounding_boxes[:, 2] != 0]
