@@ -7,7 +7,7 @@ import torchvision
 from tqdm import tqdm
 import csv
 
-from typing import Iterable, Sequence
+from typing import Iterable, Sequence, Optional
 from itertools import count
 
 
@@ -45,6 +45,8 @@ def save_dataset(dataset: Dataset, directory: str,
 
     for (image, label), filename in zip(tqdm(dataset), image_filenames):
         torchvision.utils.save_image(image, os.path.join(image_dir, filename))
+        if label.dtype is np.dtype("bool"):
+            label = np.uint(label)
         with open(os.path.join(directory, "labels.csv"), "a") as f:
             csv.writer(f).writerow([filename] + list(label.reshape(-1)))
 
@@ -60,11 +62,13 @@ class LoadDataset(Dataset):
     """
     table: pd.DataFrame
     input_dir: str
+    label_dtype = np.dtype
 
-    def __init__(self, input_dir: str):
+    def __init__(self, input_dir: str, label_dtype: Optional[np.dtype] = None):
         self.input_dir = input_dir
         self.table = pd.read_csv(os.path.join(input_dir, "labels.csv"),
                                  header=None)
+        self.label_dtype = label_dtype
 
     def __len__(self):
         return len(self.table)
@@ -72,7 +76,7 @@ class LoadDataset(Dataset):
     def __getitem__(self, index: int) -> tuple[torch.Tensor, np.ndarray]:
         meta = self.table.iloc[index]
         filename = meta[0]
-        label = self.parse_label(meta[1:])
+        label = self.parse_label(meta[1:], self.label_dtype)
         image = self.load_image(os.path.join(self.input_dir, "images",
                                              filename))
         return image, label
@@ -83,7 +87,11 @@ class LoadDataset(Dataset):
                                          torchvision.io.ImageReadMode.GRAY)
 
     @staticmethod
-    def parse_label(label: Sequence) -> np.ndarray:
+    def parse_label(label: Sequence, dtype: Optional[np.dtype] = None) \
+            -> np.ndarray:
         n_rows = len(label)//4
-        array = np.array(label)
+        if dtype is None:
+            array = np.array(label)
+        else:
+            array = np.array(label, dtype=dtype)
         return array.reshape((n_rows, 4))
