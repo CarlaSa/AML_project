@@ -13,6 +13,7 @@ torchvision = "*"
 pillow = "*"
 matplotlib = "*"
 tqdm = "*"
+tensorflow = "*"
 
 [dev-packages]
 ipykernel = "*"
