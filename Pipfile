@@ -15,6 +15,7 @@ matplotlib = "*"
 tqdm = "*"
 tensorflow = "*"
 scikit-learn = "*"
+opencv-python = "*"
 
 [dev-packages]
 ipykernel = "*"
