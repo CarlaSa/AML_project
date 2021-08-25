@@ -14,7 +14,7 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     Mainly based on https://www.kaggle.com/davidbroberts/cropping-chest-x-rays
     """
 
-    max_aspect_ratio: float = 4/3
+    max_aspect_ratio: float = 1.5
 
     class Thresholds:
         binary: float
@@ -76,7 +76,8 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
 
     row_averages = np.mean(img[:, left_crop:right_crop], axis=1)
 
-    thresholds.longitudinal_top = 0.4*np.max(row_averages)  # 100/255
+    thresholds.longitudinal_top = 0.4*np.mean(row_averages)
+    #0.4*np.max(row_averages)  # 100/255
     # 0.94*np.max(row_averages)  # 240/255
     thresholds.longitudinal_bottom = np.min(
         [1.3*np.mean(row_averages), 0.94*np.max(row_averages)])
@@ -115,18 +116,18 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     # the costophrenic angles are not cutted off and also at the top
     print("bot before", bottom_crop)
     bottom_crop = int(np.min(
-        [height-1, bottom_crop + (bottom_crop-top_crop) * 0.1]))  # 0.18
+        [height-1, bottom_crop + height * 0.15]))  # (bottom_crop-top_crop) * 0.2 # 0.18
     print("bot after", bottom_crop)
     top_crop = int(np.max(
-        [0, top_crop - (bottom_crop-top_crop) * 0.05]))
+        [0, top_crop - height * 0.1]))  # (bottom_crop-top_crop) * 0.15
 
-    if (right_crop-left_crop)/(bottom_crop-top_crop) > max_aspect_ratio:
-        new_height = (right_crop-left_crop)/max_aspect_ratio
-        additional_height = new_height - (bottom_crop-top_crop)
-        bottom_crop += int(additional_height*4/7)
-        top_crop -= int(additional_height*3/7)
-        print("fixed aspect ratio")
-        print("bot after fixing aspect", bottom_crop)
+    # if (right_crop-left_crop)/(bottom_crop-top_crop) > max_aspect_ratio:
+    #     new_height = (right_crop-left_crop)/max_aspect_ratio
+    #     additional_height = new_height - (bottom_crop-top_crop)
+    #     bottom_crop += int(additional_height*4/7)
+    #     top_crop -= int(additional_height*3/7)
+    #     print("fixed aspect ratio")
+    #     print("bot after fixing aspect", bottom_crop)
     # Consider manual crop limits
     # TODO ANSTATT KEINEN CROP ANZUWENDEN WENN LIMITS ERREICHT WERDEN,
     # KÖNNTE MAN ES AUCH NOCHMALS MIT ANDEREM TRHESHOLD PROBIEREN
