@@ -18,7 +18,7 @@ def save_dataset(dataset: Dataset, directory: str,
     Save an existing image dataset into a directory.
 
     This function reads all the data from a dataset and saves each image into
-    a single file (subfolder "images/") and stores the file names and labels if __name__ == '__main__':
+    a single file (subfolder "images/") and stores the file names and labels in
     a common CSV file ("labels.csv").
 
     The image file type is determined by the file name of an image.
