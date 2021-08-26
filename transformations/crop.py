@@ -22,6 +22,8 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
         longitudinal_top: float
         longitudinal_bottom: float
 
+    #img = remove_black_padding(img)  # TODO: CHECK
+
     height, width = img.shape
 
     class Limits(NamedTuple):
@@ -29,8 +31,6 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
         left: float = 0.4 * width
         top: float = 0.25 * height
         bottom: float = 0.45 * height
-
-    limits = Limits()
 
     # Threshold to binarize the data in Background
     thresholds = Thresholds()
@@ -185,3 +185,4 @@ def remove_black_padding(img: np.array) -> np.array:
         top_crop = np.max([np.argmax(row_stds > thresh), 0])
         bottom_crop = np.min(
             [height-np.argmax(row_stds[::-1] > thresh), height])
+        return img[left_crop:right_crop, top_crop:bottom_crop]
