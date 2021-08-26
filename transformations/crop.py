@@ -128,17 +128,19 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     #     top_crop -= int(additional_height*3/7)
     #     print("fixed aspect ratio")
     #     print("bot after fixing aspect", bottom_crop)
+
     # Consider manual crop limits
+    limit = Limits()
     # TODO ANSTATT KEINEN CROP ANZUWENDEN WENN LIMITS ERREICHT WERDEN,
     # KÖNNTE MAN ES AUCH NOCHMALS MIT ANDEREM TRHESHOLD PROBIEREN
-    if right_crop < 0.60*width:
+    if right_crop < limit.right:
         right_crop = width
-    if left_crop > 0.40*width:
+    if left_crop > limit.left:
         left_crop = 0
         print("zeroed left crop")
-    if top_crop > 0.25*height:
+    if top_crop > limit.top:
         top_crop = 0
-    if bottom_crop < 0.45*height:
+    if bottom_crop < limit.bottom:
         bottom_crop = height
         print("exceeded bottom limit")
 
@@ -168,3 +170,18 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     if bottom_crop > height:
         bottom_crop = height
     return (left_crop, right_crop, top_crop, bottom_crop)
+
+
+def remove_black_padding(img: np.array) -> np.array:
+    height, width = img.shape
+    row_stds = np.std(img, axis=1)
+    col_stds = np.std(img, axis=0)
+    thresh = 0.01 * np.max(img)  # TODO
+    if np.min([row_stds, col_stds]) > thresh:
+        return img
+    else:
+        left_crop = np.max([np.argmax(col_stds > thresh)-1, 0])
+        right_crop = np.min([width-np.argmax(col_stds[::-1] > thresh), width])
+        top_crop = np.max([np.argmax(row_stds > thresh), 0])
+        bottom_crop = np.min(
+            [height-np.argmax(row_stds[::-1] > thresh), height])
