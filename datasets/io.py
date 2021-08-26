@@ -62,12 +62,15 @@ class LoadDataset(Dataset):
     """
     table: pd.DataFrame
     input_dir: str
-    label_dtype = np.dtype
+    image_dtype: torch.dtype
+    label_dtype: np.dtype
 
-    def __init__(self, input_dir: str, label_dtype: Optional[np.dtype] = None):
+    def __init__(self, input_dir: str, image_dtype: torch.dtype,
+                 label_dtype: Optional[np.dtype] = None):
         self.input_dir = input_dir
         self.table = pd.read_csv(os.path.join(input_dir, "labels.csv"),
                                  header=None)
+        self.image_dtype = image_dtype
         self.label_dtype = label_dtype
 
     def __len__(self):
@@ -79,10 +82,10 @@ class LoadDataset(Dataset):
         label = self.parse_label(meta[1:], self.label_dtype)
         image = self.load_image(os.path.join(self.input_dir, "images",
                                              filename))
+        image = image.to(self.image_dtype)
         return image, label
 
-    @staticmethod
-    def load_image(path: str) -> torch.Tensor:
+    def load_image(self, path: str) -> torch.Tensor:
         return torchvision.io.read_image(path,
                                          torchvision.io.ImageReadMode.GRAY)
 
@@ -94,4 +97,6 @@ class LoadDataset(Dataset):
             array = np.array(label)
         else:
             array = np.array(label, dtype=dtype)
+        if n_rows == 1 and len(label) == 4:  # only 1-dimensional
+            return array
         return array.reshape((n_rows, 4))
