@@ -40,13 +40,23 @@ class MaskedImageStudyLabeledDataset(Dataset):
     def __init__(self, input_dir: str, image_csv: str, study_csv: str,
                  img_size: tuple[int, int] = (1024, 1024),
                  fix_monochrome: bool = True,
-                 max_bounding_boxes: int = 8) -> None:
+                 max_bounding_boxes: int = 8,
+                 transforms = None
+                 ) -> None:
         self.image_table = pd.read_csv(image_csv)
         self.study_table = pd.read_csv(study_csv)
         self.input_dir = input_dir
         self.img_size = img_size
         self.fix_monochrome = fix_monochrome
         self.max_bounding_boxes = max_bounding_boxes
+
+        if transforms = None:
+            self.transforms = torchvision.transforms.Compose([
+                torchvision.transforms.Resize(img_size),
+                torchvision.transforms.ToTensor(),
+            ])
+        else:
+            self.transforms = transforms
 
     def __len__(self) -> int:
         return len(self.image_table)
@@ -84,8 +94,10 @@ class MaskedImageStudyLabeledDataset(Dataset):
 
         orig_height, orig_width = img_array.shape
         img = pil_image_from_array(img_array)
-        img = torchvision.transforms.Resize(self.img_size)(img)
-        img = torchvision.transforms.ToTensor()(img)
+        #img = torchvision.transforms.Resize(self.img_size)(img)
+        #img = torchvision.transforms.ToTensor()(img)
+        img = self.transforms(img)
+
 
         boxes = bounding_boxes_array(meta["boxes"], self.max_bounding_boxes)
 
