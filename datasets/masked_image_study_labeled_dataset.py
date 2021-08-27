@@ -6,8 +6,8 @@ import torch
 from torch.utils.data import Dataset
 import torchvision
 
-from datasets.image_dataset import pil_image_from_array, \
-    bounding_boxes_array, bounding_boxes_mask
+from datasets.image_dataset import pil_image_from_array
+from utils.bounding_boxes import bounding_boxes_mask, bounding_boxes_mask
 from datasets.study_dataset import LABEL_KEYS
 
 assert pydicom.pixel_data_handlers.pylibjpeg_handler.is_available()
