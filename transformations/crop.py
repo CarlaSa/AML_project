@@ -14,15 +14,13 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     Mainly based on https://www.kaggle.com/davidbroberts/cropping-chest-x-rays
     """
 
-    max_aspect_ratio: float = 1.5
+    #max_aspect_ratio: float = 1.5
 
     class Thresholds:
         binary: float
         transversal: float
         longitudinal_top: float
         longitudinal_bottom: float
-
-    #img = remove_black_padding(img)  # TODO: CHECK
 
     height, width = img.shape
 
@@ -31,6 +29,8 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
         left: float = 0.4 * width
         top: float = 0.25 * height
         bottom: float = 0.45 * height
+
+    limits = Limits()
 
     # Threshold to binarize the data in Background
     thresholds = Thresholds()
@@ -49,11 +49,11 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     # 190/255
 
     # TEMPORARY
-    fig, ax = plt.subplots(1, 2)
+    """fig, ax = plt.subplots(1, 2)
     ax[0].plot(column_averages)
     ax[0].axhline(thresholds.transversal)
     ax[0].axhline(np.mean(column_averages), color="black")
-    ax[0].set_title("Column Averages")
+    ax[0].set_title("Column Averages")"""
 
     # Crop left and right boundaries
     # Check condition: lower or higher threshold for each column
@@ -82,12 +82,12 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     thresholds.longitudinal_bottom = np.min(
         [1.3*np.mean(row_averages), 0.94*np.max(row_averages)])
 
-    ax[1].plot(row_averages)
+    """ax[1].plot(row_averages)
     ax[1].axhline(thresholds.longitudinal_top)
     ax[1].axhline(thresholds.longitudinal_bottom)
     ax[1].axhline(np.mean(row_averages), color="black")
     ax[1].set_title("Row Averages")
-    plt.show()
+    plt.show()"""
 
     # Get Cropping Edge for above boundary
     row_cond = row_averages > thresholds.longitudinal_top
@@ -114,13 +114,12 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
 
     # Add some pixels at the bottom for of padding such that
     # the costophrenic angles are not cutted off and also at the top
-    print("bot before", bottom_crop)
     bottom_crop = int(np.min(
-        [height-1, bottom_crop + height * 0.15]))  # (bottom_crop-top_crop) * 0.2 # 0.18
-    print("bot after", bottom_crop)
+        [height, bottom_crop + height * 0.15]))  # (bottom_crop-top_crop) * 0.2 # 0.18
     top_crop = int(np.max(
         [0, top_crop - height * 0.1]))  # (bottom_crop-top_crop) * 0.15
 
+    # Fix Ratio
     # if (right_crop-left_crop)/(bottom_crop-top_crop) > max_aspect_ratio:
     #     new_height = (right_crop-left_crop)/max_aspect_ratio
     #     additional_height = new_height - (bottom_crop-top_crop)
@@ -130,17 +129,16 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     #     print("bot after fixing aspect", bottom_crop)
 
     # Consider manual crop limits
-    limit = Limits()
     # TODO ANSTATT KEINEN CROP ANZUWENDEN WENN LIMITS ERREICHT WERDEN,
     # KÖNNTE MAN ES AUCH NOCHMALS MIT ANDEREM TRHESHOLD PROBIEREN
-    if right_crop < limit.right:
+    if right_crop < limits.right:
         right_crop = width
-    if left_crop > limit.left:
+    if left_crop > limits.left:
         left_crop = 0
         print("zeroed left crop")
-    if top_crop > limit.top:
+    if top_crop > limits.top:
         top_crop = 0
-    if bottom_crop < limit.bottom:
+    if bottom_crop < limits.bottom:
         bottom_crop = height
         print("exceeded bottom limit")
 
@@ -172,17 +170,18 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     return (left_crop, right_crop, top_crop, bottom_crop)
 
 
-def remove_black_padding(img: np.array) -> np.array:
+def remove_padding(img: np.array) -> np.array:
     height, width = img.shape
     row_stds = np.std(img, axis=1)
     col_stds = np.std(img, axis=0)
     thresh = 0.01 * np.max(img)  # TODO
-    if np.min([row_stds, col_stds]) > thresh:
+    if np.min([row_stds.min(), col_stds.min()]) > thresh:
         return img
     else:
+        print("Removed Padding")
         left_crop = np.max([np.argmax(col_stds > thresh)-1, 0])
         right_crop = np.min([width-np.argmax(col_stds[::-1] > thresh), width])
         top_crop = np.max([np.argmax(row_stds > thresh), 0])
         bottom_crop = np.min(
             [height-np.argmax(row_stds[::-1] > thresh), height])
-        return img[left_crop:right_crop, top_crop:bottom_crop]
+        return img[top_crop:bottom_crop, left_crop:right_crop]
