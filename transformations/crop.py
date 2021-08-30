@@ -44,8 +44,8 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     column_averages = np.mean(img, axis=0)
 
     # Set Thresholds
-    thresholds.transversal = 0.9 * np.mean(
-        column_averages)  # 0.6*np.max(row_averages)
+    thresholds.transversal = 0.85 * np.mean(column_averages)
+    # 0.9 * np.mean(column_averages)  # 0.6*np.max(row_averages)
     # 190/255
 
     # TEMPORARY
