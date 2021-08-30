@@ -80,8 +80,7 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     #0.4*np.max(row_averages)  # 100/255
     # 0.94*np.max(row_averages)  # 240/255
     thresholds.longitudinal_bottom = np.min(
-        [1.2*np.mean(row_averages), 0.92*np.max(row_averages)])
-    #np.min([1.3*np.mean(row_averages), 0.94*np.max(row_averages)])
+        [1.3*np.mean(row_averages), 0.94*np.max(row_averages)])
 
     ax[1].plot(row_averages)
     ax[1].axhline(thresholds.longitudinal_top)
