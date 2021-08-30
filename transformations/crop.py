@@ -142,7 +142,7 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
         bottom_crop = height
         print("exceeded bottom limit")
 
-    if bounding_boxes is not None and bounding_boxes.sum() > 0:
+    if False and bounding_boxes is not None and bounding_boxes.sum() > 0:
         bounding_boxes = bounding_boxes[bounding_boxes[:, 2] != 0]
         if left_crop > np.min(bounding_boxes[:, 0]):
             left_crop = math.floor(np.min(bounding_boxes[:, 0]))
