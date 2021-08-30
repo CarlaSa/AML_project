@@ -174,7 +174,7 @@ def remove_padding(img: np.array) -> np.array:
     height, width = img.shape
     row_stds = np.std(img, axis=1)
     col_stds = np.std(img, axis=0)
-    thresh = 0.01 * np.max(img)  # TODO
+    thresh = 0.012 * np.max(img)  # TODO
     if np.min([row_stds.min(), col_stds.min()]) > thresh:
         return img
     else:
