@@ -18,8 +18,10 @@ def bounding_boxes_mask(boxes: np.ndarray, size: tuple[int, int]) -> np.array:
         if sum(boxes[i]) == 0:
             break
         x, y, width, height = boxes[i]
-        mask[math.floor(x):math.ceil(x + width),
-             math.floor(y):math.ceil(y + height)] = 1
+        #mask[math.floor(x):math.ceil(x + width),
+        #     math.floor(y):math.ceil(y + height)] = 1
+        mask[math.floor(y):math.ceil(y + height),
+             math.floor(x):math.ceil(x + width)] = 1
     return mask
 
 
