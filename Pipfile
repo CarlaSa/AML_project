@@ -16,6 +16,7 @@ tqdm = "*"
 tensorflow = "*"
 scikit-learn = "*"
 numpy = "*"
+typeguard = "*"
 
 [dev-packages]
 ipykernel = "*"
