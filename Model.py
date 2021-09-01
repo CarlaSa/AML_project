@@ -88,7 +88,7 @@ class OurModel:
             loss = self.train_one_epoch(dataloader)
             if self.verbose:
                 print(f"epoch{e}: loss = {loss}")
-            if e % save_freq == 0 and (e not 0):
+            if e % save_freq == 0 and (e ist not 0):
                 self.save_weights(e)
         
     def val(self, dataloader_val):
