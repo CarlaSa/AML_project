@@ -30,7 +30,8 @@ class OurModel:
             network, 
             criterion,
             lr = 0.01,
-            path = None,
+            path_dir = None,
+            path_weights = None,
             use_cuda = torch.cuda.is_available(),
             verbose = False
             ):
@@ -41,27 +42,27 @@ class OurModel:
         self.criterion = criterion
         self.verbose = verbose
         self.use_cuda = use_cuda
-        self.path = path
+        self.path = path_dir
 
         if self.use_cuda:
             self.network = self.network.cuda()
         
-        if path is not None:
-            load_weights(path)
+        if path_weights is not None:
+            load_weights(path_weights)
         
     def load_weights(self, path_end):
-        if self.path not None:
+        if self.path is not None:
             path = self.path + path_end
         else:
             path = path_end
         self.network.load_state_dict(torch.load(path))
         
     def save_weights(self, epoch):
-        if self.path not None:
+        if self.path is not None:
             path = f'{self.path}/{self.name}_e{epoch}.ckpt'
         else:
             path = f'./{self.name}_e{epoch}.ckpt'
-        torch.save(network.state_dict(), path)
+        torch.save(self.network.state_dict(), path)
         
     def train_one_epoch(self, dataloader):
         sum_loss = 0
@@ -82,12 +83,12 @@ class OurModel:
             self.optimizer.step()
         return sum_loss/len(dataloader)
             
-    def train(self, num_epochs, dataloader, save_freq = 5):
+    def train(self, num_epochs, dataloader, save_freq = 10):
         for e in (tqdm(range(num_epochs)) if self.verbose else range(num_epochs)):
             loss = self.train_one_epoch(dataloader)
             if self.verbose:
                 print(f"epoch{e}: loss = {loss}")
-            if (e-1) % save_freq == 0:
+            if e % save_freq == 0 and (e is not 0):
                 self.save_weights(e)
         
     def val(self, dataloader_val):
