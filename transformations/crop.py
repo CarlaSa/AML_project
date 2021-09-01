@@ -44,7 +44,7 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     column_averages = np.mean(img, axis=0)
 
     # Set Thresholds
-    thresholds.transversal = 0.8 * np.mean(column_averages)
+    thresholds.transversal = 0.75 * np.mean(column_averages)
     # 0.9 * np.mean(column_averages)  # 0.6*np.max(row_averages)
     # 190/255
 
@@ -76,11 +76,13 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
 
     row_averages = np.mean(img[:, left_crop:right_crop], axis=1)
 
-    thresholds.longitudinal_top = 0.3*np.mean(row_averages)
+    thresholds.longitudinal_top = 0.2*np.mean(row_averages)
     #0.4*np.max(row_averages)  # 100/255
     # 0.94*np.max(row_averages)  # 240/255
-    thresholds.longitudinal_bottom = np.min(
-        [1.3*np.mean(row_averages), 0.94*np.max(row_averages)])
+    thresholds.longitudinal_bottom = np.min([1.4*np.mean(row_averages),
+                                             0.98*np.max(row_averages)])
+    #np.min(
+    #    [1.3*np.mean(row_averages), 0.94*np.max(row_averages)])
 
     """ax[1].plot(row_averages)
     ax[1].axhline(thresholds.longitudinal_top)
