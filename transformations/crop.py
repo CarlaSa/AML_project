@@ -172,13 +172,13 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     return (left_crop, right_crop, top_crop, bottom_crop)
 
 
-def remove_padding(img: np.array) -> np.array:
+def remove_padding(img: np.array) -> tuple[int, int, int, int]:
     height, width = img.shape
     row_stds = np.std(img, axis=1)
     col_stds = np.std(img, axis=0)
     thresh = 0.012 * np.max(img)  # TODO
     if np.min([row_stds.min(), col_stds.min()]) > thresh:
-        return img
+        return (0, width, 0, height)
     else:
         print("Removed Padding")
         left_crop = np.max([np.argmax(col_stds > thresh)-1, 0])
@@ -186,4 +186,4 @@ def remove_padding(img: np.array) -> np.array:
         top_crop = np.max([np.argmax(row_stds > thresh), 0])
         bottom_crop = np.min(
             [height-np.argmax(row_stds[::-1] > thresh), height])
-        return img[top_crop:bottom_crop, left_crop:right_crop]
+        return (left_crop, right_crop, top_crop, bottom_crop)

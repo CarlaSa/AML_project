@@ -117,7 +117,8 @@ class TransitionalDataset(Dataset):
         # TEMPORARY
         cropped_img = img[top_crop:bottom_crop, left_crop:right_crop]
         cropped_img = scale8bit(cropped_img)
-        pad_removed_img = remove_padding(cropped_img)
+        left_pad_crop, right_pad_crop, top_pad_crop, bottom_pad_crop = remove_padding(
+            cropped_img)
         pad_removed_img = scale8bit(pad_removed_img)
         if cropped_img.shape == pad_removed_img.shape:
             fig, ax = plt.subplots(1, 2, figsize=(10, 10))
@@ -136,19 +137,21 @@ class TransitionalDataset(Dataset):
             ax[2].set_title("Remove Padding")
             plt.show()
 
+        # Modify boundary boxes
+        boxes[:, 0] -= left_crop + left_pad_crop # compute x - left_crop
+        boxes[:, 1] -= top_crop + top_pad_crop  # compute y - top_crop
+        # assert (boxes[:, :2] > 0).all(), "Bounding boxes cut"
+        # assert (boxes[:, 2:] + boxes[:, :2]
+        #         < np.array(resulting_shape)).all(), "Bounding boxes cut"
+
         # img = img[top_crop:bottom_crop, left_crop:right_crop]
         img = PIL.Image.fromarray(img)
         img = torchvision.transforms.Resize(self.img_size)(img)
         img = torchvision.transforms.ToTensor()(img)
 
         # resize box:
-        # assuming that torchvision.transforms.Resize does rescale and not crop
+        # assuming that torchvision.transforms. Resize does rescale and not crop
         width, height = self.img_size
-        boxes[:, 0] -= left_crop
-        boxes[:, 1] -= top_crop
-        # assert (boxes[:, :2] > 0).all(), "Bounding boxes cut"
-        # assert (boxes[:, 2:] + boxes[:, :2]
-        #         < np.array(resulting_shape)).all(), "Bounding boxes cut"
         boxes[:, (0, 2)] *= width/orig_width  # x, width
         boxes[:, (1, 3)] *= height/orig_height  # y, height
 
