@@ -1,9 +1,10 @@
 import numpy as np
 
-from trafo.trafo import Trafo, TrafoDispatch
+from ..trafo import Trafo
+from ..rules import preserve_bounding_box
 
 
-@TrafoDispatch()
+@preserve_bounding_box
 class TruncateGrayValues(Trafo):
     """
     Truncate gray values to a maximum and a minimum.

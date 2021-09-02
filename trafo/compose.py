@@ -2,7 +2,7 @@ from typing import Union
 from trafo.trafo import Trafo, Transformable
 
 
-class ComposedTrafo(Trafo):
+class Compose(Trafo):
     pipeline: list[Trafo]
 
     def __init__(self, *steps: Trafo) -> None:

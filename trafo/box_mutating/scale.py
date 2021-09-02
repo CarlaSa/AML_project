@@ -1,16 +1,13 @@
 import torch
-import numpy as np
 from torchvision.transforms import Resize
 from typeguard import typechecked
-from typing import Union
 
-from .trafo import Trafo, Transformable, TrafoDispatch
+from .trafo import Trafo, Transformable
+from .rules import numpy_as_3d_tensor
 from utils.bounding_boxes import BoundingBoxes
 
-TensorOrArray = Union[torch.Tensor, np.ndarray]
 
-
-@TrafoDispatch(numpy_as_3d_tensor=True)
+@numpy_as_3d_tensor
 class Scale(Trafo):
     """
     Rescale an image of any input size to a fixed target size.
@@ -23,7 +20,7 @@ class Scale(Trafo):
         self.torch_transform = Resize(target_size)
 
     @typechecked
-    def compute_parameters(self, first_transformand: TensorOrArray,
+    def compute_parameters(self, first_transformand: Transformable,
                            *additional_transformands: Transformable) \
             -> dict[str, int]:
         return {

@@ -1,4 +1,5 @@
-from utils.bounding_boxes import BoundingBoxes
+from __future__ import annotations
+
 import torch
 import numpy as np
 from typing import Union, Any
@@ -7,40 +8,17 @@ from functools import singledispatchmethod
 Transformable = Union[np.ndarray, torch.Tensor]
 
 
-class TrafoDispatch(object):
-    preserve_bounding_box: bool
-    numpy_as_3d_tensor: bool
-
-    def __init__(self, preserve_bounding_box: bool = False,
-                 numpy_as_3d_tensor: bool = False):
-        self.preserve_bounding_box = preserve_bounding_box
-        self.numpy_as_3d_tensor = numpy_as_3d_tensor
-
-    def __call__(self, original_class: type) -> type:
+class TrafoMeta(type):
+    def __new__(cls, clsname, bases, attrs) -> TrafoMeta:
         @singledispatchmethod
         def transform(self, transformand: Transformable, **parameters) \
                 -> Transformable:
             raise NotImplementedError()
-
-        if self.preserve_bounding_box is True:
-            @transform.register
-            def _(self, boxes: BoundingBoxes, **parameters) -> BoundingBoxes:
-                return boxes
-
-        if self.numpy_as_3d_tensor is True:
-            @transform.register
-            def _(self, transformand: np.ndarray, **parameters) -> np.ndarray:
-                tensor = torch.from_numpy(transformand).reshape(
-                    (1, *transformand.shape))
-                tensor = self.transform(tensor, **parameters)
-                array = tensor[0].numpy()
-                return array
-
-        original_class.transform = transform
-        return original_class
+        attrs["transform"] = transform
+        return super().__new__(cls, clsname, bases, attrs)
 
 
-class Trafo():
+class Trafo(metaclass=TrafoMeta):
     """
     Generic class for transformations on labeled data.
     """
