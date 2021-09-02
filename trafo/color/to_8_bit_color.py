@@ -1,10 +1,10 @@
 import numpy as np
 
 from ..trafo import Trafo
-from ..rules import preserve_bounding_box
+from ..rules import preserve_bounding_boxes
 
 
-@preserve_bounding_box
+@preserve_bounding_boxes
 class To8BitColor(Trafo):
     """
     Scale the pixel values of an image to the range [0, 255]

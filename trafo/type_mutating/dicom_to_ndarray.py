@@ -2,10 +2,10 @@ import numpy as np
 import pydicom.dataset
 
 from ..trafo import Trafo
-from ..rules import preserve_bounding_box
+from ..rules import preserve_bounding_boxes
 
 
-@preserve_bounding_box
+@preserve_bounding_boxes
 class DicomToNDArray(Trafo):
     """
     Rescale an image of any input size to a fixed target size.
