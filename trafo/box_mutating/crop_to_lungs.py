@@ -7,7 +7,7 @@ from typeguard import typechecked
 from typing import NamedTuple
 
 
-class CropToLung(Trafo):
+class CropToLungs(Trafo):
     """
     Crop to the relevant part of the image (lung)
     Mainly based on https://www.kaggle.com/davidbroberts/cropping-chest-x-rays
@@ -191,13 +191,13 @@ class CropToLung(Trafo):
         }
 
 
-@CropToLung.transform.register
+@CropToLungs.transform.register
 def _(self, img: np.ndarray, left_crop, right_crop, top_crop, bottom_crop) \
         -> np.ndarray:
     return img[top_crop:bottom_crop, left_crop:right_crop]
 
 
-@CropToLung.transform.register
+@CropToLungs.transform.register
 def _(self, boxes: BoundingBoxes, left_crop, right_crop, top_crop, bottom_crop) \
         -> BoundingBoxes:
     boxes[:, 0] -= left_crop  # x-left_crop
