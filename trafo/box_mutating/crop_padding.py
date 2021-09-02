@@ -1,4 +1,5 @@
 from ..trafo import Trafo
+from .crop_common import crop_image, crop_boxes
 from utils.bounding_boxes import BoundingBoxes
 
 import math
@@ -27,19 +28,11 @@ class CropPadding(Trafo):
             top_crop = np.max([np.argmax(row_stds > thresh), 0])
             bottom_crop = np.min(
                 [height-np.argmax(row_stds[::-1] > thresh), height])
-            return {"left_pad_crop": left_crop,
-                    "right_pad_crop": right_crop,
-                    "top_pad_crop": top_crop,
-                    "bottom_pad_crop": bottom_corp
+            return {"left_crop": left_crop,
+                    "right_crop": right_crop,
+                    "top_crop": top_crop,
+                    "bottom_crop": bottom_corp
                     }
 
-@CropPadding.transform.register
-def _(self, img: np.ndarray, left_pad_crop, right_pad_crop, top_pad_crop, bottom_pad_crop) \
-        -> np.ndarray:
-    return img[top_crop:bottom_crop, left_crop:right_crop]
-
-@CropPadding.transform.register
-def _(self, boxes: BoundingBoxes, left_pad_crop, right_pad_crop, top_pad_crop, bottom_pad_crop) \
-        -> BoundingBoxes:
-    # TODO
-    return 42
+CropPadding.transform.register(crop_image)
+CropPadding.transform.register(crop_boxes)
