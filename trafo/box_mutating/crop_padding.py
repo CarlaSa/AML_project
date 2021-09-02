@@ -1,8 +1,6 @@
-from ..trafo import Trafo
+from ..trafo import Trafo, Transformable
 from .crop_common import crop_image, crop_boxes
-from utils.bounding_boxes import BoundingBoxes
 
-import math
 import numpy as np
 
 
@@ -11,7 +9,7 @@ class CropPadding(Trafo):
     Crop to the relevant part of the image (lung)
     Mainly based on https://www.kaggle.com/davidbroberts/cropping-chest-x-rays
     """
-    @typechecked
+
     def compute_parameters(self, img: np.ndarray,
                            *additional_transformands: Transformable) \
             -> dict[str, int]:
@@ -24,15 +22,17 @@ class CropPadding(Trafo):
         else:
             print("Removed Padding")
             left_crop = np.max([np.argmax(col_stds > thresh)-1, 0])
-            right_crop = np.min([width-np.argmax(col_stds[::-1] > thresh), width])
+            right_crop = np.min(
+                [width-np.argmax(col_stds[::-1] > thresh), width])
             top_crop = np.max([np.argmax(row_stds > thresh), 0])
             bottom_crop = np.min(
                 [height-np.argmax(row_stds[::-1] > thresh), height])
             return {"left_crop": left_crop,
                     "right_crop": right_crop,
                     "top_crop": top_crop,
-                    "bottom_crop": bottom_corp
+                    "bottom_crop": bottom_crop
                     }
+
 
 CropPadding.transform.register(crop_image)
 CropPadding.transform.register(crop_boxes)
