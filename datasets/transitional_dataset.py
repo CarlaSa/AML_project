@@ -7,6 +7,7 @@ import torch
 from torch.utils.data import Dataset
 import torchvision
 import PIL.Image
+from deprecation import deprecated
 
 from transformations.crop import cropping, remove_padding
 from transformations.pixel_trafo import scale8bit
@@ -22,6 +23,7 @@ BOX_ATTRIBUTES = ["x", "y", "width", "height"]
 # TEMPORARY
 
 
+@deprecated()
 class TransitionalDataset(Dataset):
     """
     Dataset featuring study labels versus uniform Tensor for each image.
@@ -138,7 +140,7 @@ class TransitionalDataset(Dataset):
             plt.show()
 
         # Modify boundary boxes
-        boxes[:, 0] -= left_crop + left_pad_crop # compute x - left_crop
+        boxes[:, 0] -= left_crop + left_pad_crop  # compute x - left_crop
         boxes[:, 1] -= top_crop + top_pad_crop  # compute y - top_crop
         # assert (boxes[:, :2] > 0).all(), "Bounding boxes cut"
         # assert (boxes[:, 2:] + boxes[:, :2]

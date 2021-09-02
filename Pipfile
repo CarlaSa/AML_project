@@ -17,6 +17,7 @@ tensorflow = "*"
 scikit-learn = "*"
 numpy = "*"
 typeguard = "*"
+deprecation = "*"
 
 [dev-packages]
 ipykernel = "*"

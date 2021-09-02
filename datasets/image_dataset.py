@@ -5,7 +5,7 @@ import pandas as pd
 from torch.utils.data import Dataset
 import torchvision
 import PIL.Image
-from warnings import warn
+from deprecation import deprecated
 
 from utils.bounding_boxes import bounding_boxes_array
 
@@ -54,6 +54,7 @@ class ImageDataset(Dataset):
         return dicom, meta
 
 
+@deprecated()
 class UniformImageDataset(Dataset):
     """
     DEPRECATED.
@@ -72,8 +73,6 @@ class UniformImageDataset(Dataset):
     def __init__(self, image_dataset: ImageDataset,
                  img_size: tuple[int, int] = (1024, 1024),
                  max_bounding_boxes: int = 8):
-        warn("UniformImageDataset is DEPRECATED and should not be used.",
-             DeprecationWarning, stacklevel=2)
         self.image_dataset = image_dataset
         self.img_size = img_size
         self.max_bounding_boxes = max_bounding_boxes
@@ -103,6 +102,7 @@ class UniformImageDataset(Dataset):
         return img, boxes
 
 
+@deprecated(details="Use trafo.color.to_8_bit_color instead.")
 def pil_image_from_array(array: np.array) -> PIL.Image:
     """
     Convert pixel_array to PIL image (change the pixel value range to [0,255]).
