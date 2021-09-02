@@ -21,6 +21,9 @@ class BoundingBoxes(np.ndarray):
 
         return array.view(BoundingBoxes)
 
+    def sort_boxes(self) -> None:
+        self[:, :] = sorted(self.copy(), key=tuple, reverse=True)
+
 
 def bounding_boxes_mask(boxes: BoundingBoxes, size: tuple[int, int]) \
         -> np.ndarray:
