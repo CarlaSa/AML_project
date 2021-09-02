@@ -6,7 +6,8 @@ import numpy as np
 
 class CropPadding(Trafo):
     """
-    Crop to the relevant part of the image (lung)
+    Crop to the relevant part of the image (lung).
+
     Mainly based on https://www.kaggle.com/davidbroberts/cropping-chest-x-rays
     """
 
