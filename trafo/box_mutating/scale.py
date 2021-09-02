@@ -2,8 +2,8 @@ import torch
 from torchvision.transforms import Resize
 from typeguard import typechecked
 
-from .trafo import Trafo, Transformable
-from .rules import numpy_as_3d_tensor
+from ..trafo import Trafo, Transformable
+from ..rules import numpy_as_3d_tensor
 from utils.bounding_boxes import BoundingBoxes
 
 

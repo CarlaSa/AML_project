@@ -1,8 +1,8 @@
 import numpy as np
 import pydicom.dataset
 
-from .trafo import Trafo
-from .rules import preserve_bounding_box
+from ..trafo import Trafo
+from ..rules import preserve_bounding_box
 
 
 @preserve_bounding_box
