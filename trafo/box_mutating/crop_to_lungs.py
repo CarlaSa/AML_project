@@ -209,6 +209,9 @@ def _(self, boxes: BoundingBoxes, left_crop, right_crop, top_crop, bottom_crop) 
     # Modify x, y if bounding boxes are cutted at top or left
     boxes[:, :2] = np.maximum(boxes[:, :2], 0)
     # Modify width and length if the bounding boxes are cutted at bottom or right
-    boxes[:, 2] = np.minimum(boxes[:, 2], right_crop - boxes[:, 0])
-    boxes[:, 3] = np.minimum(boxes[:, 3], bottom_crop - boxes[:, 1])
+    boxes[:, 2] = np.minimum(boxes[:, 2], right_crop - left_crop - boxes[:, 0])
+    boxes[:, 3] = np.minimum(boxes[:, 3], bottom_crop - top_crop - boxes[:, 1])
+    # Identify bounding boxes as zero-rows if they are not in the image
+    rows_to_zero = np.array(np.prod(boxes[:, 2:] <= 0, axis=1), dtype=bool)
+    boxes[rows_to_zero, :] = 0
     return boxes
