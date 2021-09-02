@@ -1,5 +1,5 @@
 from typing import Union
-from trafo.trafo import Trafo, Transformable
+from .trafo import Trafo, Transformable
 
 
 class Compose(Trafo):

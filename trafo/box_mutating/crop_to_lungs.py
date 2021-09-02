@@ -192,8 +192,8 @@ class CropToLung(Trafo):
 
 
 @CropToLung.transform.register
-def _(self, img: np.ndarray, left_crop, right_crop, top_crop, bottom_crop, **kwargs) \
-        -> np.ndarayy:
+def _(self, img: np.ndarray, left_crop, right_crop, top_crop, bottom_crop) \
+        -> np.ndarray:
     return img[top_crop:bottom_crop, left_crop:right_crop]
 
 
@@ -212,20 +212,3 @@ def _(self, boxes: BoundingBoxes, left_crop, right_crop, top_crop, bottom_crop) 
     boxes[:, 2] = np.minimum(boxes[:, 2], right_crop - boxes[:, 0])
     boxes[:, 3] = np.minimum(boxes[:, 3], bottom_crop - boxes[:, 1])
     return boxes
-
-
-def remove_padding(img: np.array) -> tuple[int, int, int, int]:
-    height, width = img.shape
-    row_stds = np.std(img, axis=1)
-    col_stds = np.std(img, axis=0)
-    thresh = 0.012 * np.max(img)  # TODO
-    if np.min([row_stds.min(), col_stds.min()]) > thresh:
-        return (0, width, 0, height)
-    else:
-        print("Removed Padding")
-        left_crop = np.max([np.argmax(col_stds > thresh)-1, 0])
-        right_crop = np.min([width-np.argmax(col_stds[::-1] > thresh), width])
-        top_crop = np.max([np.argmax(row_stds > thresh), 0])
-        bottom_crop = np.min(
-            [height-np.argmax(row_stds[::-1] > thresh), height])
-        return (left_crop, right_crop, top_crop, bottom_crop)
