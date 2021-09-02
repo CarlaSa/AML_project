@@ -1,12 +1,10 @@
-from ..trafo import Trafo
+from ..trafo import Trafo, Transformable
 from utils.bounding_boxes import BoundingBoxes
 
 import math
 import numpy as np
-from typing import Optional, NamedTuple
-
-# TEMPORARY
-import matplotlib.pyplot as plt
+from typeguard import typechecked
+from typing import NamedTuple
 
 
 class CropToLung(Trafo):
@@ -193,17 +191,17 @@ class CropToLung(Trafo):
         }
 
 
-@Scale.transform.register
+@CropToLung.transform.register
 def _(self, img: np.ndarray, left_crop, right_crop, top_crop, bottom_crop, **kwargs) \
         -> np.ndarayy:
     return img[top_crop:bottom_crop, left_crop:right_crop]
 
 
-@Scale.transform.register
+@CropToLung.transform.register
 def _(self, boxes: BoundingBoxes, left_crop, right_crop, top_crop, bottom_crop) \
         -> BoundingBoxes:
     boxes[:, 0] -= left_crop  # x-left_crop
-    boxes[:, 1] -= top_crap  # y-top_crop
+    boxes[:, 1] -= top_crop  # y-top_crop
     # Cut boxes if necessary
     # Modify width and length if the bounding boxes are cutted at top or left
     boxes[:, 2] += np.minimum(boxes[:, 0], 0)
