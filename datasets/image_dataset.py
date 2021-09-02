@@ -5,6 +5,7 @@ import pandas as pd
 from torch.utils.data import Dataset
 import torchvision
 import PIL.Image
+from warnings import warn
 
 from utils.bounding_boxes import bounding_boxes_array
 
@@ -55,6 +56,8 @@ class ImageDataset(Dataset):
 
 class UniformImageDataset(Dataset):
     """
+    DEPRECATED.
+
     Dataset featuring n bounding boxes (n×4 NumPy array) versus transformed
     PIL image for each image.
 
@@ -69,6 +72,8 @@ class UniformImageDataset(Dataset):
     def __init__(self, image_dataset: ImageDataset,
                  img_size: tuple[int, int] = (1024, 1024),
                  max_bounding_boxes: int = 8):
+        warn("UniformImageDataset is DEPRECATED and should not be used.",
+             DeprecationWarning, stacklevel=2)
         self.image_dataset = image_dataset
         self.img_size = img_size
         self.max_bounding_boxes = max_bounding_boxes
