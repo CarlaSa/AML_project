@@ -1,12 +1,14 @@
 import math
 import numpy as np
 from typing import Optional, NamedTuple
+from deprecation import deprecated
 
 
 # TEMPORARY
 import matplotlib.pyplot as plt
 
 
+@deprecated()
 def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
         -> tuple[int, int, int, int]:
     """
@@ -172,6 +174,7 @@ def cropping(img: np.array, bounding_boxes: Optional[np.array] = None) \
     return (left_crop, right_crop, top_crop, bottom_crop)
 
 
+@deprecated()
 def remove_padding(img: np.array) -> tuple[int, int, int, int]:
     height, width = img.shape
     row_stds = np.std(img, axis=1)
