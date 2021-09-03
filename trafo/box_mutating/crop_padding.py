@@ -3,6 +3,7 @@ from .crop_common import crop_image, crop_boxes
 
 import numpy as np
 
+# DEBUG: argument after ** must be a mapping, not a tuple
 
 class CropPadding(Trafo):
     """
