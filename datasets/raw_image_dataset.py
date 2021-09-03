@@ -39,7 +39,7 @@ class RawImageDataset(Dataset):
 
 
 def find_dicom_path(directory: str, study_id: str, image_id: str) -> str:
-    study_path = os.realpath(os.path.join(directory, study_id))
+    study_path = os.path.realpath(os.path.join(directory, study_id))
     filename = image_id + ".dcm"
     for sub_dir in os.listdir(study_path):
         image_dir_path = os.path.join(study_path, sub_dir)
