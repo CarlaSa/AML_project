@@ -5,9 +5,9 @@ import pandas as pd
 from torch.utils.data import Dataset
 import torchvision
 import PIL.Image
-from raw_image_dataset import RawImageDataset
 from deprecation import deprecated
 
+from .raw_image_dataset import RawImageDataset
 from utils.bounding_boxes import bounding_boxes_array
 
 assert pydicom.pixel_data_handlers.pylibjpeg_handler.is_available()
