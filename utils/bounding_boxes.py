@@ -48,7 +48,7 @@ def bounding_boxes_mask(boxes: BoundingBoxes, size: tuple[int, int]) \
 
 def bounding_boxes_array(meta_boxes: str, max_bounding_boxes: int) \
         -> BoundingBoxes:
-    boxes = np.zeros((max_bounding_boxes, 4))
+    boxes = BoundingBoxes.from_array(np.zeros((max_bounding_boxes, 4)))
     if isinstance(meta_boxes, float):
         # No bounding boxes → nothing to change.
         # This if condition is reserved for possible future use.
@@ -58,10 +58,9 @@ def bounding_boxes_array(meta_boxes: str, max_bounding_boxes: int) \
         for i, box in enumerate(json_boxes):
             # may throw an error if max_bounding_boxes is too low, which is
             # absolutely intended:
-            array = np.array([(math.floor if i < 2 else math.ceil)
-                              (box[attribute])
-                              for attribute in BOX_ATTRIBUTES])
-            boxes[i] = BoundingBoxes.from_array(array)
+            boxes[i] = [(math.floor if i < 2 else math.ceil)
+                        (box[attribute])
+                        for attribute in BOX_ATTRIBUTES]
     else:
         raise TypeError("unexpected type of 'meta_boxes':", type(meta_boxes))
     return boxes
