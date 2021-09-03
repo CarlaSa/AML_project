@@ -5,6 +5,7 @@ import pandas as pd
 import torch
 from torch.utils.data import Dataset
 import torchvision
+from deprecation import deprecated
 
 from datasets.image_dataset import pil_image_from_array
 from utils.bounding_boxes import bounding_boxes_mask, bounding_boxes_array
@@ -15,6 +16,7 @@ assert pydicom.pixel_data_handlers.pylibjpeg_handler.is_available()
 BOX_ATTRIBUTES = ["x", "y", "width", "height"]
 
 
+@deprecated()
 class MaskedImageStudyLabeledDataset(Dataset):
     """
     Dataset featuring study labels versus uniform Tensor for each image.
