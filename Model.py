@@ -75,7 +75,7 @@ class OurModel:
         
     def train_one_epoch(self, dataloader):
         sum_loss = 0
-        for x,y in tqdm(dataloader):
+        for x,y in dataloader:
             self.optimizer.zero_grad()
             y = torch.argmax(y.float(), dim = 1)
             x = x.float()
