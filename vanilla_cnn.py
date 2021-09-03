@@ -5,15 +5,7 @@ import torch
 class vanilla(nn.Module):
     def __init__(self, input_size = 256, ):
         super().__init__()
-        
-        
-        
-        #self.block1 = nn.Sequential(
-        #    nn.Conv2d(in_channels = 1, out_channels = 6, kernel_size = (5,5)),
-        #    nn.MaxPool2d(2, 2),
-        #    nn.Conv2d(6, 16, 5),
-        #)
-        
+
         self.conv1 = nn.Conv2d(1, 16, 3) 
         self.pool1 = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(16, 16, 3)

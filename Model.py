@@ -1,4 +1,10 @@
 
+"""
+This file provides some basic structures to train any model we used, save and 
+load the weights and test the results with the validation dataset.
+
+"""
+
 import torch
 import torch.nn as nn
 from tqdm.notebook import tqdm
@@ -12,6 +18,7 @@ def get_balanced_crossentropy_loss(dataset, verbose = False):
     A higher weight corresponds with a greater emphasis on this class. So smaller classes 
     should get a higher weight.
     """
+
     if verbose:
         print("calculate balancing vector:")
     b = torch.tensor([0,0,0,0])
@@ -22,7 +29,6 @@ def get_balanced_crossentropy_loss(dataset, verbose = False):
         print("balancing vector will be " + str(c_weights))
     loss = nn.CrossEntropyLoss(weight= c_weights.float())
     return loss
-
 
 class OurModel:
     def __init__(self,
@@ -46,6 +52,7 @@ class OurModel:
 
         if self.use_cuda:
             self.network = self.network.cuda()
+            self.criterion = self.criterion.cuda()
         
         if path_weights is not None:
             load_weights(path_weights)
@@ -88,7 +95,7 @@ class OurModel:
             loss = self.train_one_epoch(dataloader)
             if self.verbose:
                 print(f"epoch{e}: loss = {loss}")
-            if e % save_freq == 0 and (e is not 0):
+            if e % save_freq == 0 and (e != 0):
                 self.save_weights(e)
         
     def val(self, dataloader_val):
