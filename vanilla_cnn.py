@@ -3,7 +3,7 @@ import torch.nn.functional as F
 import torch
 
 class vanilla(nn.Module):
-    def __init__(self, input_size = 256, ):
+    def __init__(self, input_size = 256, use_dropout = False):
         super().__init__()
 
         self.conv1 = nn.Conv2d(1, 16, 3) 
@@ -20,6 +20,10 @@ class vanilla(nn.Module):
         self.fc1 = nn.Linear(after_conv_size, 128)
         self.fc2 = nn.Linear(128, 64)
         self.fc3 = nn.Linear(64, 4)
+
+        self.use_dropout = use_dropout
+        if self.use_dropout:
+            self.drop = nn.Dropout(0.5)
 
     def forward(self, x):
         # B:= Batchsize
@@ -45,7 +49,13 @@ class vanilla(nn.Module):
         x = self.conv5(x)  # shape: (B, 64, H/16 - 4 , W/16 - 4)
         
         x = torch.flatten(x, 1) # shape: (B, rest)
+        if self.use_dropout:
+            x = self.drop(x)
         x = F.relu(self.fc1(x))  
+        if self.use_dropout:
+            x = self.drop(x)
         x = F.relu(self.fc2(x))
+        if self.use_dropout:
+            x = self.drop(x)
         x = self.fc3(x)
         return x

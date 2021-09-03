@@ -30,6 +30,8 @@ def get_balanced_crossentropy_loss(dataset, verbose = False):
     loss = nn.CrossEntropyLoss(weight= c_weights.float())
     return loss
 
+
+
 class OurModel:
     def __init__(self,
             name, 
@@ -91,11 +93,11 @@ class OurModel:
         return sum_loss/len(dataloader)
             
     def train(self, num_epochs, dataloader, save_freq = 10):
-        for e in (tqdm(range(num_epochs)) if self.verbose else range(num_epochs)):
+        for e in (tqdm(range(1, num_epochs+1)) if self.verbose else range(num_epochs)):
             loss = self.train_one_epoch(dataloader)
             if self.verbose:
                 print(f"epoch{e}: loss = {loss}")
-            if e % save_freq == 0 and (e != 0):
+            if e % save_freq == 0:
                 self.save_weights(e)
         
     def val(self, dataloader_val):
