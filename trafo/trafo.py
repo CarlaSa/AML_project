@@ -13,7 +13,9 @@ class TrafoMeta(type):
         @singledispatchmethod
         def transform(self, transformand: Transformable, **parameters) \
                 -> Transformable:
-            raise NotImplementedError()
+            raise NotImplementedError(f"{transformand.__class__.__name__}s "
+                                      + "cannot be handled by "
+                                      + f"{self.__class__.__name__} Trafos.")
         attrs["transform"] = transform
         return super().__new__(cls, clsname, bases, attrs)
 
