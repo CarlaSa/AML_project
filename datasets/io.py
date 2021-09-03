@@ -6,6 +6,7 @@ from torch.utils.data import Dataset
 import torchvision
 from tqdm import tqdm
 import csv
+from warnings import warn
 
 from typing import Iterable, Sequence, Optional
 from itertools import count
@@ -36,18 +37,24 @@ def save_dataset(dataset: Dataset, directory: str,
     image: torch.Tensor
     label: np.ndarray  # 4×n
     filename: str  # of the image, including suffix
+    csv_path: str = os.path.join(directory, "labels.csv")
+    image_dir: str = os.path.join(directory, "images")
 
     if not os.path.exists(directory):
+        warn(f"Creating {directory}")
         os.makedirs(directory)
-    image_dir = os.path.join(directory, "images")
     if not os.path.exists(image_dir):
+        warn(f"Creating {image_dir}")
         os.makedirs(image_dir)
+    if os.path.exists(csv_path):
+        warn(f"Removing old CSV file {csv_path}.")
+        os.remove(csv_path)
 
     for (image, label), filename in zip(tqdm(dataset), image_filenames):
         torchvision.utils.save_image(image, os.path.join(image_dir, filename))
         if label.dtype is np.dtype("bool"):
             label = np.uint(label)
-        with open(os.path.join(directory, "labels.csv"), "a") as f:
+        with open(csv_path, "a") as f:
             csv.writer(f).writerow([filename] + list(label.reshape(-1)))
 
 
