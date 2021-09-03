@@ -7,9 +7,10 @@ import torchvision
 from tqdm import tqdm
 import csv
 from warnings import warn
-
 from typing import Iterable, Sequence, Optional
 from itertools import count
+
+from utils.bounding_boxes import BoundingBoxes
 
 
 def save_dataset(dataset: Dataset, directory: str,
@@ -106,4 +107,4 @@ class LoadDataset(Dataset):
             array = np.array(label, dtype=dtype)
         if n_rows == 1 and len(label) == 4:  # only 1-dimensional
             return array
-        return array.reshape((n_rows, 4))
+        return BoundingBoxes.from_array(array.reshape((n_rows, 4)))
