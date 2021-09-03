@@ -22,7 +22,7 @@ class StudyDataset(Dataset):
     def __len__(self) -> int:
         return len(self.study_table)
 
-    def __getitem__(self, index: int) -> tuple[str, np.array]:
+    def __getitem__(self, index: int) -> tuple[str, np.ndarray]:
         meta = self.study_table.iloc[index]
         study_id = meta["id"].split("_study")[0]
         assert len(study_id) == 12
