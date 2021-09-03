@@ -7,22 +7,23 @@ from typing import Optional
 from .raw_image_dataset import RawImageDataset
 from trafo import Trafo, Compose
 from trafo.type_mutating import DicomToNDArray, NDArrayTo3dTensor
-from trafo.color import Color0ToMax, To8BitColor, TruncateGrayValues
-from trafo.box_mutating import CropToLungs, CropPadding, Scale
+from trafo.color import Color0ToMax, TruncateGrayValues
+from trafo.box_mutating import CropToLungs, CropPadding, Scale, \
+    RoundBoundingBox
 from utils.bounding_boxes import bounding_boxes_array, BoundingBoxes
 
 assert pydicom.pixel_data_handlers.pylibjpeg_handler.is_available()
 
 
 @typechecked
-class PreprocessedImageDataset(Dataset):
+class Preprocessed(Dataset):
     """
     Dataset featuring n bounding boxes (n×4 NumPy array) versus transformed
     image Tensor for each image.
 
     Usage:
-        image_data = ImageDataset("data/train", "data/train_image_level.csv")
-        data = UniformImageDataset(image_data, img_size=(1024, 1024))
+        raw_data = RawImageDataset("data/train", "data/train_image_level.csv")
+        data = Preprocessed(raw_data, img_size=(256, 256))
     """
     image_dataset: RawImageDataset
     img_size: tuple[int, int]
@@ -42,7 +43,8 @@ class PreprocessedImageDataset(Dataset):
                # CropPadding(),
                NDArrayTo3dTensor(),
                Scale(img_size),
-               Color0ToMax(1)
+               Color0ToMax(1),
+               RoundBoundingBox()
             )
             self.image_dataset = image_dataset
             self.img_size = img_size
