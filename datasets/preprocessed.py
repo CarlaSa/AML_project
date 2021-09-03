@@ -9,7 +9,7 @@ from trafo import Trafo, Compose
 from trafo.type_mutating import DicomToNDArray, NDArrayTo3dTensor
 from trafo.color import Color0ToMax, TruncateGrayValues
 from trafo.box_mutating import CropToLungs, CropPadding, Scale, \
-    RoundBoundingBox
+    RoundBoundingBoxes
 from utils.bounding_boxes import bounding_boxes_array, BoundingBoxes
 
 assert pydicom.pixel_data_handlers.pylibjpeg_handler.is_available()
@@ -44,7 +44,7 @@ class Preprocessed(Dataset):
                NDArrayTo3dTensor(),
                Scale(img_size),
                Color0ToMax(1),
-               RoundBoundingBox()
+               RoundBoundingBoxes()
             )
             self.image_dataset = image_dataset
             self.img_size = img_size
