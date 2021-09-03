@@ -3,7 +3,6 @@ from .crop_common import crop_image, crop_boxes
 
 import math
 import numpy as np
-from typeguard import typechecked
 from typing import NamedTuple
 
 
@@ -12,10 +11,7 @@ class CropToLungs(Trafo):
     Crop to the relevant part of the image (lung)
     Mainly based on https://www.kaggle.com/davidbroberts/cropping-chest-x-rays
     """
-    def __init__():
-        pass
 
-    @typechecked
     def compute_parameters(self, img: np.ndarray,
                            *additional_transformands: Transformable) \
             -> dict[str, int]:
@@ -28,6 +24,7 @@ class CropToLungs(Trafo):
             img (np.ndarray): image
             additional_transformands (Transformable): additional transformands
         """
+        img = img.copy()
 
         class Thresholds:
             binary: float
