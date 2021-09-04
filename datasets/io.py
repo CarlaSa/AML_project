@@ -72,14 +72,23 @@ class LoadDataset(Dataset):
     input_dir: str
     image_dtype: torch.dtype
     label_dtype: np.dtype
+    image_ids: Optional[list[str]]
+    label_type: Optional[type]
 
     def __init__(self, input_dir: str, image_dtype: torch.dtype,
-                 label_dtype: Optional[np.dtype] = None):
+                 label_dtype: Optional[np.dtype] = None,
+                 filename_is_id: bool = True):
         self.input_dir = input_dir
         self.table = pd.read_csv(os.path.join(input_dir, "labels.csv"),
                                  header=None)
         self.image_dtype = image_dtype
         self.label_dtype = label_dtype
+        if filename_is_id:
+            self.image_ids = [fn.split(".")[0] for fn in self.table[0]]
+        else:
+            self.image_ids = None
+        self.label_type = type(self.parse_label(self.table.iloc[0][1:],
+                                                self.label_dtype))
 
     def __len__(self):
         return len(self.table)
@@ -88,6 +97,9 @@ class LoadDataset(Dataset):
         meta = self.table.iloc[index]
         filename = meta[0]
         label = self.parse_label(meta[1:], self.label_dtype)
+        if type(label) is not self.label_type:
+            raise TypeError(f"Varying label types: Found {type(label)}, "
+                            + f"expected {self.label_type()}.")
         image = self.load_image(os.path.join(self.input_dir, "images",
                                              filename))
         image = image.to(self.image_dtype)
