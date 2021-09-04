@@ -10,7 +10,7 @@ from trafo.type_mutating import DicomToNDArray, NDArrayTo3dTensor
 from trafo.color import Color0ToMax, TruncateGrayValues
 from trafo.box_mutating import CropToLungs, CropPadding, Scale, \
     RoundBoundingBoxes
-from utils.bounding_boxes import bounding_boxes_array, BoundingBoxes
+from utils.bounding_boxes import BoundingBoxes
 
 assert pydicom.pixel_data_handlers.pylibjpeg_handler.is_available()
 
@@ -29,6 +29,8 @@ class Preprocessed(Dataset):
     img_size: tuple[int, int]
     max_bounding_boxes: int
     trafo: Trafo
+
+    label_type: type = BoundingBoxes
 
     def __init__(self, image_dataset: RawImageDataset,
                  img_size: tuple[int, int] = (1024, 1024),
@@ -57,9 +59,7 @@ class Preprocessed(Dataset):
         dicom, meta = self.image_dataset[index]
 
         img = dicom
-        boxes = bounding_boxes_array(
-            meta["boxes"], self.max_bounding_boxes)
+        boxes = BoundingBoxes.from_json(meta["boxes"], self.max_bounding_boxes)
 
         img, boxes = self.trafo(img, boxes)
-
         return img, boxes
