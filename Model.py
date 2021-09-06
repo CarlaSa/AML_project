@@ -1,7 +1,7 @@
 
 """
-This file provides some basic structures to train any model we used, save and 
-load the weights and test the results with the validation dataset.
+This file provides some basic structures to train any model we used, 
+save and load the weights and test the results with the validation dataset.
 
 """
 
@@ -13,10 +13,11 @@ from sklearn.metrics import confusion_matrix
 
 def get_balanced_crossentropy_loss(dataset, verbose = False):
     """
-    returns a Crossentropy Loss with weights according to the balancing in the dataset
+    returns a Crossentropy Loss with weights according to the balancing 
+    in the dataset
     
-    A higher weight corresponds with a greater emphasis on this class. So smaller classes 
-    should get a higher weight.
+    A higher weight corresponds with a greater emphasis on this class. 
+    So smaller classes should get a higher weight.
     """
 
     if verbose:
@@ -76,6 +77,7 @@ class OurModel:
     def train_one_epoch(self, dataloader):
         sum_loss = 0
         for x,y in dataloader:
+            
             self.optimizer.zero_grad()
             y = torch.argmax(y.float(), dim = 1)
             x = x.float()
@@ -93,7 +95,8 @@ class OurModel:
         return sum_loss/len(dataloader)
             
     def train(self, num_epochs, dataloader, save_freq = 10):
-        for e in (tqdm(range(1, num_epochs+1)) if self.verbose else range(num_epochs)):
+        for e in (tqdm(range(1, num_epochs+1)) 
+                        if self.verbose else range(1, num_epochs+1)):
             loss = self.train_one_epoch(dataloader)
             if self.verbose:
                 print(f"epoch{e}: loss = {loss}")
