@@ -1,4 +1,3 @@
-import pydicom
 import torch
 from torch.utils.data import Dataset
 from typeguard import typechecked
@@ -11,8 +10,6 @@ from trafo.color import Color0ToMax, TruncateGrayValues
 from trafo.box_mutating import CropToLungs, CropPadding, Scale, \
     RoundBoundingBoxes
 from utils.bounding_boxes import BoundingBoxes
-
-assert pydicom.pixel_data_handlers.pylibjpeg_handler.is_available()
 
 
 @typechecked
