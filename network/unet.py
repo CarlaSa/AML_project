@@ -74,7 +74,7 @@ class Unet(nn.Module):
         self.up_block4 = ConvBlock(64+64, 64, 3, padding='same', batch_norm=batch_norm)
 
         # Final Layer
-        self.final = nn.Linear(64, 1)
+        self.final = nn.Conv2d(64, 1, 1, padding="same")
 
 
     def forward(self, x):
@@ -85,16 +85,16 @@ class Unet(nn.Module):
 
         x1 = self.down_block1(x)
         x = self.pool1(x1)
-
+        
         x2 = self.down_block2(x)
         x = self.pool2(x2)
 
         x3 = self.down_block3(x)
         x = self.pool3(x3)
-
+        
         x4 = self.down_block4(x)
         x = self.pool4(x4)
-
+        
         x = self.bottleneck(x)
 
         # -------#
@@ -108,15 +108,15 @@ class Unet(nn.Module):
         x = self.up2(x)
         x = torch.cat([x3, x], dim=1)  # Skip-connection
         x = self.up_block2(x)
-
+        
         x = self.up3(x)
         x = torch.cat([x2, x], dim=1)  # Skip-connection
         x = self.up_block3(x)
-
+        
         x = self.up4(x)
         x = torch.cat([x1, x], dim=1)  # Skip-connection
         x = self.up_block4(x)
-
+        
         x = self.final(x)
-
+        
         return x
