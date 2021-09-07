@@ -4,9 +4,10 @@ from torch.utils.data import Dataset
 from typing import Optional, Sequence, Any, Union, Final
 from warnings import warn
 import re
-from typing import Optional
 
-from . import LoadDataset, RawImageDataset, Preprocessed
+from .io import LoadDataset
+from .raw_image_dataset import RawImageDataset
+from .preprocessed import Preprocessed
 from utils.bounding_boxes import BoundingBoxes
 
 KnitableDataset = Union[LoadDataset, RawImageDataset, Preprocessed]

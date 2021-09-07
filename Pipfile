@@ -13,7 +13,6 @@ torchvision = "*"
 Pillow = "*"
 matplotlib = "*"
 tqdm = "*"
-tensorflow = "*"
 scikit-learn = "*"
 numpy = ">=1.20"
 typeguard = "*"
@@ -22,6 +21,7 @@ deprecation = "*"
 [dev-packages]
 ipykernel = "*"
 pyls-mypy = "*"
+jupyterlab = "*"
 
 [requires]
 python_version = "3.9"

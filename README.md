@@ -5,7 +5,7 @@ Our end of semester project for the lecture "Advanced Machine Learning".
 ## Prerequisites
 
 ```bash
-pipenv install --dev --skip-lock  # installs all the dependencies
+pipenv sync --dev  # installs all the dependencies from Pipfile.lock
 ```
 
 ## File structure
