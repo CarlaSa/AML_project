@@ -5,6 +5,7 @@ from torch.utils.data import Dataset
 from typeguard import typechecked
 from typing import Any, Callable
 from warnings import warn
+from functools import singledispatchmethod
 
 from utils.bounding_boxes import BoundingBoxes
 from .study_dataset import LABEL_KEYS
@@ -41,6 +42,16 @@ class CustomOutput(Dataset):
 
     def __getitem__(self, _index: int) -> tuple[torch.Tensor, np.array]:
         return tuple(part(self.dataset, _index) for part in self.output)
+
+    @singledispatchmethod
+    def get(self, key) -> tuple[torch.Tensor, np.array]:
+        raise NotImplementedError
+
+    get.register(__getitem__)
+
+    @get.register
+    def _(self, key: str) -> tuple[torch.Tensor, np.array]:
+        return self.get(self.ids.index(key))
 
 
 @typechecked
