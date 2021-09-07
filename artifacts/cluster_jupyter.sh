@@ -8,7 +8,7 @@ sbatch='/opt/slurm/bin/sbatch'
 squeue='/opt/slurm/bin/squeue'
 remote_home=$(ssh "$cluster" pwd)
 jupyter_script="$remote_home/lslurm/jupyter_notebook_gpu.sh"
-repo="$remote_home/AML_project"
+repo="${1:?'Please specify the repo as the first argument.'}"
 source='source lslurm/source.sh'
 user="$(ssh $cluster whoami)"
 
@@ -56,8 +56,10 @@ echo "Creating port forward."
 ssh -NL "$localport":localhost:"$port" "$node" &
 
 echo "Jupyter should be ready at the following URL:"
-echo "$url"
+echo "  $url"
 xdg-open "$url"
 
 echo "Please remember to shut it down when your task is finished, or kill it:"
 echo "  scancel $job_id"
+
+wait
