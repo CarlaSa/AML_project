@@ -74,9 +74,7 @@ class BoundingBoxes(np.ndarray):
         Returns:
             np.array: binary Box Mask, where True indicates a box and 0 not
         """
-        mask = self.get_mask(size)
-        mask.dtype = float
-        return mask
+        return self.get_mask(size).astype(float)
 
     @singledispatchmethod
     def mask_image(self, image) -> None:
