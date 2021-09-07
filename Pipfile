@@ -22,6 +22,7 @@ deprecation = "*"
 ipykernel = "*"
 pyls-mypy = "*"
 jupyterlab = "*"
+ipywidgets = "*"
 
 [requires]
 python_version = "3.9"
