@@ -51,14 +51,16 @@ class BoundingBoxes(np.ndarray):
         # TODO: check if .copy() is really necessary
         self[:, :] = sorted(self.copy(), key=tuple, reverse=True)
 
-    def get_mask(self, size: tuple[int, int]) -> np.ndarray:
+    def get_mask(self, size: tuple[int, int], dtype: np.dtype = bool) \
+            -> np.ndarray:
         """
         Args:
             size (tuple): size of the image
+            dtype (np.dtype): dtype of the mask
         Returns:
             np.array: binary Box Mask, where True indicates a box and 0 not
         """
-        mask = np.zeros(size, dtype=bool)
+        mask = np.zeros(size, dtype=dtype)
         for i in range(self.shape[0]):
             if sum(self[i]) == 0:
                 break
@@ -74,9 +76,7 @@ class BoundingBoxes(np.ndarray):
         Returns:
             np.array: binary Box Mask, where True indicates a box and 0 not
         """
-        mask = self.get_mask(size)
-        mask.dtype = float
-        return mask
+        return self.get_mask(size, float)
 
     @singledispatchmethod
     def mask_image(self, image) -> None:
