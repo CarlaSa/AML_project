@@ -13,7 +13,7 @@ from sklearn.metrics import confusion_matrix
 
 def get_balanced_crossentropy_loss(dataset, verbose = False):
     """
-    returns a Crossentropy Loss with weights according to the balancing 
+    Returns a Crossentropy Loss with weights according to the balancing 
     in the dataset
     
     A higher weight corresponds with a greater emphasis on this class. 
