@@ -117,6 +117,12 @@ def mask(self: Dataset, _index: int) -> np.ndarray:
 
 
 @typechecked
+def float_mask(self: Dataset, _index: int) -> np.ndarray:
+    shape = image_tensor(self, _index).shape[-2:]
+    return bounding_boxes(self, _index).get_float_mask(shape)
+
+
+@typechecked
 def masked_image_tensor(self: Dataset, _index: int) -> torch.Tensor:
     image = image_tensor(self, _index).clone().detach()
     bounding_boxes(self, _index).mask_image(image[0])

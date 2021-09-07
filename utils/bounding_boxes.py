@@ -67,6 +67,17 @@ class BoundingBoxes(np.ndarray):
                  math.floor(x):math.ceil(x + width)] = True
         return mask
 
+    def get_float_mask(self, size: tuple[int, int]) -> np.ndarray:
+        """
+        Args:
+            size (tuple): size of the image
+        Returns:
+            np.array: binary Box Mask, where True indicates a box and 0 not
+        """
+        mask = self.get_mask(size)
+        mask.dtype = float
+        return mask
+
     @singledispatchmethod
     def mask_image(self, image) -> None:
         """
