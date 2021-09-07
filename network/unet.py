@@ -118,5 +118,6 @@ class Unet(nn.Module):
         x = self.up_block4(x)
         
         x = self.final(x)
+        x = torch.sigmoid(x)
         
-        return x
+        return x.squeeze()

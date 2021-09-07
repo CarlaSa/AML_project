@@ -32,6 +32,12 @@ def get_balanced_crossentropy_loss(dataset, verbose = False):
     return loss
 
 
+def dice_score():
+    """
+    TODO for segmeantation loss
+    """
+    return None
+
 
 class OurModel:
     def __init__(self,
@@ -42,7 +48,8 @@ class OurModel:
             path_dir = None,
             path_weights = None,
             use_cuda = torch.cuda.is_available(),
-            verbose = False
+            verbose = False,
+            segmentation = False
             ):
         
         self.name = name
@@ -52,6 +59,7 @@ class OurModel:
         self.verbose = verbose
         self.use_cuda = use_cuda
         self.path = path_dir
+        self.segmentation = segmentation
 
         if self.use_cuda:
             self.network = self.network.cuda()
@@ -76,10 +84,14 @@ class OurModel:
         
     def train_one_epoch(self, dataloader):
         sum_loss = 0
-        for x,y in dataloader:
+        for x,y in (tqdm(dataloader)
+                    if self.verbose and self.segmentation else dataloader):
             
             self.optimizer.zero_grad()
-            y = torch.argmax(y.float(), dim = 1)
+            if not self.segmentation:
+                y = torch.argmax(y.float(), dim = 1)
+            else:
+                y = y.float()
             x = x.float()
 
             if self.use_cuda:
@@ -87,11 +99,13 @@ class OurModel:
                 x = x.cuda()
         
             output = self.network(x)
-        
             loss = self.criterion(output, y)
             loss.backward()
             sum_loss += torch.mean(loss)
             self.optimizer.step()
+            if self.segmentation:
+                # TODO calculate average Dice Score
+                pass
         return sum_loss/len(dataloader)
             
     def train(self, num_epochs, dataloader, save_freq = 10):
