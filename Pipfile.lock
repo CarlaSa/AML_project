@@ -756,7 +756,6 @@
                 "sha256:14475042e284991034cb48e06f6851428fb14c4dc953acd9be9a5e95c7b6dd7a",
                 "sha256:467fbad99067910785144ce333826c71fb0e63a425657295239737f7ecd125f3"
             ],
-            "markers": "python_version >= '3'",
             "version": "==3.2"
         },
         "ipykernel": {
@@ -1104,6 +1103,7 @@
                 "sha256:4b41f3967fce3af57cc7e94b888626c18bf37a083e3651ca8feeb66d492fef35",
                 "sha256:5c5d0a3b48ceee0b48485e0c26037c0acd7d29765ca3fbb5cb3831d347423220"
             ],
+            "markers": "os_name != 'nt'",
             "version": "==0.7.0"
         },
         "pycodestyle": {
@@ -1427,7 +1427,6 @@
                 "sha256:f135db442e5470d9065536745968efc42a60233311c8509b9327bcd59a8821c7",
                 "sha256:f453480b275192ae40ef350a4e8288977f00b02e504ed34245ebd12d633620cb"
             ],
-            "markers": "python_version > '3'",
             "version": "==4.1.0"
         },
         "urllib3": {
