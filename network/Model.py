@@ -185,7 +185,7 @@ class OurModel:
             sum_loss = 0
             sum_dce = 0
 
-            with torch.no_grad()
+            with torch.no_grad():
                 for x,y in tqdm(dataloader_val):
                     y = y.float()
                     x = x.float()
