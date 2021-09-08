@@ -10,7 +10,7 @@ import torch.nn as nn
 import numpy as np
 from tqdm.notebook import tqdm
 from sklearn.metrics import confusion_matrix
-from losses import dice_score
+from .losses import dice_score
 
 
 def get_balanced_crossentropy_loss(dataset, verbose = False):
