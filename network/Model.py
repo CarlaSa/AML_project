@@ -210,4 +210,4 @@ class OurModel:
                     sum_loss += loss
                     dce = dice_score(torch.round(output), y, reduction='none')
                     sum_dce += torch.mean(dce)
-                    return sum_loss/len(dataloader_val), sum_dce/len(dataloader_val)
+            return sum_loss/len(dataloader_val), sum_dce/len(dataloader_val)
