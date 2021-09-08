@@ -1,6 +1,6 @@
 
 """
-This file provides some basic structures to train any model we used, 
+This file provides some basic structures to train any model we used,
 save and load the weights and test the results with the validation dataset.
 
 """
@@ -13,10 +13,10 @@ from sklearn.metrics import confusion_matrix
 
 def get_balanced_crossentropy_loss(dataset, verbose = False):
     """
-    Returns a Crossentropy Loss with weights according to the balancing 
+    Returns a Crossentropy Loss with weights according to the balancing
     in the dataset
-    
-    A higher weight corresponds with a greater emphasis on this class. 
+
+    A higher weight corresponds with a greater emphasis on this class.
     So smaller classes should get a higher weight.
     """
 
@@ -32,17 +32,10 @@ def get_balanced_crossentropy_loss(dataset, verbose = False):
     return loss
 
 
-def dice_score():
-    """
-    TODO for segmeantation loss
-    """
-    return None
-
-
 class OurModel:
     def __init__(self,
-            name, 
-            network, 
+            name,
+            network,
             criterion,
             lr = 0.01,
             path_dir = None,
@@ -51,7 +44,7 @@ class OurModel:
             verbose = False,
             segmentation = False
             ):
-        
+
         self.name = name
         self.network = network
         self.optimizer = torch.optim.Adam(self.network.parameters(), lr)
@@ -64,29 +57,29 @@ class OurModel:
         if self.use_cuda:
             self.network = self.network.cuda()
             self.criterion = self.criterion.cuda()
-        
+
         if path_weights is not None:
             load_weights(path_weights)
-        
+
     def load_weights(self, path_end):
         if self.path is not None:
             path = self.path + path_end
         else:
             path = path_end
         self.network.load_state_dict(torch.load(path))
-        
+
     def save_weights(self, epoch):
         if self.path is not None:
             path = f'{self.path}/{self.name}_e{epoch}.ckpt'
         else:
             path = f'./{self.name}_e{epoch}.ckpt'
         torch.save(self.network.state_dict(), path)
-        
+
     def train_one_epoch(self, dataloader):
         sum_loss = 0
         for x,y in (tqdm(dataloader)
                     if self.verbose and self.segmentation else dataloader):
-            
+
             self.optimizer.zero_grad()
             if not self.segmentation:
                 y = torch.argmax(y.float(), dim = 1)
@@ -97,7 +90,7 @@ class OurModel:
             if self.use_cuda:
                 y = y.cuda()
                 x = x.cuda()
-        
+
             output = self.network(x)
             loss = self.criterion(output, y)
             loss.backward()
@@ -107,16 +100,16 @@ class OurModel:
                 # TODO calculate average Dice Score
                 pass
         return sum_loss/len(dataloader)
-            
+
     def train(self, num_epochs, dataloader, save_freq = 10):
-        for e in (tqdm(range(1, num_epochs+1)) 
+        for e in (tqdm(range(1, num_epochs+1))
                         if self.verbose else range(1, num_epochs+1)):
             loss = self.train_one_epoch(dataloader)
             if self.verbose:
                 print(f"epoch{e}: loss = {loss}")
             if e % save_freq == 0:
                 self.save_weights(e)
-        
+
     def val(self, dataloader_val):
         self.network.eval()
         acc = 0
