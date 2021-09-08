@@ -3,7 +3,8 @@ from __future__ import annotations
 import torch
 import numpy as np
 from typing import Union, Any
-from functools import singledispatchmethod
+
+from utils import singledispatchmethod
 
 Transformable = Union[np.ndarray, torch.Tensor]
 

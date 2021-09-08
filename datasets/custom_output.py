@@ -5,8 +5,8 @@ from torch.utils.data import Dataset
 from typeguard import typechecked
 from typing import Any, Callable
 from warnings import warn
-from functools import singledispatchmethod
 
+from utils import singledispatchmethod
 from utils.bounding_boxes import BoundingBoxes
 from .study_dataset import LABEL_KEYS
 from .knit import Knit

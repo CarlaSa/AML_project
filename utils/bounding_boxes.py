@@ -4,7 +4,8 @@ import math
 import json
 import torch
 import numpy as np
-from functools import singledispatchmethod
+
+from utils import singledispatchmethod
 
 BOX_ATTRIBUTES = ["x", "y", "width", "height"]
 
