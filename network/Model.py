@@ -55,6 +55,7 @@ class OurModel:
         self.use_cuda = use_cuda
         self.path = path_dir
         self.segmentation = segmentation
+        self.lr = lr
 
         if self.use_cuda:
             self.network = self.network.cuda()
@@ -62,6 +63,15 @@ class OurModel:
 
         if path_weights is not None:
             load_weights(path_weights)
+
+    def save_configuration(self):
+        config = {"network": self.network.__name__,
+                      "optimizer": self.optimizer.__name__,
+                      "learning_rate": self.lr,
+                      "loss": self.criterion.__name__
+                      }
+        with open(f'./{self.path}/net_config.json', 'w') as file:
+            json.dump(config, file)
 
     def load_weights(self, path_end):
         if self.path is not None:
