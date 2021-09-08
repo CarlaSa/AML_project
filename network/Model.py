@@ -148,13 +148,13 @@ class OurModel:
                 if save_observables:
                     losses.append(loss)
                     dce_scores.append(dce)
-                    if e % save_frew == 0 or e == num_epochs:
+                    if e % save_freq == 0 or e == num_epochs:
                         np.save(f'{self.path}/loss.npy', np.array(losses))
                         np.save(f'{self.path}/dce.npy', np.array(dce_scores))
                     if validate:
                         losses_val.append(loss_val)
                         dce_scores_val.append(dce_val)
-                        if e % save_frew == 0 or e == num_epochs:
+                        if e % save_freq == 0 or e == num_epochs:
                             np.save(f'{self.path}/loss_val.npy', np.array(losses_val))
                             np.save(f'{self.path}/dce_val.npy', np.array(dce_scores_val))
 
