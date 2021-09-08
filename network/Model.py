@@ -7,8 +7,10 @@ save and load the weights and test the results with the validation dataset.
 
 import torch
 import torch.nn as nn
+import numpy as np
 from tqdm.notebook import tqdm
 from sklearn.metrics import confusion_matrix
+from losses import dice_score
 
 
 def get_balanced_crossentropy_loss(dataset, verbose = False):
@@ -77,6 +79,7 @@ class OurModel:
 
     def train_one_epoch(self, dataloader):
         sum_loss = 0
+        sum_dce = 0
         for x,y in (tqdm(dataloader)
                     if self.verbose and self.segmentation else dataloader):
 
@@ -97,38 +100,103 @@ class OurModel:
             sum_loss += torch.mean(loss)
             self.optimizer.step()
             if self.segmentation:
-                # TODO calculate average Dice Score
-                pass
-        return sum_loss/len(dataloader)
+                dce = dice_score(torch.round(output), y, reduction='none')
+                sum_dce += torch.mean(dce)
 
-    def train(self, num_epochs, dataloader, save_freq = 10):
+        if self.segmentation:
+            return sum_loss/len(dataloader), sum_dce/len(dataloader)
+        else:
+            return sum_loss/len(dataloader)
+
+    def train(self, num_epochs, dataloader, validate = False,
+              dataloader_val=None, save_freq = 10, save_observables = False):
+        if save_observables and self.segmentation:
+            losses = []
+            dce_scores = []
+            if validate:
+                losses_val = []
+                dce_scores_val =[]
+
         for e in (tqdm(range(1, num_epochs+1))
                         if self.verbose else range(1, num_epochs+1)):
-            loss = self.train_one_epoch(dataloader)
-            if self.verbose:
-                print(f"epoch{e}: loss = {loss}")
+
+            if self.segmentation:
+                loss, dce = self.train_one_epoch(dataloader)
+                if self.verbose:
+                    print(f"epoch{e}: training_loss = {loss}")
+                    print(f"epoch{e}: training_dice = {dce}")
+
+                if validate:
+                    loss_val, dce_val = self.val(dataloader_val)
+                    if self.verbose:
+                        print(f"epoch{e}: validation_loss = {loss_val}")
+                        print(f"epoch{e}: validation_dice = {dce_val}")
+
+                    # Make network trainable again
+                    self.network.train()
+                if save_observables:
+                    losses.append(loss)
+                    dce_scores.append(dce)
+                    if e % save_frew == 0 or e == num_epochs:
+                        np.save(f'{self.path}/loss.npy', np.array(losses))
+                        np.save(f'{self.path}/dce.npy', np.array(dce_scores))
+                    if validate:
+                        losses_val.append(loss_val)
+                        dce_scores_val.append(dce_val)
+                        if e % save_frew == 0 or e == num_epochs:
+                            np.save(f'{self.path}/loss_val.npy', np.array(losses_val))
+                            np.save(f'{self.path}/dce_val.npy', np.array(dce_scores_val))
+
+            else:
+                loss = self.train_one_epoch(dataloader)
+                if self.verbose:
+                    print(f"epoch{e}: loss = {loss}")
+
+
             if e % save_freq == 0:
                 self.save_weights(e)
 
+
     def val(self, dataloader_val):
-        self.network.eval()
-        acc = 0
-        y_true = []
-        y_pred = []
+        if not self.segmentation:
+            self.network.eval()
+            acc = 0
+            y_true = []
+            y_pred = []
 
-        with torch.no_grad():
-            for x,y in tqdm(dataloader_val):
-                y = torch.argmax(y.float(), dim = 1)
-                x = x.float()
+            with torch.no_grad():
+                for x,y in tqdm(dataloader_val):
+                    y = torch.argmax(y.float(), dim = 1)
+                    x = x.float()
 
-                if self.use_cuda:
-                    y = y.cuda()
-                    x = x.cuda()
+                    if self.use_cuda:
+                        y = y.cuda()
+                        x = x.cuda()
 
-                output = self.network(x)
-                output = torch.argmax(output, dim = 1)
-                y_true.extend(y.tolist())
-                y_pred.extend(output.tolist())
-                acc += sum(output == y)
-            #print("overall correctly classified: " + str(acc / len(val_set)))
-            print(confusion_matrix(y_true, y_pred))
+                    output = self.network(x)
+                    output = torch.argmax(output, dim = 1)
+                    y_true.extend(y.tolist())
+                    y_pred.extend(output.tolist())
+                    acc += sum(output == y)
+                #print("overall correctly classified: " + str(acc / len(val_set)))
+                print(confusion_matrix(y_true, y_pred))
+        else:
+            self.network.eval()
+            sum_loss = 0
+            sum_dce = 0
+
+            with torch.no_grad()
+                for x,y in tqdm(dataloader_val):
+                    y = y.float()
+                    x = x.float()
+
+                    if self.use_cuda:
+                        y = y.cuda()
+                        x = x.cuda()
+
+                    output = self.network(x)
+                    loss = self.criterion(output, y)
+                    sum_loss += loss
+                    dce = dice_score(torch.round(output), y, reduction='none')
+                    sum_dce += torch.mean(dce)
+                    return sum_loss/len(dataloader_val), sum_dce/len(dataloader_val)
