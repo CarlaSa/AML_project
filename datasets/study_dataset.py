@@ -2,6 +2,8 @@ import pandas as pd
 from torch.utils.data import Dataset
 import numpy as np
 
+from typing import Tuple
+
 LABEL_KEYS = ["Negative for Pneumonia", "Typical Appearance",
               "Indeterminate Appearance", "Atypical Appearance"]
 
@@ -22,7 +24,7 @@ class StudyDataset(Dataset):
     def __len__(self) -> int:
         return len(self.study_table)
 
-    def __getitem__(self, index: int) -> tuple[str, np.ndarray]:
+    def __getitem__(self, index: int) -> Tuple[str, np.ndarray]:
         meta = self.study_table.iloc[index]
         study_id = meta["id"].split("_study")[0]
         assert len(study_id) == 12

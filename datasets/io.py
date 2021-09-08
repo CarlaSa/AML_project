@@ -7,7 +7,7 @@ import torchvision
 from tqdm import tqdm
 import csv
 from warnings import warn
-from typing import Iterable, Sequence, Optional
+from typing import Iterable, Sequence, Optional, List, Tuple
 from itertools import count
 
 from utils.bounding_boxes import BoundingBoxes
@@ -72,7 +72,7 @@ class LoadDataset(Dataset):
     input_dir: str
     image_dtype: torch.dtype
     label_dtype: np.dtype
-    image_ids: Optional[list[str]]
+    image_ids: Optional[List[str]]
     label_type: Optional[type]
 
     def __init__(self, input_dir: str, image_dtype: torch.dtype,
@@ -93,7 +93,7 @@ class LoadDataset(Dataset):
     def __len__(self):
         return len(self.table)
 
-    def __getitem__(self, index: int) -> tuple[torch.Tensor, np.ndarray]:
+    def __getitem__(self, index: int) -> Tuple[torch.Tensor, np.ndarray]:
         meta = self.table.iloc[index]
         filename = meta[0]
         label = self.parse_label(meta[1:], self.label_dtype)

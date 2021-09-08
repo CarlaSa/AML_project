@@ -3,7 +3,7 @@ from .crop_common import crop_image, crop_boxes
 
 import math
 import numpy as np
-from typing import NamedTuple
+from typing import NamedTuple, Dict
 
 
 class CropToLungs(Trafo):
@@ -14,7 +14,7 @@ class CropToLungs(Trafo):
 
     def compute_parameters(self, img: np.ndarray,
                            *additional_transformands: Transformable) \
-            -> dict[str, int]:
+            -> Dict[str, int]:
         """
         Compute the crop indices top_crop, bottom_crop, left_crop and right_crop,
         e.g. in order to crop an image img to

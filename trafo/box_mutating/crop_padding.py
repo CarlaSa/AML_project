@@ -2,8 +2,10 @@ from ..trafo import Trafo, Transformable
 from .crop_common import crop_image, crop_boxes
 
 import numpy as np
+from typing import Dict
 
 # DEBUG: argument after ** must be a mapping, not a tuple
+
 
 class CropPadding(Trafo):
     """
@@ -14,7 +16,7 @@ class CropPadding(Trafo):
 
     def compute_parameters(self, img: np.ndarray,
                            *additional_transformands: Transformable) \
-            -> dict[str, int]:
+            -> Dict[str, int]:
         height, width = img.shape
         row_stds = np.std(img, axis=1)
         col_stds = np.std(img, axis=0)

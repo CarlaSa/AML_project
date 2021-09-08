@@ -3,6 +3,8 @@ import pydicom
 import pandas as pd
 from torch.utils.data import Dataset
 
+from typing import Tuple
+
 assert pydicom.pixel_data_handlers.pylibjpeg_handler.is_available()
 
 
@@ -24,7 +26,7 @@ class RawImageDataset(Dataset):
     def __len__(self) -> int:
         return len(self.image_table)
 
-    def __getitem__(self, index: int) -> tuple[pydicom.dataset.FileDataset,
+    def __getitem__(self, index: int) -> Tuple[pydicom.dataset.FileDataset,
                                                pd.core.series.Series]:
         dicom: pydicom.dataset.FileDataset
         meta: pd.core.series.Series

@@ -1,7 +1,7 @@
 import torch
 from torch.utils.data import Dataset
 from typeguard import typechecked
-from typing import Optional
+from typing import Optional, Tuple
 
 from .raw_image_dataset import RawImageDataset
 from trafo import Trafo, Compose
@@ -23,14 +23,14 @@ class Preprocessed(Dataset):
         data = Preprocessed(raw_data, img_size=(256, 256))
     """
     image_dataset: RawImageDataset
-    img_size: tuple[int, int]
+    img_size: Tuple[int, int]
     max_bounding_boxes: int
     trafo: Trafo
 
     label_type: type = BoundingBoxes
 
     def __init__(self, image_dataset: RawImageDataset,
-                 img_size: tuple[int, int] = (1024, 1024),
+                 img_size: Tuple[int, int] = (1024, 1024),
                  max_bounding_boxes: int = 8,
                  trafo: Optional[Trafo] = None):
         if trafo is None:
@@ -52,7 +52,7 @@ class Preprocessed(Dataset):
     def __len__(self) -> int:
         return len(self.image_dataset)
 
-    def __getitem__(self, index) -> tuple[torch.Tensor, BoundingBoxes]:
+    def __getitem__(self, index) -> Tuple[torch.Tensor, BoundingBoxes]:
         dicom, meta = self.image_dataset[index]
 
         img = dicom

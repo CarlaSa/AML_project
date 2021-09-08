@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 from torch.utils.data import Dataset
-from typing import Optional, Sequence, Any, Union, Final
+from typing import Optional, Sequence, Any, Union, List
 from warnings import warn
 import re
 
@@ -24,20 +24,20 @@ class Knit(Dataset):
         study_csv (str): Path to the study CSV file.
     """
     dataset: KnitableDataset
-    image_ids: list[str]
+    image_ids: List[str]
     image_table: pd.DataFrame
     study_table: pd.DataFrame
-    bounding_boxes: list[BoundingBoxes]
+    bounding_boxes: List[BoundingBoxes]
     label_type: Optional[type]
 
-    guessable: Final[list[str]] = ["image_ids", "image_table", "study_table",
-                                   "bounding_boxes", "label_type"]
-    id_pattern: Final[re.Pattern] = re.compile("^[a-z0-9]{12}$")
+    guessable: List[str] = ["image_ids", "image_table", "study_table",
+                            "bounding_boxes", "label_type"]
+    id_pattern: re.Pattern = re.compile("^[a-z0-9]{12}$")
 
     def __init__(self, dataset: KnitableDataset,
                  image_csv: Optional[str] = None,
                  study_csv: Optional[str] = None,
-                 image_ids: Optional[list[str]] = None,
+                 image_ids: Optional[List[str]] = None,
                  bounding_boxes: Optional[Sequence[BoundingBoxes]] = None):
         self.dataset = dataset
 
