@@ -108,12 +108,13 @@ class OurModel:
             output = self.network(x)
             loss = self.criterion(output, y)
             loss.backward()
-            sum_loss += torch.mean(loss)
+            sum_loss += float(torch.mean(loss)) # float() important to reduce memory!
             self.optimizer.step()
             if self.segmentation:
                 dce = dice_score(torch.round(output), y, reduction='none')
-                sum_dce += torch.mean(dce)
-
+                sum_dce += float(torch.mean(dce))
+                #del dce
+            #del output, x, y # maybe to much
         if self.segmentation:
             return sum_loss/len(dataloader), sum_dce/len(dataloader)
         else:
@@ -145,6 +146,7 @@ class OurModel:
 
                     # Make network trainable again
                     self.network.train()
+
                 if save_observables:
                     losses.append(loss)
                     dce_scores.append(dce)
@@ -191,6 +193,7 @@ class OurModel:
                     acc += sum(output == y)
                 #print("overall correctly classified: " + str(acc / len(val_set)))
                 print(confusion_matrix(y_true, y_pred))
+
         else:
             self.network.eval()
             sum_loss = 0
@@ -207,7 +210,8 @@ class OurModel:
 
                     output = self.network(x)
                     loss = self.criterion(output, y)
-                    sum_loss += loss
+                    sum_loss += float(loss)
                     dce = dice_score(torch.round(output), y, reduction='none')
-                    sum_dce += torch.mean(dce)
+                    sum_dce += float(torch.mean(dce))
+                    del x,y, loss, dce, output # maybe too much
             return sum_loss/len(dataloader_val), sum_dce/len(dataloader_val)
