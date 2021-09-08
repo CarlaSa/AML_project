@@ -65,10 +65,10 @@ class OurModel:
             load_weights(path_weights)
 
     def save_configuration(self):
-        config = {"network": self.network.__name__,
-                      "optimizer": self.optimizer.__name__,
+        config = {"network": self.network.__class__.__name__,
+                      "optimizer": self.optimizer.__class__.__name__,
                       "learning_rate": self.lr,
-                      "loss": self.criterion.__name__
+                      "loss": self.criterion.__class__.__name__
                       }
         with open(f'./{self.path}/net_config.json', 'w') as file:
             json.dump(config, file)
