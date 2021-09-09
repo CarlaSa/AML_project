@@ -41,6 +41,7 @@ class OurModel:
             network,
             criterion,
             lr = 0.01,
+            batch_size = None,
             path_dir = None,
             path_weights = None,
             use_cuda = torch.cuda.is_available(),
@@ -57,6 +58,10 @@ class OurModel:
         self.path = path_dir
         self.segmentation = segmentation
         self.lr = lr
+        self.batch_size = batch_size
+        if batch_size is None:
+            print("Warning: Batch size is not specified."
+                  + " It can't be stored in net_config.json")
 
         if self.use_cuda:
             self.network = self.network.cuda()
@@ -67,10 +72,11 @@ class OurModel:
 
     def save_configuration(self):
         config = {"network": self.network.__class__.__name__,
-                      "optimizer": self.optimizer.__class__.__name__,
-                      "learning_rate": self.lr,
-                      "loss": self.criterion.__class__.__name__
-                      }
+                  "optimizer": self.optimizer.__class__.__name__,
+                  "batch_size": self.batch_size,
+                  "learning_rate": self.lr,
+                  "loss": self.criterion.__class__.__name__
+                  }
         with open(f'./{self.path}/net_config.json', 'w') as file:
             json.dump(config, file)
 
