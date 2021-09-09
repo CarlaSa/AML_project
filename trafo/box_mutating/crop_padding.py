@@ -22,7 +22,11 @@ class CropPadding(Trafo):
         col_stds = np.std(img, axis=0)
         thresh = 0.012 * np.max(img)  # TODO
         if np.min([row_stds.min(), col_stds.min()]) > thresh:
-            return (0, width, 0, height)
+            return {"left_crop": 0,
+                    "right_crop": width,
+                    "top_crop": 0,
+                    "bottom_crop": height
+                    }
         else:
             print("Removed Padding")
             left_crop = np.max([np.argmax(col_stds > thresh)-1, 0])
