@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import torch
 import numpy as np
-from typing import Union, Any
+from typing import Union, Any, Dict, Tuple
 
 from utils import singledispatchmethod
 
@@ -27,7 +27,7 @@ class Trafo(metaclass=TrafoMeta):
     """
 
     def __call__(self, *transformands: Transformable) \
-            -> Union[Transformable, tuple[Transformable, ...]]:
+            -> Union[Transformable, Tuple[Transformable, ...]]:
         """
         Args:
             *transformands (Transformable): Every transformand can be of
@@ -46,7 +46,7 @@ class Trafo(metaclass=TrafoMeta):
             return transformed[0]
         return transformed
 
-    def compute_parameters(self, *transformands: Transformable) -> dict[str,
+    def compute_parameters(self, *transformands: Transformable) -> Dict[str,
                                                                         Any]:
         """
         This computes all the parameters which differ for each transformation.
