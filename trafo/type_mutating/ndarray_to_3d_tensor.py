@@ -8,7 +8,9 @@ from ..rules import preserve_bounding_boxes
 @preserve_bounding_boxes
 class NDArrayTo3dTensor(Trafo):
     """
-    Convert a numpy.ndarray to a 3d torch.Tensor
+    Convert a numpy.ndarray to a 3d torch.Tensor.
+    
+    Return torch.Tensor objects unchanged.
     """
 
     pass
@@ -17,3 +19,8 @@ class NDArrayTo3dTensor(Trafo):
 @NDArrayTo3dTensor.transform.register
 def _(self, array: np.ndarray) -> torch.Tensor:
     return torch.from_numpy(array).reshape((1, *array.shape))
+
+
+@NDArrayTo3dTensor.transform.register
+def _(self, tensor: torch.Tensor) -> torch.Tensor:
+    return tensor
