@@ -18,6 +18,7 @@ numpy = ">=1.20"
 typeguard = "*"
 deprecation = "*"
 singledispatchmethod = "*"
+scikit-image = "*"
 
 [dev-packages]
 ipykernel = "*"
