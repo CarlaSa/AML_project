@@ -10,6 +10,7 @@ from utils import singledispatchmethod
 from utils.bounding_boxes import BoundingBoxes
 from .study_dataset import LABEL_KEYS
 from .knit import Knit
+from trafo import Trafo, Compose
 
 
 class CustomOutput(Dataset):
@@ -24,11 +25,14 @@ class CustomOutput(Dataset):
     dataset: Knit
     output: Tuple[Callable[[Dataset, int, str], Any], ...]
     ids: List[str]
+    trafo: Trafo
 
     def __init__(self, dataset: Knit,
-                 *output: Callable[[Dataset, int], Any]) -> None:
+                 *output: Callable[[Dataset, int], Any],
+                 trafo: Trafo = Compose(accept_empty=True)) -> None:
         self.dataset = dataset
         self.output = output
+        self.trafo = trafo
         if hasattr(self.dataset, "image_ids"):
             self.ids = list(self.dataset.image_ids)
         else:
@@ -41,7 +45,8 @@ class CustomOutput(Dataset):
         return len(self.dataset)
 
     def __getitem__(self, _index: int) -> tuple:
-        return tuple(part(self.dataset, _index) for part in self.output)
+        data = tuple(part(self.dataset, _index) for part in self.output)
+        return self.trafo(*data)
 
     @singledispatchmethod
     def get(self, key) -> tuple:
