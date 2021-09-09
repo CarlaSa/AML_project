@@ -21,12 +21,10 @@ singledispatchmethod = "*"
 
 [dev-packages]
 ipykernel = "*"
-pyls-mypy = "*"
 jupyterlab = "*"
 ipywidgets = "*"
+python-lsp-server = {extras = ["all"], version = "*"}
+pyls-mypy = "*"
 
 [requires]
 python_version = "3.7"
-
-[dev-packages.python-lsp-server]
-extras = [ "all",]
