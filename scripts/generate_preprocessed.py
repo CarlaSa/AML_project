@@ -1,4 +1,6 @@
-from datasets import RawImageDataset, Preprocessed, save_dataset, LoadDataset
+from datasets import save_dataset, LoadDataset
+from datasets.raw_image_dataset import RawImageDataset
+from datasets.preprocessed import Preprocessed
 # from matplotlib import pyplot as plt
 
 
@@ -8,7 +10,7 @@ def main() -> None:
                        for id in raw_data.image_table["id"]]
     preprocessed_data = Preprocessed(raw_data, (256, 256))
 
-    directory = "_data/preprocessed256"
+    directory = "_data/preprocessed256pc"
     # plt.imshow(preprocessed_data[0][0][0])
     save_dataset(preprocessed_data, directory, image_filenames)
 
