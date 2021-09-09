@@ -36,6 +36,7 @@ while [ "$job_status" != "RUNNING" ]; do
   echo -ne "$job_id: $job_status for $job_time \033[0K\r"
   sleep 1
 done
+sleep 2
 echo
 
 echo "Reading remote Jupyter port and token."
