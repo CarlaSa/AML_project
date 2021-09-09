@@ -8,7 +8,7 @@ def main() -> None:
                        for id in raw_data.image_table["id"]]
     preprocessed_data = Preprocessed(raw_data, (256, 256))
 
-    directory = "_data/preprocessed256"
+    directory = "_data/preprocessed256pc"
     # plt.imshow(preprocessed_data[0][0][0])
     save_dataset(preprocessed_data, directory, image_filenames)
 
