@@ -5,7 +5,8 @@ from typing import Optional, Tuple
 
 from .raw_image_dataset import RawImageDataset
 from trafo import Trafo, Compose
-from trafo.type_mutating import DicomToNDArray, NDArrayTo3dTensor
+from trafo.type_mutating import NDArrayTo3dTensor
+from trafo.type_mutating.dicom_to_ndarray import DicomToNDArray
 from trafo.color import Color0ToMax, TruncateGrayValues
 from trafo.box_mutating import CropToLungs, CropPadding, Scale, \
     RoundBoundingBoxes
@@ -39,7 +40,7 @@ class Preprocessed(Dataset):
                TruncateGrayValues(),
                Color0ToMax(255),
                CropToLungs(),
-               # CropPadding(),
+               # CropPadding(), TODO
                NDArrayTo3dTensor(),
                Scale(img_size),
                Color0ToMax(1),
