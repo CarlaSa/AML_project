@@ -1,4 +1,6 @@
-from datasets import RawImageDataset, Preprocessed, save_dataset, LoadDataset
+from datasets import save_dataset, LoadDataset
+from datasets.raw_image_dataset import RawImageDataset
+from datasets.preprocessed import Preprocessed
 # from matplotlib import pyplot as plt
 
 
