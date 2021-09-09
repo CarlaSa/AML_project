@@ -1,16 +1,11 @@
 import os
 import pandas as pd
 from torch.utils.data import Dataset
-from typing import Optional, Sequence, Any, Union, List
+from typing import Optional, Sequence, Any, List
 from warnings import warn
 import re
 
-from .io import LoadDataset
-from .raw_image_dataset import RawImageDataset
-from .preprocessed import Preprocessed
 from utils.bounding_boxes import BoundingBoxes
-
-KnitableDataset = Union[LoadDataset, RawImageDataset, Preprocessed]
 
 
 class Knit(Dataset):
@@ -23,7 +18,7 @@ class Knit(Dataset):
         image_csv (str): Path to the image CSV file.
         study_csv (str): Path to the study CSV file.
     """
-    dataset: KnitableDataset
+    dataset: Dataset
     image_ids: List[str]
     image_table: pd.DataFrame
     study_table: pd.DataFrame
@@ -34,7 +29,7 @@ class Knit(Dataset):
                             "bounding_boxes", "label_type"]
     id_pattern: re.Pattern = re.compile("^[a-z0-9]{12}$")
 
-    def __init__(self, dataset: KnitableDataset,
+    def __init__(self, dataset: Dataset,
                  image_csv: Optional[str] = None,
                  study_csv: Optional[str] = None,
                  image_ids: Optional[List[str]] = None,
@@ -66,7 +61,7 @@ class Knit(Dataset):
         return self.dataset[index]
 
     @classmethod
-    def _try_to_guess(cls, dataset: KnitableDataset, name: str) -> Any:
+    def _try_to_guess(cls, dataset: Dataset, name: str) -> Any:
         if name in cls.guessable and hasattr(dataset, name):
             return getattr(dataset, name)
         if name == "image_ids":

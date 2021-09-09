@@ -1,11 +1,13 @@
 import torch
+import pandas as pd
 from torch.utils.data import Dataset
 from typeguard import typechecked
 from typing import Optional, Tuple
 
 from .raw_image_dataset import RawImageDataset
 from trafo import Trafo, Compose
-from trafo.type_mutating import DicomToNDArray, NDArrayTo3dTensor
+from trafo.type_mutating import NDArrayTo3dTensor
+from trafo.type_mutating.dicom_to_ndarray import DicomToNDArray
 from trafo.color import Color0ToMax, TruncateGrayValues
 from trafo.box_mutating import CropToLungs, CropPadding, Scale, \
     RoundBoundingBoxes
@@ -23,6 +25,7 @@ class Preprocessed(Dataset):
         data = Preprocessed(raw_data, img_size=(256, 256))
     """
     image_dataset: RawImageDataset
+    image_table: pd.DataFrame
     img_size: Tuple[int, int]
     max_bounding_boxes: int
     trafo: Trafo
@@ -39,13 +42,14 @@ class Preprocessed(Dataset):
                TruncateGrayValues(),
                Color0ToMax(255),
                CropToLungs(),
-               # CropPadding(),
+               CropPadding(),
                NDArrayTo3dTensor(),
                Scale(img_size),
                Color0ToMax(1),
                RoundBoundingBoxes()
             )
             self.image_dataset = image_dataset
+            self.image_table = image_dataset.image_table
             self.img_size = img_size
             self.max_bounding_boxes = max_bounding_boxes
 
