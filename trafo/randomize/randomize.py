@@ -3,7 +3,8 @@ import random
 from typing import Callable, Tuple, Dict, List
 
 from ..trafo import Trafo, TrafoMeta, Transformable
-from ..rules import preserve_bounding_boxes as _box_preserving
+from ..rules import preserve_bounding_boxes as _box_preserving, \
+    preserve_ndarray
 
 
 def custom_gauss(mu: float, sigma: float) -> float:
@@ -18,6 +19,7 @@ def custom_gauss(mu: float, sigma: float) -> float:
 def randomize(functional_trafo: Callable[..., torch.Tensor],
               *parameter_names: str, preserve_bounding_boxes: bool = False) \
         -> TrafoMeta:
+    @preserve_ndarray
     class DerivedRandomizedTrafo(Trafo):
         kwargs: List[Tuple[float, float]]
         random_function: Callable[[float, float], float]

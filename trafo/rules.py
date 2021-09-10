@@ -12,6 +12,13 @@ def preserve_bounding_boxes(cls: TrafoMeta) -> TrafoMeta:
     return cls
 
 
+def preserve_ndarray(cls: TrafoMeta) -> TrafoMeta:
+    @cls.transform.register
+    def _(self, image: np.ndarray, **parameters) -> np.ndarray:
+        return image
+    return cls
+
+
 def preserve_tensor(cls: TrafoMeta) -> TrafoMeta:
     @cls.transform.register
     def _(self, image: torch.Tensor, **parameters) -> torch.Tensor:
