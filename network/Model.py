@@ -105,6 +105,7 @@ class OurModel:
                 y = torch.argmax(y.float(), dim = 1)
             else:
                 y = y.float()
+                y = y.squeeze()
             x = x.float()
 
             if self.use_cuda:
@@ -208,6 +209,7 @@ class OurModel:
             with torch.no_grad():
                 for x,y in tqdm(dataloader_val):
                     y = y.float()
+                    y = y.squeeze()
                     x = x.float()
 
                     if self.use_cuda:
