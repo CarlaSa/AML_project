@@ -6,16 +6,26 @@ from ..trafo import Trafo, TrafoMeta, Transformable
 from ..rules import preserve_bounding_boxes as _box_preserving
 
 
+def custom_gauss(mu: float, sigma: float) -> float:
+    x = random.gauss(mu, sigma)
+    if mu == 0:
+        return x
+    if x > 0:
+        return x
+    return 0.
+
+
 def randomize(functional_trafo: Callable[..., torch.Tensor],
-              preserve_bounding_boxes: bool = False,
-              *parameters: str) -> TrafoMeta:
+              *parameter_names: str, preserve_bounding_boxes: bool = False) \
+        -> TrafoMeta:
     class DerivedRandomizedTrafo(Trafo):
         kwargs: List[Tuple[float, float]]
         random_function: Callable[[float, float], float]
-        parameters: List[str] = parameters
+
+        parameters: List[str] = parameter_names
 
         def __init__(self, random_function: Callable[[float, float], float]
-                     = random.gauss, **kwargs: Tuple[float, float]) -> None:
+                     = custom_gauss, **kwargs: Tuple[float, float]) -> None:
             self.kwargs = kwargs
             self.random_function = random_function
             if not set(kwargs.keys()) == set(self.parameters):
