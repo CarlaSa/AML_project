@@ -107,7 +107,7 @@ class LoadDataset(Dataset):
 
     def load_image(self, path: str) -> torch.Tensor:
         return torchvision.io.read_image(path,
-                                         torchvision.io.ImageReadMode.GRAY)
+                                         torchvision.io.ImageReadMode.GRAY)/255
 
     @staticmethod
     def parse_label(label: Sequence, dtype: Optional[np.dtype] = None) \
