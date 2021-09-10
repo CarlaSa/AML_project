@@ -9,7 +9,7 @@ from ..rules import preserve_bounding_boxes
 class NDArrayTo3dTensor(Trafo):
     """
     Convert a numpy.ndarray to a 3d torch.Tensor.
-    
+
     Return torch.Tensor objects unchanged.
     """
 
