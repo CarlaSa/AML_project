@@ -2,7 +2,7 @@
 set -e
 
 cluster='cluster'
-node='gpu08'
+node="${2:?'Please specify the computer node.'}"
 
 sbatch='/opt/slurm/bin/sbatch'
 squeue='/opt/slurm/bin/squeue'
