@@ -29,7 +29,7 @@ echo "Other SLURM jobs running:"
 ssh "$cluster" "$squeue"
 echo
 echo "Starting Jupyter on $node."
-ssh "$cluster" "$source; cd $repo && $sbatch $jupyter_script"
+ssh "$cluster" "$source; cd $repo && $sbatch --nodelist=$node $jupyter_script"
 
 while [ "$job_status" != "RUNNING" ]; do
   query_job_status
