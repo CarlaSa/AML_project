@@ -46,7 +46,8 @@ class OurModel:
             path_weights = None,
             use_cuda = torch.cuda.is_available(),
             verbose = False,
-            segmentation = False
+            segmentation = False,
+            pretrain = False,
             ):
 
         self.name = name
@@ -59,10 +60,11 @@ class OurModel:
         self.segmentation = segmentation
         self.lr = lr
         self.batch_size = batch_size
+        self.pretrain = pretrain
+
         if batch_size is None:
             print("Warning: Batch size is not specified."
                   + " It can't be stored in net_config.json")
-
         if self.use_cuda:
             self.network = self.network.cuda()
             self.criterion = self.criterion.cuda()
@@ -101,11 +103,15 @@ class OurModel:
                     if self.verbose and self.segmentation else dataloader):
 
             self.optimizer.zero_grad()
-            if not self.segmentation:
-                y = torch.argmax(y.float(), dim = 1)
-            else:
+
+            if self.segmentation:
                 y = y.float()
                 y = y.squeeze()
+            elif self.pretrain:
+                y = y.float()
+            else:
+                y = torch.argmax(y.float(), dim = 1)
+
             x = x.float()
 
             if self.use_cuda:
@@ -117,6 +123,7 @@ class OurModel:
             loss.backward()
             sum_loss += float(torch.mean(loss)) # float() important to reduce memory!
             self.optimizer.step()
+            
             if self.segmentation:
                 dce = dice_score(torch.round(output), y, reduction='none')
                 sum_dce += float(torch.mean(dce))
