@@ -23,3 +23,9 @@ class Compose(Trafo):
             if not isinstance(transformands, tuple):
                 transformands = (transformands,)
         return self.pipeline[-1](*transformands)
+
+    def _json_serializable(self) -> dict:
+        return {
+            "class": self.__class__.__qualname__,
+            "pipeline": [step._json_serializable() for step in self.pipeline]
+        }
