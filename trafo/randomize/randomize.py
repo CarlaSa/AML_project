@@ -54,5 +54,6 @@ def randomize(functional_trafo: Callable[..., torch.Tensor],
     @DerivedRandomizedTrafo.transform.register
     def _(self, transformand: torch.Tensor, **kwargs: float) \
             -> torch.Tensor:
-        return self.function.__call__(transformand, **kwargs)
+        print(self.function.__qualname__, transformand, str(kwargs))
+        return self.function(transformand, **kwargs)
     return DerivedRandomizedTrafo
