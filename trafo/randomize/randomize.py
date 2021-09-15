@@ -25,7 +25,7 @@ def randomize(functional_trafo: Callable[..., torch.Tensor],
         random_function: Callable[[float, float], float]
 
         parameters: List[str] = parameter_names
-        function: Callable[..., torch.Tensor] = functional_trafo
+        function: Callable[..., torch.Tensor] = staticmethod(functional_trafo)
 
         def __init__(self, random_function: Callable[[float, float], float]
                      = custom_gauss, **kwargs: Tuple[float, float]) -> None:
@@ -54,6 +54,5 @@ def randomize(functional_trafo: Callable[..., torch.Tensor],
     @DerivedRandomizedTrafo.transform.register
     def _(self, transformand: torch.Tensor, **kwargs: float) \
             -> torch.Tensor:
-        print(self.function.__qualname__, transformand, str(kwargs))
         return self.function(transformand, **kwargs)
     return DerivedRandomizedTrafo
