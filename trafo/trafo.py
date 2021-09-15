@@ -56,3 +56,6 @@ class Trafo(metaclass=TrafoMeta):
         This is empty by default, but may be overridden.
         """
         return {}
+
+    def _json_serializable(self) -> dict:
+        return {'class': self.__class__.__qualname__}
