@@ -12,6 +12,7 @@ import json
 from tqdm.notebook import tqdm
 from sklearn.metrics import confusion_matrix
 from .losses import dice_score
+from warnings import warn
 
 
 def get_balanced_crossentropy_loss(dataset, verbose = False):
@@ -48,6 +49,7 @@ class OurModel:
             verbose = False,
             segmentation = False,
             pretrain = False,
+            data_trafo = None
             ):
 
         self.name = name
@@ -61,9 +63,13 @@ class OurModel:
         self.lr = lr
         self.batch_size = batch_size
         self.pretrain = pretrain
+        self.data_trafo = data_trafo
 
         if batch_size is None:
-            print("Warning: Batch size is not specified."
+            warn("Batch size is not specified."
+                  + " It can't be stored in net_config.json")
+        if data_trafo is None:
+            warn("Data trafos are not specified."
                   + " It can't be stored in net_config.json")
         if self.use_cuda:
             self.network = self.network.cuda()
@@ -77,7 +83,8 @@ class OurModel:
                   "optimizer": self.optimizer.__class__.__name__,
                   "batch_size": self.batch_size,
                   "learning_rate": self.lr,
-                  "loss": self.criterion.__class__.__name__
+                  "loss": self.criterion.__class__.__name__,
+                  "data_trafos": self.data_trafo._json_serializable()
                   }
         with open(f'./{self.path}/net_config.json', 'w') as file:
             json.dump(config, file)
@@ -123,7 +130,7 @@ class OurModel:
             loss.backward()
             sum_loss += float(torch.mean(loss)) # float() important to reduce memory!
             self.optimizer.step()
-            
+
             if self.segmentation:
                 dce = dice_score(torch.round(output), y, reduction='none')
                 sum_dce += float(torch.mean(dce))
