@@ -1,0 +1,110 @@
+from sklearn.model_selection import train_test_split
+import random
+import os
+from datetime import datetime
+from torch.utils.data import DataLoader, Subset
+import torch
+import numpy as np
+from shutil import copyfile
+from enum import Enum
+from argparse import ArgumentParser
+
+from datasets import LoadDataset, CustomOutput
+from datasets.custom_output import image_tensor, bounding_boxes, float_mask
+from trafo.randomize.default_augmentation import default_augmentation, \
+    default_augmentation_only_values, default_augmentation_only_geometric
+from trafo import Compose
+from network.unet import Unet
+from network.Model import OurModel
+from network.losses import DiceLoss, BCEandDiceLoss
+import torch.nn as nn
+
+
+class ArgparseEnum(Enum):
+    def __str__(self):
+        return self.name
+
+
+class Criterion(ArgparseEnum):
+    DICE = DiceLoss()
+    BCE = nn.BCELoss().cuda()
+    BD = BCEandDiceLoss()
+
+
+class Augmentation(ArgparseEnum):
+    NA = Compose(accept_empty=True)
+    DA = default_augmentation
+    DAOG = default_augmentation_only_geometric
+    DAOV = default_augmentation_only_values
+
+
+def get_args():
+    parser = ArgumentParser(description="Train Unet, save weights + results.")
+    parser.add_argument("--epochs", type=int, default=100)
+    parser.add_argument("--batch-size", type=int, default=16)
+    parser.add_argument("criterion", type=Criterion.__getitem__,
+                        choices=Criterion)
+    parser.add_argument("augmentation", type=Augmentation.__getitem__,
+                        choices=Augmentation)
+    return parser.parse_args()
+
+
+def main():
+    assert torch.cuda.is_available(), "Missing CUDA"
+    args = get_args()
+
+    # Set seeds for reproducibility:
+    torch.manual_seed(42)
+    random.seed(42)
+    np.random.seed(42)
+
+    # Get data:
+    loaded_data = LoadDataset("_data/preprocessed256_new", image_dtype=float,
+                              label_dtype=float)
+    dataset_plain = CustomOutput(loaded_data, image_tensor, float_mask)
+    dataset_aug = CustomOutput(loaded_data, image_tensor, bounding_boxes,
+                               trafo=default_augmentation_only_geometric)
+
+    # get good split of dataset -> dividable by batch_size
+    l_data = len(dataset_aug)
+    indices = range(l_data)
+    train_size = (l_data // (args.batch_size * 6)) * args.batch_size * 5
+    val_size = l_data - train_size
+
+    print("Training: ", train_size, "Validation: ", val_size)
+    train_indices, val_indices = train_test_split(
+        indices, random_state=42, train_size=train_size, test_size=val_size)
+
+    train_set = Subset(dataset_aug, train_indices)
+    val_set = Subset(dataset_plain, val_indices)
+
+    dataloader_train = DataLoader(train_set, batch_size=args.batch_size,
+                                  shuffle=True, num_workers=0)
+    dataloader_val = DataLoader(val_set, batch_size=args.batch_size,
+                                shuffle=True, num_workers=0, pin_memory=True)
+
+    # Save script and meta data:
+    abbrev = (f"a{args.augmentation.name}_c{args.criterion.name}"
+              + f"_b{args.batch_size}_e{args.epochs}")
+    path = f"./_trainings/{datetime.now().strftime('%d-%m_%H-%M')}_{abbrev}"
+    if os.path.exists(path):
+        print(f"{path} already exists")
+    else:
+        print(f"Make {path} directory")
+        os.makedirs(path)
+    copyfile(__file__, os.path.join(path, os.path.basename(__file__)))
+
+    network = Unet()
+    Model = OurModel(name="unet", network=network,
+                     criterion=args.criterion.value, path_dir=path, lr=0.001,
+                     batch_size=args.batch_size, verbose=True,
+                     segmentation=True, data_trafo=dataset_aug.trafo)
+
+    # save a json file which indicates what parameters are used for training
+    Model.save_configuration()
+    Model.train(args.epochs, dataloader_train, validate=True,
+                dataloader_val=dataloader_val, save_observables=True)
+
+
+if __name__ == '__main__':
+    main()
