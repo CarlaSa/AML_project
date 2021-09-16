@@ -84,7 +84,8 @@ class OurModel:
                   "batch_size": self.batch_size,
                   "learning_rate": self.lr,
                   "loss": self.criterion.__class__.__name__,
-                  "data_trafos": self.data_trafo._json_serializable()
+                  "data_trafos": self.data_trafo._json_serializable(),
+                  **getattr(self.network, "hyperparameters", {})
                   }
         with open(f'./{self.path}/net_config.json', 'w') as file:
             json.dump(config, file)
