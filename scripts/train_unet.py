@@ -38,7 +38,7 @@ class Augmentation(ArgparseEnum):
     DAOV = default_augmentation_only_values
 
 
-def get_args():
+def get_args(*args):
     parser = ArgumentParser(description="Train Unet, save weights + results.")
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--batch-size", type=int, default=16)
@@ -47,12 +47,14 @@ def get_args():
                         choices=Criterion)
     parser.add_argument("augmentation", type=Augmentation.__getitem__,
                         choices=Augmentation)
+    if len(args) > 0:
+        return parser.parse_args(args)
     return parser.parse_args()
 
 
-def main():
+def main(*args):
     assert torch.cuda.is_available(), "Missing CUDA"
-    args = get_args()
+    args = get_args(*args)
 
     # Set seeds for reproducibility:
     torch.manual_seed(42)
