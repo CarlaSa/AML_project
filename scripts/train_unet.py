@@ -106,8 +106,8 @@ def main(*args):
 
     # save a json file which indicates what parameters are used for training
     Model.save_configuration()
-    #Model.train(args.epochs, dataloader_train, validate=True,
-    #            dataloader_val=dataloader_val, save_observables=True)
+    Model.train(args.epochs, dataloader_train, validate=True,
+                dataloader_val=dataloader_val, save_observables=True)
 
 
 if __name__ == '__main__':
