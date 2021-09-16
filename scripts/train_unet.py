@@ -90,6 +90,8 @@ def main(*args):
     # Save script and meta data:
     abbrev = (f"a{args.augmentation.name}_c{args.criterion.name}"
               + f"_b{args.batch_size}_e{args.epochs}")
+    if args.do_batch_norm is True:
+        abbrev += "_BN"
     path = f"./_trainings/{datetime.now().strftime('%d-%m_%H-%M')}_{abbrev}"
     if os.path.exists(path):
         print(f"{path} already exists")
