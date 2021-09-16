@@ -5,8 +5,8 @@ enqueued () {
   squeue --user=$(whoami) --noheader | wc -l
 }
 
-while read -r line; do
-  read -r enqueuand < /dev/tty
+mapfile -t lines
+for enqueuand in "${lines[@]}"; do
   while [ $(enqueued) -ge $max_enqueued ]; do
     sleep 5
   done
