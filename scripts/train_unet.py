@@ -42,6 +42,7 @@ def get_args():
     parser = ArgumentParser(description="Train Unet, save weights + results.")
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--batch-size", type=int, default=16)
+    parser.add_argument("--do-batch-norm", action='store true')
     parser.add_argument("criterion", type=Criterion.__getitem__,
                         choices=Criterion)
     parser.add_argument("augmentation", type=Augmentation.__getitem__,
@@ -63,17 +64,18 @@ def main():
                               label_dtype=float)
     dataset_plain = CustomOutput(loaded_data, image_tensor, float_mask)
     dataset_aug = CustomOutput(loaded_data, image_tensor, bounding_boxes,
-                               trafo=default_augmentation_only_geometric)
+                               trafo=args.augmentation.value)
 
     # get good split of dataset -> dividable by batch_size
     l_data = len(dataset_aug)
-    indices = range(l_data)
+    indices = list(range(l_data))
     train_size = (l_data // (args.batch_size * 6)) * args.batch_size * 5
     val_size = l_data - train_size
 
     print("Training: ", train_size, "Validation: ", val_size)
     train_indices, val_indices = train_test_split(
-        indices, random_state=42, train_size=train_size, test_size=val_size)
+        indices, random_state=4, train_size=train_size, test_size=val_size
+        )
 
     train_set = Subset(dataset_aug, train_indices)
     val_set = Subset(dataset_plain, val_indices)
@@ -94,7 +96,7 @@ def main():
         os.makedirs(path)
     copyfile(__file__, os.path.join(path, os.path.basename(__file__)))
 
-    network = Unet()
+    network = Unet(batch_norm=args.do_batch_norm)
     Model = OurModel(name="unet", network=network,
                      criterion=args.criterion.value, path_dir=path, lr=0.001,
                      batch_size=args.batch_size, verbose=True,
