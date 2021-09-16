@@ -42,7 +42,7 @@ def get_args(*args):
     parser = ArgumentParser(description="Train Unet, save weights + results.")
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--batch-size", type=int, default=16)
-    parser.add_argument("--do-batch-norm", action='store true')
+    parser.add_argument("--do-batch-norm", action='store_true')
     parser.add_argument("criterion", type=Criterion.__getitem__,
                         choices=Criterion)
     parser.add_argument("augmentation", type=Augmentation.__getitem__,
