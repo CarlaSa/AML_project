@@ -14,7 +14,6 @@ from datasets.custom_output import image_tensor, bounding_boxes, float_mask
 from trafo.randomize.default_augmentation import default_augmentation, \
     default_augmentation_only_values, default_augmentation_only_geometric, \
     bounding_boxes_to_tensor_only
-from trafo import Compose
 from network.unet import Unet
 from network.Model import OurModel
 from network.losses import DiceLoss, BCEandDiceLoss
@@ -43,6 +42,8 @@ def get_args(*args):
     parser = ArgumentParser(description="Train Unet, save weights + results.")
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--batch-size", type=int, default=16)
+    parser.add_argument("--n-blocks", type=int, default=4)
+    parser.add_argument("--n-initial-block-channels", type=int, default=64)
     parser.add_argument("--do-batch-norm", action='store_true')
     parser.add_argument("criterion", type=Criterion.__getitem__,
                         choices=Criterion)
@@ -51,6 +52,26 @@ def get_args(*args):
     if len(args) > 0:
         return parser.parse_args(args)
     return parser.parse_args()
+
+
+def default_args():
+    args = get_args(list(Criterion)[0].name, list(Augmentation)[0].name)
+    del args.criterion
+    del args.augmentation
+    return args
+
+
+def get_abbrev(args):
+    abbrev = (f"a{args.augmentation.name}_c{args.criterion.name}"
+              + f"_b{args.batch_size}_e{args.epochs}")
+    if args.do_batch_norm is True:
+        abbrev += "_BN"
+    default = default_args()
+    if args.n_blocks != default.n_blocks:
+        abbrev += f"_blk{args.n_blocks}"
+    if args.n_initial_block_channels != default.n_initial_block_channels:
+        abbrev += f"_ch{args.n_initial_block_channels}"
+    return abbrev
 
 
 def main(*args):
@@ -89,10 +110,8 @@ def main(*args):
                                 shuffle=True, num_workers=0, pin_memory=True)
 
     # Save script and meta data:
-    abbrev = (f"a{args.augmentation.name}_c{args.criterion.name}"
-              + f"_b{args.batch_size}_e{args.epochs}")
-    if args.do_batch_norm is True:
-        abbrev += "_BN"
+    abbrev = get_abbrev(args)
+
     path = f"./_trainings/{datetime.now().strftime('%d-%m_%H-%M')}_{abbrev}"
     if os.path.exists(path):
         print(f"{path} already exists")
@@ -101,7 +120,8 @@ def main(*args):
         os.makedirs(path)
     copyfile(__file__, os.path.join(path, os.path.basename(__file__)))
 
-    network = Unet(batch_norm=args.do_batch_norm)
+    network = Unet(batch_norm=args.do_batch_norm, n_blocks=args.n_blocks,
+                   n_initial_block_channels=args.n_initial_block_channels)
     Model = OurModel(name="unet", network=network,
                      criterion=args.criterion.value, path_dir=path, lr=0.001,
                      batch_size=args.batch_size, verbose=True,
