@@ -38,15 +38,15 @@ class Unet(nn.Module):
     down_blocks: List[nn.Sequential]
     pools: List[nn.MaxPool2d]
     bottleneck: nn.Sequential
-    up_blocks: List[nn.Sequential]
     ups: List[Union[nn.Sequential, nn.ConvTranspose2d]]
+    up_blocks: List[nn.Sequential]
     final: nn.Conv2d
 
     def __init__(self, upsample_conv: bool = False, batch_norm: bool = False,
                  n_blocks: int = 4, n_initial_block_channels: int = 64):
         super().__init__()
 
-        # Reproducibility
+        # In order to store network configuration
         self.hyperparameters = {
             "upsample_conv": upsample_conv,
             "batch_norm": batch_norm,
@@ -58,17 +58,17 @@ class Unet(nn.Module):
         chan_in, chan_out = 1, n_initial_block_channels
         self.down_blocks, self.pools = [], []
         for i in range(n_blocks):
-            self.pools.append(nn.MaxPool2d(2, 2))
             self.down_blocks.append(ConvBlock(chan_in, chan_out, 3,
                                               padding='same',
                                               batch_norm=batch_norm))
+            self.pools.append(nn.MaxPool2d(2, 2))
             chan_in, chan_out = chan_out, 2 * chan_out
 
         self.bottleneck = ConvBlock(chan_in, chan_out, 3, padding='same',
                                     batch_norm=batch_norm)
 
         # Decoder
-        self.up_blocks, self.ups = [], []
+        self.ups, self.up_blocks = [], []
         for i in range(n_blocks):
             chan_in, chan_out = chan_out, chan_out / 2
             self.ups.append(Up(chan_in, chan_out, upsample_conv))
@@ -90,7 +90,7 @@ class Unet(nn.Module):
         x = self.bottleneck(x)
 
         # Decoder
-        for up_block, up in zip(self.up_blocks, self.ups):
+        for up, up_block in zip(self.ups, self.up_blocks):
             x = up(x)
             x = torch.cat([skip_con.pop(), x], dim=1)  # Skip-connection
             x = up_block(x)
