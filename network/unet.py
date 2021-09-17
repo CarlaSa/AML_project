@@ -76,7 +76,7 @@ class Unet(nn.Module):
         skip_con = []
 
         # Encoder
-        x = ConvBlock(chan_in, chan_out, 3, padding='same', batch_norm=True)(x)
+        x = ConvBlock(1, 64, 3, padding='same', batch_norm=True)(x)
         for down_block, pool in zip(self.down_blocks, self.pools):
             x = down_block(x)
             skip_con.append(x)
