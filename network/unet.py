@@ -1,5 +1,6 @@
 import torch.nn as nn
 import torch
+from typing import List, Union, Dict
 
 
 def ConvBlock(in_channels, out_channels, kernel_size, padding, batch_norm):
@@ -20,12 +21,11 @@ def ConvBlock(in_channels, out_channels, kernel_size, padding, batch_norm):
             nn.ReLU(inplace=True)
         )
 
+
 def Up(in_channels, out_channels, upsample_conv):
     if upsample_conv:
-        return nn.Sequential(
-                    nn.Upsample(scale_factor=2, mode='bilinear'),
-                    nn.Conv2d(in_channels, out_channels, 1)
-                   )
+        return nn.Sequential(nn.Upsample(scale_factor=2, mode='bilinear'),
+                             nn.Conv2d(in_channels, out_channels, 1))
     else:
         return nn.ConvTranspose2d(in_channels, out_channels, 2, stride=2)
 
@@ -35,89 +35,60 @@ class Unet(nn.Module):
     U-Net architecture (modified) according to Ronneberger
     """
 
-    def __init__(self, upsample_conv = False, batch_norm = False):
+    def __init__(self, upsample_conv: bool = False, batch_norm: bool = False,
+                 n_blocks: int = 4, n_initial_block_channels: int = 64):
         super().__init__()
 
-        # First Down Block
-        self.down_block1 = ConvBlock(1, 64, 3, padding='same', batch_norm=batch_norm)
-        self.pool1 = nn.MaxPool2d(2, 2)
+        # In order to store network configuration
+        self.hyperparameters = {
+            "upsample_conv": upsample_conv,
+            "batch_norm": batch_norm,
+            "n_blocks": n_blocks,
+            "n_initial_block_channels": n_initial_block_channels
+        }
 
-        # Second Down Block
-        self.down_block2 = ConvBlock(64, 128, 3, padding='same', batch_norm=batch_norm)
-        self.pool2 = nn.MaxPool2d(2, 2)
+        # Encoder
+        chan_in, chan_out = 1, n_initial_block_channels
+        self.down_blocks, self.pools = [], []
+        for i in range(n_blocks):
+            self.down_blocks.append(ConvBlock(chan_in, chan_out, 3,
+                                              padding='same',
+                                              batch_norm=batch_norm))
+            self.pools.append(nn.MaxPool2d(2, 2))
+            chan_in, chan_out = chan_out, 2 * chan_out
 
-        # Third Down Block
-        self.down_block3 = ConvBlock(128, 256, 3, padding='same', batch_norm=batch_norm)
-        self.pool3 = nn.MaxPool2d(2, 2)
+        self.bottleneck = ConvBlock(chan_in, chan_out, 3, padding='same',
+                                    batch_norm=batch_norm)
 
-        # Fourth Down Block
-        self.down_block4 = ConvBlock(256, 512, 3, padding='same', batch_norm=batch_norm)
-        self.pool4 = nn.MaxPool2d(2, 2)
+        # Decoder
+        self.ups, self.up_blocks = [], []
+        for i in range(n_blocks):
+            chan_in, chan_out = chan_out, chan_out // 2
+            self.ups.append(Up(chan_in, chan_out, upsample_conv))
+            self.up_blocks.append(ConvBlock(chan_out + chan_out, chan_out, 3,
+                                            padding='same',
+                                            batch_norm=batch_norm))
 
-        # Bottleneck
-        self.bottleneck = ConvBlock(512, 1024, 3, padding='same', batch_norm=batch_norm)
-
-        # First Up Block
-        self.up1 = Up(1024, 512, upsample_conv)
-        self.up_block1 = ConvBlock(512+512, 512, 3, padding='same', batch_norm=batch_norm)
-
-        # Second Up Block
-        self.up2 = Up(512, 256, upsample_conv)
-        self.up_block2 = ConvBlock(256+256, 256, 3, padding='same', batch_norm=batch_norm)
-
-        # Third Up Block
-        self.up3 = Up(256, 128, upsample_conv)
-        self.up_block3 = ConvBlock(128+128, 128, 3, padding='same', batch_norm=batch_norm)
-
-        # Fourth Up Block
-        self.up4 = Up(128, 64, upsample_conv)
-        self.up_block4 = ConvBlock(64+64, 64, 3, padding='same', batch_norm=batch_norm)
-
-        # Final Layer
-        self.final = nn.Conv2d(64, 1, 1, padding="same")
-
+        chan_in, chan_out = chan_out, 1
+        self.final = nn.Conv2d(chan_in, chan_out, 1, padding="same")
 
     def forward(self, x):
+        skip_con = []
 
-        # -------#
         # Encoder
-        #--------#
-
-        x1 = self.down_block1(x)
-        x = self.pool1(x1)
-        
-        x2 = self.down_block2(x)
-        x = self.pool2(x2)
-
-        x3 = self.down_block3(x)
-        x = self.pool3(x3)
-        
-        x4 = self.down_block4(x)
-        x = self.pool4(x4)
-        
+        x = down_blocks[0](x)
+        for down_block, pool in zip(self.down_blocks, self.pools):
+            x = down_block(x)
+            skip_con.append(x)
+            x = pool(x)
         x = self.bottleneck(x)
 
-        # -------#
         # Decoder
-        #--------#
-
-        x = self.up1(x)
-        x = torch.cat([x4, x], dim=1)  # Skip-connection
-        x = self.up_block1(x)
-
-        x = self.up2(x)
-        x = torch.cat([x3, x], dim=1)  # Skip-connection
-        x = self.up_block2(x)
-        
-        x = self.up3(x)
-        x = torch.cat([x2, x], dim=1)  # Skip-connection
-        x = self.up_block3(x)
-        
-        x = self.up4(x)
-        x = torch.cat([x1, x], dim=1)  # Skip-connection
-        x = self.up_block4(x)
-        
+        for up, up_block in zip(self.ups, self.up_blocks):
+            x = up(x)
+            x = torch.cat([skip_con.pop(), x], dim=1)  # Skip-connection
+            x = up_block(x)
         x = self.final(x)
         x = torch.sigmoid(x)
-        
+
         return x.squeeze()
