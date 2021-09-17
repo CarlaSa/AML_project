@@ -76,7 +76,7 @@ class Unet(nn.Module):
         skip_con = []
 
         # Encoder
-        print(type(x))
+        print(x.get_device())
         x = ConvBlock(1, 64, 3, padding='same', batch_norm=True).cuda()(x)
         for down_block, pool in zip(self.down_blocks, self.pools):
             x = down_block(x)
