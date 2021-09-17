@@ -9,7 +9,7 @@ def ConvBlock(in_channels, out_channels, kernel_size, padding, batch_norm):
             nn.Conv2d(in_channels, out_channels, kernel_size, padding=padding),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(out_channels),
-            nn.Conv2d(out_channels, out_channels, 3, padding=1),
+            nn.Conv2d(out_channels, out_channels, 3, padding=padding),
             nn.ReLU(inplace=True),
             nn.BatchNorm2d(out_channels)
         )
@@ -17,7 +17,7 @@ def ConvBlock(in_channels, out_channels, kernel_size, padding, batch_norm):
         return nn.Sequential(
             nn.Conv2d(in_channels, out_channels, kernel_size, padding=padding),
             nn.ReLU(inplace=True),
-            nn.Conv2d(out_channels, out_channels, 3, padding=1),
+            nn.Conv2d(out_channels, out_channels, 3, padding=padding),
             nn.ReLU(inplace=True)
         )
 
@@ -76,7 +76,7 @@ class Unet(nn.Module):
         skip_con = []
 
         # Encoder
-        x = down_blocks[0](x)
+        x = ConvBlock(chan_in, chan_out, 3, padding='same', batch_norm=True)(x)
         for down_block, pool in zip(self.down_blocks, self.pools):
             x = down_block(x)
             skip_con.append(x)
