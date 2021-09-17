@@ -46,6 +46,7 @@ def get_args(*args):
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--n-blocks", type=int, default=4)
     parser.add_argument("--n-initial-block-channels", type=int, default=64)
+    parser.add_argument("--learning-rate", type=float, default=0.001)
     parser.add_argument("--do-batch-norm", action='store_true')
     parser.add_argument("criterion", type=Criterion.__getitem__,
                         choices=Criterion)
@@ -73,6 +74,8 @@ def get_abbrev(args):
         abbrev += f"_blk{args.n_blocks}"
     if args.n_initial_block_channels != default.n_initial_block_channels:
         abbrev += f"_ch{args.n_initial_block_channels}"
+    if args.learning_rate != default.learning_rate:
+        abbrev += f"_lr{args.learning_rate}"
     return abbrev
 
 
@@ -125,9 +128,10 @@ def main(*args):
     network = Unet(batch_norm=args.do_batch_norm, n_blocks=args.n_blocks,
                    n_initial_block_channels=args.n_initial_block_channels)
     Model = OurModel(name="unet", network=network,
-                     criterion=args.criterion.value, path_dir=path, lr=0.001,
-                     batch_size=args.batch_size, verbose=True,
-                     segmentation=True, data_trafo=dataset_aug.trafo)
+                     criterion=args.criterion.value, path_dir=path,
+                     lr=args.learning_rate, batch_size=args.batch_size,
+                     verbose=True, segmentation=True,
+                     data_trafo=dataset_aug.trafo)
 
     # save a json file which indicates what parameters are used for training
     Model.save_configuration()
