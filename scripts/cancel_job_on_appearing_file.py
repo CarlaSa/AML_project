@@ -4,6 +4,9 @@ from dataclasses import dataclass
 from argparse import ArgumentParser
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, FileCreatedEvent
+from subprocess import check_output
+from getpass import getuser
+from typing import List
 
 
 @dataclass
@@ -21,9 +24,16 @@ class CancellingEventHandler(FileSystemEventHandler):
             os.system(cmd)
 
 
+def get_running_slurm_jobs() -> List[int]:
+    user = getuser()
+    output = check_output(["squeue", f"--user={user}", "--noheader",
+                           "--Format=jobid", "--states=RUNNING"])
+    return [int(id) for id in output.splitlines()]
+
+
 def running_slurm_job_id(raw: str) -> int:
     id = int(raw)
-    if id not in ...:
+    if id not in get_running_slurm_jobs():
         raise RuntimeError(f"No running SLURM job {id} found.")
     return id
 
