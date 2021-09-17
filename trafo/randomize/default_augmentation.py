@@ -41,6 +41,16 @@ default_augmentation_only_geometric = Compose(
     Scale(scale_factor=(1, 0.075), random_function=positive_half_gauss),
 )
 
+default_augmentation_brightness_and_geometric = Compose(
+    AdjustBrightness(brightness_factor=(1, 0.05)),
+    BoundingBoxesToMask(),
+    NDArrayTo3dTensor(),
+    Rotate(angle=(0, 3)),
+    Shear(shear_x=(0, 3), shear_y=(0, 3)),
+    Translate(translate_x=(0, 4), translate_y=(0, 4)),
+    Scale(scale_factor=(1, 0.075), random_function=positive_half_gauss),
+)
+
 bounding_boxes_to_tensor_only = Compose(
     BoundingBoxesToMask(),
     NDArrayTo3dTensor(),
