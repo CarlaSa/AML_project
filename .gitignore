@@ -9,3 +9,4 @@ __pycache__/
 _*
 !__*__.py
 .ipynb_checkpoints/
+.~lock.*\#
