@@ -34,13 +34,6 @@ class Unet(nn.Module):
     """
     U-Net architecture (modified) according to Ronneberger
     """
-    hyperparameters: Dict[str, Union[bool, int]]
-    down_blocks: List[nn.Sequential]
-    pools: List[nn.MaxPool2d]
-    bottleneck: nn.Sequential
-    ups: List[Union[nn.Sequential, nn.ConvTranspose2d]]
-    up_blocks: List[nn.Sequential]
-    final: nn.Conv2d
 
     def __init__(self, upsample_conv: bool = False, batch_norm: bool = False,
                  n_blocks: int = 4, n_initial_block_channels: int = 64):
@@ -79,8 +72,8 @@ class Unet(nn.Module):
         chan_in, chan_out = chan_out, 1
         self.final = nn.Conv2d(chan_in, chan_out, 1, padding="same")
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        skip_con: List[torch.Tensor] = []
+    def forward(self, x):
+        skip_con = []
 
         # Encoder
         for down_block, pool in zip(self.down_blocks, self.down_pools):
