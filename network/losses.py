@@ -5,7 +5,8 @@ import torch.nn.functional as F
 
 
 def dice_score(predictions: torch.Tensor, masks: torch.Tensor,
-               epsilon_smooth: float=1., reduction: str="mean") -> torch.Tensor:
+               epsilon_smooth: float = 1., reduction: str = "mean") \
+        -> torch.Tensor:
     """
     Calculate the Dice Score for the prediction set and the target set
 
@@ -31,8 +32,8 @@ def dice_score(predictions: torch.Tensor, masks: torch.Tensor,
     # (batch, 1, width, height) -> (batch, width, height)
     y_hat = predictions.squeeze()
     # Reshape: (batch, width, height) -> (batch, width*height)
-    #y_hat = y_hat.reshape(y_hat.shape[0], y_hat.shape[1]*y_hat.shape[2])
-    #y = masks.reshape(masks.shape[0], masks.shape[1]*masks.shape[2])
+    # y_hat = y_hat.reshape(y_hat.shape[0], y_hat.shape[1]*y_hat.shape[2])
+    # y = masks.reshape(masks.shape[0], masks.shape[1]*masks.shape[2])
     y_hat = torch.flatten(y_hat, start_dim=1)
     y = torch.flatten(masks, start_dim=1)
 
@@ -63,9 +64,9 @@ class DiceLoss(nn.Module):
         self.epsilon_smooth = epsilon_smooth
 
     def forward(self, predictions, masks):
-        mean_dce_score = dice_score(predictions, masks, self.epsilon_smooth, 'mean')
+        mean_dce_score = dice_score(predictions, masks, self.epsilon_smooth,
+                                    'mean')
         return 1 - mean_dce_score
-
 
 
 class BCEandDiceLoss(nn.Module):
@@ -75,11 +76,15 @@ class BCEandDiceLoss(nn.Module):
     Returns:
         The mean of the Dice Loss and the BCE Loss of an batch
     """
-    def __init__(self, epsilon_smooth=1, weight=None, size_average=True):
+
+    def __init__(self, epsilon_smooth=1, weight=None, size_average=True,
+                 dice_factor: float = 1):
         super(BCEandDiceLoss, self).__init__()
         self.epsilon_smooth = epsilon_smooth
+        self.dice_factor = dice_factor
 
     def forward(self, predictions, masks):
-        mean_dce_score = dice_score(predictions, masks, self.epsilon_smooth, 'mean')
+        mean_dce_score = dice_score(predictions, masks, self.epsilon_smooth,
+                                    'mean')
         BCE = F.binary_cross_entropy(predictions.squeeze(), masks)
-        return BCE + (1-mean_dce_score)
+        return BCE + self.dice_factor * (1-mean_dce_score)

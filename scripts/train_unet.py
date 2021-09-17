@@ -30,6 +30,7 @@ class Criterion(ArgparseEnum):
     DICE = DiceLoss()
     BCE = nn.BCELoss().cuda()
     BD = BCEandDiceLoss()
+    B2D = BCEandDiceLoss(dice_factor=2)
 
 
 class Augmentation(ArgparseEnum):
