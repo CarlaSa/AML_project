@@ -70,7 +70,7 @@ class Unet(nn.Module):
         # Decoder
         self.ups, self.up_blocks = [], []
         for i in range(n_blocks):
-            chan_in, chan_out = chan_out, chan_out / 2
+            chan_in, chan_out = chan_out, chan_out // 2
             self.ups.append(Up(chan_in, chan_out, upsample_conv))
             self.up_blocks.append(ConvBlock(chan_out + chan_out, chan_out, 3,
                                             padding='same',
