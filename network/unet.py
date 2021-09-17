@@ -76,6 +76,7 @@ class Unet(nn.Module):
         skip_con = []
 
         # Encoder
+        x = down_blocks[0](x)
         for down_block, pool in zip(self.down_blocks, self.pools):
             x = down_block(x)
             skip_con.append(x)
