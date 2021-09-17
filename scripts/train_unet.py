@@ -12,7 +12,8 @@ from argparse import ArgumentParser
 from datasets import LoadDataset, CustomOutput
 from datasets.custom_output import image_tensor, bounding_boxes, float_mask
 from trafo.randomize.default_augmentation import default_augmentation, \
-    default_augmentation_only_values, default_augmentation_only_geometric
+    default_augmentation_only_values, default_augmentation_only_geometric, \
+    bounding_boxes_to_tensor_only
 from trafo import Compose
 from network.unet import Unet
 from network.Model import OurModel
@@ -32,7 +33,7 @@ class Criterion(ArgparseEnum):
 
 
 class Augmentation(ArgparseEnum):
-    NA = Compose(accept_empty=True)
+    NA = bounding_boxes_to_tensor_only
     DA = default_augmentation
     DAOG = default_augmentation_only_geometric
     DAOV = default_augmentation_only_values

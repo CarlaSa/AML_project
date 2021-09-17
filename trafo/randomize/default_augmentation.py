@@ -40,3 +40,8 @@ default_augmentation_only_geometric = Compose(
     Translate(translate_x=(0, 4), translate_y=(0, 4)),
     Scale(scale_factor=(1, 0.075), random_function=positive_half_gauss),
 )
+
+bounding_boxes_to_tensor_only = Compose(
+    BoundingBoxesToMask(),
+    NDArrayTo3dTensor(),
+)
