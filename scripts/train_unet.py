@@ -16,6 +16,7 @@ from trafo.randomize.default_augmentation import default_augmentation, \
     default_augmentation_brightness_and_geometric, \
     bounding_boxes_to_tensor_only
 from network.unet_old_padding import Unet as OldUnetWithNewPadding
+from network.unet_old import Unet as OldUnet
 from network.unet import Unet
 from network.Model import OurModel
 from network.losses import DiceLoss, BCEandDiceLoss
@@ -53,6 +54,7 @@ def get_args(*args):
     parser.add_argument("--cuda-device", type=int, default=None)
     parser.add_argument("--get-abbrev-only", action='store_true')
     parser.add_argument("--use-old-unet-with-new-padding", action='store_true')
+    parser.add_argument("--use-old-unet", action='store_true')
     parser.add_argument("criterion", type=Criterion.__getitem__,
                         choices=Criterion)
     parser.add_argument("augmentation", type=Augmentation.__getitem__,
@@ -139,6 +141,8 @@ def main(*args):
 
     if args.use_old_unet_with_new_padding is True:
         network = OldUnetWithNewPadding(batch_norm=args.do_batch_norm)
+    elif args.use_old_unet is True:
+        network = OldUnet(batch_norm=args.do_batch_norm)
     else:
         network = Unet(batch_norm=args.do_batch_norm, n_blocks=args.n_blocks,
                        n_initial_block_channels=args.n_initial_block_channels)
