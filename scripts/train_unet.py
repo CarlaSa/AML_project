@@ -16,6 +16,7 @@ from trafo.randomize.default_augmentation import default_augmentation, \
     default_augmentation_brightness_and_geometric, \
     bounding_boxes_to_tensor_only
 from network.unet import Unet
+from network.unet_old_padding import UnetOldPadding
 from network.Model import OurModel
 from network.losses import DiceLoss, BCEandDiceLoss
 import torch.nn as nn
@@ -51,6 +52,7 @@ def get_args(*args):
     parser.add_argument("--do-batch-norm", action='store_true')
     parser.add_argument("--cuda-device", type=int, default=None)
     parser.add_argument("--get-abbrev-only", action='store_true')
+    parser.add_argument("--use-old-unet-with-new-padding", action='store_true')
     parser.add_argument("criterion", type=Criterion.__getitem__,
                         choices=Criterion)
     parser.add_argument("augmentation", type=Augmentation.__getitem__,
@@ -79,6 +81,8 @@ def get_abbrev(args):
         abbrev += f"_ch{args.n_initial_block_channels}"
     if args.learning_rate != default.learning_rate:
         abbrev += f"_lr{args.learning_rate}"
+    if args.use_old_unet_with_new_padding is True:
+        abbrev += "_oldUnetWithNewPadding"
     return abbrev
 
 
@@ -133,8 +137,11 @@ def main(*args):
         os.makedirs(path)
     copyfile(__file__, os.path.join(path, os.path.basename(__file__)))
 
-    network = Unet(batch_norm=args.do_batch_norm, n_blocks=args.n_blocks,
-                   n_initial_block_channels=args.n_initial_block_channels)
+    if args.use_old_unet_with_new_padding is True:
+        network = UnetOldPadding(batch_norm=args.do_batch_norm)
+    else:
+        network = Unet(batch_norm=args.do_batch_norm, n_blocks=args.n_blocks,
+                       n_initial_block_channels=args.n_initial_block_channels)
     Model = OurModel(name="unet", network=network,
                      criterion=args.criterion.value, path_dir=path,
                      lr=args.learning_rate, batch_size=args.batch_size,
