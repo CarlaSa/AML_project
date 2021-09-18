@@ -32,6 +32,7 @@ class Criterion(ArgparseEnum):
     BCE = nn.BCELoss().cuda()
     BD = BCEandDiceLoss()
     B2D = BCEandDiceLoss(dice_factor=2)
+    B3D = BCEandDiceLoss(dice_factor=3)
 
 
 class Augmentation(ArgparseEnum):
@@ -111,7 +112,7 @@ def main(*args):
         print(path)
         return path
 
-    if args.do_batch_norm and args.p_dropout>0:
+    if args.do_batch_norm and args.p_dropout > 0:
         print("Warning: Batch Normalisation and Dropout was selected."
               + "Use Batch Normalisation.")
 
