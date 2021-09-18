@@ -49,6 +49,8 @@ def get_args(*args):
     parser.add_argument("--n-initial-block-channels", type=int, default=64)
     parser.add_argument("--learning-rate", type=float, default=0.001)
     parser.add_argument("--do-batch-norm", action='store_true')
+    parser.add_argument("--cuda-device", type=int, default=None)
+    parser.add_argument("--get-abbrev-only", action='store_true')
     parser.add_argument("criterion", type=Criterion.__getitem__,
                         choices=Criterion)
     parser.add_argument("augmentation", type=Augmentation.__getitem__,
@@ -83,6 +85,14 @@ def get_abbrev(args):
 def main(*args):
     assert torch.cuda.is_available(), "Missing CUDA"
     args = get_args(*args)
+    abbrev = get_abbrev(args)  # abbreviation to save meta data etc.
+
+    if args.get_abbrev_only is True:
+        print(abbrev)
+        return abbrev
+
+    if args.cuda_device is not None:
+        torch.cuda.set_device(args.cuda_device)
 
     # Set seeds for reproducibility:
     torch.manual_seed(42)
@@ -114,9 +124,6 @@ def main(*args):
                                   shuffle=True, num_workers=0)
     dataloader_val = DataLoader(val_set, batch_size=args.batch_size,
                                 shuffle=True, num_workers=0, pin_memory=True)
-
-    # Save script and meta data:
-    abbrev = get_abbrev(args)
 
     path = f"./_trainings/{datetime.now().strftime('%d-%m_%H-%M')}_{abbrev}"
     if os.path.exists(path):
