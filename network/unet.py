@@ -55,8 +55,7 @@ class Unet(nn.Module):
         # hyperparamaters
         self.hyperparameters = {"upsample_conv": upsample_conv,
                                 "batch_norm": batch_norm,
-                                "dropout": dropout,
-                                "p": p
+                                "p_dropout": p_dropout
                                 }
 
         # First Down Block
@@ -67,7 +66,7 @@ class Unet(nn.Module):
 
         # Second Down Block
         self.down_block2 = ConvBlock(
-            64, 128, 3, padding='same', batch_norm=batch_norm,,
+            64, 128, 3, padding='same', batch_norm=batch_norm,
             p_dropout=p_dropout)
         self.pool2 = nn.MaxPool2d(2, 2)
 
