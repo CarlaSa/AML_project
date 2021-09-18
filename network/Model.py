@@ -49,18 +49,21 @@ class OurModel:
             verbose = False,
             segmentation = False,
             pretrain = False,
-            data_trafo = None
+            data_trafo = None,
+            adam_regul_factor = 0.
             ):
 
         self.name = name
         self.network = network
-        self.optimizer = torch.optim.Adam(self.network.parameters(), lr)
+        self.optimizer = torch.optim.Adam(self.network.parameters(), lr,
+                                          weight_decay=adam_regul_factor)
         self.criterion = criterion
         self.verbose = verbose
         self.use_cuda = use_cuda
         self.path = path_dir
         self.segmentation = segmentation
         self.lr = lr
+        self.adam_regul_factor = adam_regul_factor
         self.batch_size = batch_size
         self.pretrain = pretrain
         self.data_trafo = data_trafo
@@ -81,6 +84,7 @@ class OurModel:
     def save_configuration(self):
         config = {"network": self.network.__class__.__name__,
                   "optimizer": self.optimizer.__class__.__name__,
+                  "adam_regul_factor": self.adam_regul_factor,
                   "batch_size": self.batch_size,
                   "learning_rate": self.lr,
                   "loss": self.criterion.__class__.__name__,

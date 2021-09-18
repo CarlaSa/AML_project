@@ -51,6 +51,7 @@ def get_args(*args):
     parser.add_argument("--n-initial-block-channels", type=int, default=64)
     parser.add_argument("--learning-rate", type=float, default=0.001)
     parser.add_argument("--do-batch-norm", action='store_true')
+    parser.add_argument("--adam-regul-factor", type=float, default=0)
     parser.add_argument("--cuda-device", type=int, default=None)
     parser.add_argument("--get-abbrev-only", action='store_true')
     parser.add_argument("--get-path-only", action='store_true')
@@ -85,6 +86,8 @@ def get_abbrev(args):
             abbrev += f"_ch{args.n_initial_block_channels}"
     if args.learning_rate != default.learning_rate:
         abbrev += f"_lr{args.learning_rate}"
+    if args.adam_regul_factor != default.adam_regul_factor:
+        abbrev += f"_wd{args.adam_regul_factor}"
     return abbrev
 
 
@@ -163,7 +166,9 @@ def main(*args):
                      criterion=args.criterion.value, path_dir=path,
                      lr=args.learning_rate, batch_size=args.batch_size,
                      verbose=True, segmentation=True,
-                     data_trafo=dataset_aug.trafo)
+                     data_trafo=dataset_aug.trafo,
+                     adam_regul_factor=args.adam_regul_factor
+                     )
 
     # save a json file which indicates what parameters are used for training
     Model.save_configuration()
