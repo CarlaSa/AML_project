@@ -139,7 +139,7 @@ def main(*args):
     import network.unet
     import network.variable_unet
     for module in (network.unet, network.variable_unet):
-        copyfile(module.__file___,
+        copyfile(module.__file__,
                  os.path.join(path, os.path.basename(module.__file__)))
 
     if args.variable_unet is True:
