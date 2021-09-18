@@ -112,7 +112,8 @@ def main(*args):
         return path
 
     if args.do_batch_norm and args.p_dropout>0:
-        print("Warning: Batch Normalisation and Dropout was selected")
+        print("Warning: Batch Normalisation and Dropout was selected." 
+              + "Use Batch Normalisation.")
 
     assert torch.cuda.is_available(), "Missing CUDA"
 
