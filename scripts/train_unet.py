@@ -15,9 +15,8 @@ from trafo.randomize.default_augmentation import default_augmentation, \
     default_augmentation_only_values, default_augmentation_only_geometric, \
     default_augmentation_brightness_and_geometric, \
     bounding_boxes_to_tensor_only
-from network.unet_old_padding import Unet as OldUnetWithNewPadding
-from network.unet_old import Unet as OldUnet
 from network.unet import Unet
+from network.variable_unet import Unet as VariableUnet
 from network.Model import OurModel
 from network.losses import DiceLoss, BCEandDiceLoss
 import torch.nn as nn
@@ -47,14 +46,13 @@ def get_args(*args):
     parser = ArgumentParser(description="Train Unet, save weights + results.")
     parser.add_argument("--epochs", type=int, default=100)
     parser.add_argument("--batch-size", type=int, default=16)
+    parser.add_argument("--variable-unet", action='store_true')
     parser.add_argument("--n-blocks", type=int, default=4)
     parser.add_argument("--n-initial-block-channels", type=int, default=64)
     parser.add_argument("--learning-rate", type=float, default=0.001)
     parser.add_argument("--do-batch-norm", action='store_true')
     parser.add_argument("--cuda-device", type=int, default=None)
     parser.add_argument("--get-abbrev-only", action='store_true')
-    parser.add_argument("--use-old-unet-with-new-padding", action='store_true')
-    parser.add_argument("--use-old-unet", action='store_true')
     parser.add_argument("criterion", type=Criterion.__getitem__,
                         choices=Criterion)
     parser.add_argument("augmentation", type=Augmentation.__getitem__,
@@ -77,14 +75,14 @@ def get_abbrev(args):
     if args.do_batch_norm is True:
         abbrev += "_BN"
     default = default_args()
-    if args.n_blocks != default.n_blocks:
-        abbrev += f"_blk{args.n_blocks}"
-    if args.n_initial_block_channels != default.n_initial_block_channels:
-        abbrev += f"_ch{args.n_initial_block_channels}"
+    if args.variable_unet is True:
+        abbrev = "_varUnet"
+        if args.n_blocks != default.n_blocks:
+            abbrev += f"_blk{args.n_blocks}"
+        if args.n_initial_block_channels != default.n_initial_block_channels:
+            abbrev += f"_ch{args.n_initial_block_channels}"
     if args.learning_rate != default.learning_rate:
         abbrev += f"_lr{args.learning_rate}"
-    if args.use_old_unet_with_new_padding is True:
-        abbrev += "_oldUnetWithNewPadding"
     return abbrev
 
 
@@ -139,13 +137,12 @@ def main(*args):
         os.makedirs(path)
     copyfile(__file__, os.path.join(path, os.path.basename(__file__)))
 
-    if args.use_old_unet_with_new_padding is True:
-        network = OldUnetWithNewPadding(batch_norm=args.do_batch_norm)
-    elif args.use_old_unet is True:
-        network = OldUnet(batch_norm=args.do_batch_norm)
+    if args.variable_unet is True:
+        network = VariableUnet(batch_norm=args.do_batch_norm, n_blocks=args.n_blocks,
+                               n_initial_block_channels=args.n_initial_block_channels)
     else:
-        network = Unet(batch_norm=args.do_batch_norm, n_blocks=args.n_blocks,
-                       n_initial_block_channels=args.n_initial_block_channels)
+        network = Unet(batch_norm=args.do_batch_norm)
+
     Model = OurModel(name="unet", network=network,
                      criterion=args.criterion.value, path_dir=path,
                      lr=args.learning_rate, batch_size=args.batch_size,
