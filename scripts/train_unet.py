@@ -53,6 +53,8 @@ def get_args(*args):
     parser.add_argument("--do-batch-norm", action='store_true')
     parser.add_argument("--cuda-device", type=int, default=None)
     parser.add_argument("--get-abbrev-only", action='store_true')
+    parser.add_argument("--get-path-only", action='store_true')
+    parser.add_argument("--path", type=str)
     parser.add_argument("criterion", type=Criterion.__getitem__,
                         choices=Criterion)
     parser.add_argument("augmentation", type=Augmentation.__getitem__,
@@ -86,15 +88,24 @@ def get_abbrev(args):
     return abbrev
 
 
+def get_path(abbrev):
+    return f"{datetime.now().strftime('%d-%m_%H-%M')}_{abbrev}"
+
+
 def main(*args):
-    assert torch.cuda.is_available(), "Missing CUDA"
     args = get_args(*args)
     abbrev = get_abbrev(args)  # abbreviation to save meta data etc.
+    path = args.path if args.path is not None else get_path(abbrev)
+    path = os.path.realpath(os.path.join("./_trainings/", path))
 
     if args.get_abbrev_only is True:
         print(abbrev)
         return abbrev
+    if args.get_path_only is True:
+        print(path)
+        return path
 
+    assert torch.cuda.is_available(), "Missing CUDA"
     if args.cuda_device is not None:
         torch.cuda.set_device(args.cuda_device)
 
@@ -129,7 +140,6 @@ def main(*args):
     dataloader_val = DataLoader(val_set, batch_size=args.batch_size,
                                 shuffle=True, num_workers=0, pin_memory=True)
 
-    path = f"./_trainings/{datetime.now().strftime('%d-%m_%H-%M')}_{abbrev}"
     if os.path.exists(path):
         print(f"{path} already exists")
     else:
