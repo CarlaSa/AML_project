@@ -91,7 +91,7 @@ class OurModel:
                   "data_trafos": self.data_trafo._json_serializable(),
                   **getattr(self.network, "hyperparameters", {})
                   }
-        with open(f'./{self.path}/net_config.json', 'w') as file:
+        with open(f'{self.path}/net_config.json', 'w') as file:
             json.dump(config, file)
 
     def load_weights(self, path_end):
