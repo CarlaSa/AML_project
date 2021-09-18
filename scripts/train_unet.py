@@ -80,7 +80,7 @@ def get_abbrev(args):
         abbrev += "_BN"
     default = default_args()
     if args.p_dropout != default.p_dropout:
-        abbrev += "_BN"
+        abbrev += f"_do{args.p_dropout}"
     if args.variable_unet is True:
         abbrev = "_varUnet"
         if args.n_blocks != default.n_blocks:
@@ -112,7 +112,7 @@ def main(*args):
         return path
 
     if args.do_batch_norm and args.p_dropout>0:
-        print("Warning: Batch Normalisation and Dropout was selected." 
+        print("Warning: Batch Normalisation and Dropout was selected."
               + "Use Batch Normalisation.")
 
     assert torch.cuda.is_available(), "Missing CUDA"
