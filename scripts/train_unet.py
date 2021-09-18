@@ -15,8 +15,8 @@ from trafo.randomize.default_augmentation import default_augmentation, \
     default_augmentation_only_values, default_augmentation_only_geometric, \
     default_augmentation_brightness_and_geometric, \
     bounding_boxes_to_tensor_only
+from network.unet_old_padding import Unet as OldUnetWithNewPadding
 from network.unet import Unet
-from network.unet_old_padding import UnetOldPadding
 from network.Model import OurModel
 from network.losses import DiceLoss, BCEandDiceLoss
 import torch.nn as nn
@@ -138,7 +138,7 @@ def main(*args):
     copyfile(__file__, os.path.join(path, os.path.basename(__file__)))
 
     if args.use_old_unet_with_new_padding is True:
-        network = UnetOldPadding(batch_norm=args.do_batch_norm)
+        network = OldUnetWithNewPadding(batch_norm=args.do_batch_norm)
     else:
         network = Unet(batch_norm=args.do_batch_norm, n_blocks=args.n_blocks,
                        n_initial_block_channels=args.n_initial_block_channels)
