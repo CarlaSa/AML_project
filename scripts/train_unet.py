@@ -51,6 +51,7 @@ def get_args(*args):
     parser.add_argument("--n-initial-block-channels", type=int, default=64)
     parser.add_argument("--learning-rate", type=float, default=0.001)
     parser.add_argument("--do-batch-norm", action='store_true')
+    parser.add_argument("--p-dropout", type=float, default=0)
     parser.add_argument("--adam-regul-factor", type=float, default=0)
     parser.add_argument("--cuda-device", type=int, default=None)
     parser.add_argument("--get-abbrev-only", action='store_true')
@@ -76,6 +77,8 @@ def get_abbrev(args):
     if args.do_batch_norm is True:
         abbrev += "_BN"
     default = default_args()
+    if args.p_dropout != default.p_dropout:
+        abbrev += "_BN"
     if args.variable_unet is True:
         abbrev = "_varUnet"
         if args.n_blocks != default.n_blocks:
@@ -97,6 +100,9 @@ def main(*args):
     if args.get_abbrev_only is True:
         print(abbrev)
         return abbrev
+
+    if args.do_batch_norm and args.p_dropout>0:
+        print("Warning: Batch Normalisation and Dropout was selected")
 
     if args.cuda_device is not None:
         torch.cuda.set_device(args.cuda_device)
@@ -150,7 +156,7 @@ def main(*args):
                                n_blocks=args.n_blocks,
                                n_initial_block_channels=args.n_initial_block_channels)
     else:
-        network = Unet(batch_norm=args.do_batch_norm)
+        network = Unet(batch_norm=args.do_batch_norm, p_dropout=args.p_dropout)
 
     Model = OurModel(name="unet", network=network,
                      criterion=args.criterion.value, path_dir=path,
