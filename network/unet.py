@@ -21,7 +21,7 @@ def ConvBlock(in_channels, out_channels, kernel_size, padding, batch_norm,
         return nn.Sequential(
             nn.Conv2d(in_channels, out_channels, kernel_size, padding=padding),
             nn.ReLU(inplace=True),
-            nn.Dropout(p_dropout, inplace=True),
+            nn.Dropout(p_dropout),
             nn.Conv2d(out_channels, out_channels, 3, padding=padding),
             nn.ReLU(inplace=True),
         )
