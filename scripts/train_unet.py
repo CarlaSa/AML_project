@@ -136,9 +136,15 @@ def main(*args):
         print(f"Make {path} directory")
         os.makedirs(path)
     copyfile(__file__, os.path.join(path, os.path.basename(__file__)))
+    import network.unet
+    import network.variable_unet
+    for module in (network.unet, network.variable_unet):
+        copyfile(module.__file___,
+                 os.path.join(path, os.path.basename(module.__file__)))
 
     if args.variable_unet is True:
-        network = VariableUnet(batch_norm=args.do_batch_norm, n_blocks=args.n_blocks,
+        network = VariableUnet(batch_norm=args.do_batch_norm,
+                               n_blocks=args.n_blocks,
                                n_initial_block_channels=args.n_initial_block_channels)
     else:
         network = Unet(batch_norm=args.do_batch_norm)
