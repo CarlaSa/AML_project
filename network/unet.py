@@ -55,8 +55,7 @@ class Unet(nn.Module):
         # hyperparamaters
         self.hyperparameters = {"upsample_conv": upsample_conv,
                                 "batch_norm": batch_norm,
-                                "dropout": dropout,
-                                "p": p
+                                "p_dropout": p_dropout
                                 }
 
         # First Down Block
