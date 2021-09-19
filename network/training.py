@@ -88,7 +88,7 @@ class BaseTraining:
 
     def _evaluation_methods(self, y_true, y_pred):
         # if opened first time
-        if not acc in dir(self):
+        if not "acc" in dir(self):
             self.acc = 0
 
         self.acc += (y_true == y_pred)
