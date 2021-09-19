@@ -1,0 +1,19 @@
+node,device_count,is_integrated,is_multi_gpu_board,major,minor,multi_processor_count,name,total_memory,errors
+gpu01,4,0,0,7,5,72,NVIDIA Quadro RTX 6000,25396838400,
+gpu02,2,0,0,6,1,30,NVIDIA TITAN Xp,12788498432,
+gpu03,7,0,0,6,1,20,NVIDIA GeForce GTX 1080,8513978368,
+gpu04,7,0,0,6,1,20,NVIDIA GeForce GTX 1080,8513978368,
+gpu05,8,0,0,6,1,30,NVIDIA Tesla P40,24032378880,
+gpu06,4,0,0,6,1,28,NVIDIA GeForce GTX 1080 Ti,11721506816,
+gpu07,4,0,0,6,1,28,NVIDIA GeForce GTX 1080 Ti,11721506816,
+gpu08,4,0,0,6,1,28,NVIDIA GeForce GTX 1080 Ti,11721506816,
+gpu09,4,0,0,6,1,28,NVIDIA GeForce GTX 1080 Ti,11721506816,
+gpu10,4,0,0,7,5,72,NVIDIA Quadro RTX 8000,50962169856,
+gpu11,4,0,0,7,5,72,NVIDIA Quadro RTX 6000,25396838400,
+gpu12,4,0,0,8,6,84,NVIDIA RTX A6000,51050315776,".venv/lib/python3.7/site-packages/torch/cuda/__init__.py:106: UserWarning: 
+NVIDIA RTX A6000 with CUDA capability sm_86 is not compatible with the current PyTorch installation.
+The current PyTorch install supports CUDA capabilities sm_37 sm_50 sm_60 sm_70.
+If you want to use the NVIDIA RTX A6000 GPU with PyTorch, please check the instructions at https://pytorch.org/get-started/locally/
+
+  warnings.warn(incompatible_device_warn.format(device_name, capability, "" "".join(arch_list), device_name))
+"
