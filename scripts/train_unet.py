@@ -76,6 +76,8 @@ def default_args():
 
 
 def get_abbrev(args):
+    if isinstance(args, list):
+        args = get_args(*args)
     abbrev = (f"a{args.augmentation.name}_c{args.criterion.name}"
               + f"_b{args.batch_size}_e{args.epochs}")
     if args.do_batch_norm is True:
