@@ -98,15 +98,17 @@ def get_abbrev(args):
     return abbrev
 
 
-def get_path(abbrev):
+def get_path(args):
+    abbrev = get_abbrev(args)
+    path = args.path if args.path is not None else get_path(abbrev)
+    path = os.path.join("./_trainings/", path)
     return f"{datetime.now().strftime('%d-%m_%H-%M')}_{abbrev}"
 
 
 def main(*args):
     args = get_args(*args)
     abbrev = get_abbrev(args)  # abbreviation to save meta data etc.
-    path = args.path if args.path is not None else get_path(abbrev)
-    path = os.path.join("./_trainings/", path)
+    path = get_path(args)
 
     if args.get_abbrev_only is True:
         print(abbrev)
