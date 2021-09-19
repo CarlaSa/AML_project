@@ -58,6 +58,7 @@ def get_args(*args):
     parser.add_argument("--cuda-device", type=int, default=None)
     parser.add_argument("--get-abbrev-only", action='store_true')
     parser.add_argument("--get-path-only", action='store_true')
+    parser.add_argument("--get-cuda-device-count-only", action='store_true')
     parser.add_argument("--path", type=str)
     parser.add_argument("criterion", type=Criterion.__getitem__,
                         choices=Criterion)
@@ -116,6 +117,10 @@ def main(*args):
     if args.get_path_only is True:
         print(path)
         return path
+    if args.get_cuda_device_count_only is True:
+        device_count = torch.cuda.device_count()
+        print(device_count)
+        return device_count
 
     if args.do_batch_norm and args.p_dropout > 0:
         print("Warning: Batch Normalisation and Dropout was selected."
