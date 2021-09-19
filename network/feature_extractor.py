@@ -1,6 +1,7 @@
 """
 We Use a Version of ResNet for Feature Extraction on the full images.
 """
+
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -112,6 +113,4 @@ class ResNet(nn.Module):
         x = self.layer4(x)
         x = self.end(x)
         return x
-
-
 

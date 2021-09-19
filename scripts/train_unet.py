@@ -33,6 +33,7 @@ class Criterion(ArgparseEnum):
     BD = BCEandDiceLoss()
     B2D = BCEandDiceLoss(dice_factor=2)
     B3D = BCEandDiceLoss(dice_factor=3)
+    B1p5D = BCEandDiceLoss(dice_factor=1.5)
 
 
 class Augmentation(ArgparseEnum):
@@ -103,7 +104,7 @@ def main(*args):
     args = get_args(*args)
     abbrev = get_abbrev(args)  # abbreviation to save meta data etc.
     path = args.path if args.path is not None else get_path(abbrev)
-    path = os.path.realpath(os.path.join("./_trainings/", path))
+    path = os.path.join("./_trainings/", path)
 
     if args.get_abbrev_only is True:
         print(abbrev)
