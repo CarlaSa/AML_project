@@ -91,7 +91,7 @@ class BaseTraining:
         if not "acc" in dir(self):
             self.acc = 0
 
-        self.acc += (y_true == y_pred)
+        self.acc += sum(output == y)
 
     def _print_eval(self):
         print(self.acc)
