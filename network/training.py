@@ -117,7 +117,7 @@ class BaseTraining:
             loss.backward()
 
             sum_loss += float(torch.mean(loss))
-            
+
             self.optimizer.step()
         return sum_loss/len(dataloader)
 
@@ -167,7 +167,7 @@ class PretrainTraining(BaseTraining):
         if not "acc" in dir(self):
             self.acc = 0
 
-        self.acc += torch.mean(torch.sum((y_true-y_pred)**2, axis = 1))
+        self.acc += torch.mean((y_true-y_pred)**2)
 
 
 class UnetTraining(BaseTraining):
