@@ -100,10 +100,11 @@ def get_abbrev(args):
 
 
 def get_path(args):
-    abbrev = get_abbrev(args)
-    path = args.path if args.path is not None else get_path(abbrev)
-    path = os.path.join("./_trainings/", path)
-    return f"{datetime.now().strftime('%d-%m_%H-%M')}_{abbrev}"
+    if args.path is not None:
+        path = args.path
+    else:
+        path = f"{datetime.now().strftime('%d-%m_%H-%M')}_{get_abbrev(args)}"
+    return os.path.join("./_trainings/", path)
 
 
 def main(*args):
