@@ -89,7 +89,7 @@ def get_abbrev(args):
     if args.p_dropout != default.p_dropout:
         abbrev += f"_do{args.p_dropout}"
     if args.variable_unet is True:
-        abbrev = "_varUnet"
+        abbrev += "_varUnet"
         if args.n_blocks != default.n_blocks:
             abbrev += f"_blk{args.n_blocks}"
         if args.n_initial_block_channels != default.n_initial_block_channels:
