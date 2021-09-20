@@ -111,7 +111,7 @@ class BaseTraining:
         """
         for item in self.observables.items():
             try:
-                print(f"epoch{self.epochs}: {item[0]} = {items[1][-1]}")
+                print(f"epoch{self.epochs}: {item[0]} = {item[1][-1]}")
             except:
                 print(f"epoch{self.epochs}: {item[0]} = no value stored")
 
@@ -168,6 +168,7 @@ class BaseTraining:
         self.network.eval()
 
         with torch.no_grad():
+            sum_val_loss = 0
             for x,y in tqdm(dataloader_val):
 
                 x,y = self._preprocess(x,y)
@@ -177,8 +178,9 @@ class BaseTraining:
 
                 output = self.network(x)
                 loss_val = self.criterion(output, y)
-                self.observables["loss_val"].append(loss_val)
-                #self._evaluation_methods(output, y)
+                sum_val_loss += float(torch.mean(loss_val))
+            self.observables["loss_val"].append(sum_val_loss/len(dataloader_val))
+            #self._evaluation_methods(output, y)
 
 
 class PretrainTraining(BaseTraining):
