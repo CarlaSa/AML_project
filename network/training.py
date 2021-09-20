@@ -41,6 +41,9 @@ class BaseTraining:
         self.data_trafo = data_trafo
         self.epochs = 0
 
+        self.observables = {"loss": []
+                            }
+
         if batch_size is None:
             warn("Batch size is not specified."
                   + " It can't be stored in net_config.json")
@@ -97,11 +100,15 @@ class BaseTraining:
 
         self.acc += sum(y_pred == y_true)
 
-    def _print_eval(self):
-        print(self.acc)
-
-        # reset variable
-        del self.acc
+    def _print_observables(self):
+        """
+        print the observables (e.g. losses)
+        """
+        for item in self.observables.items():
+            try:
+                print(f"epoch{self.epochs}: {item[0]} = {items[1][-1]}")
+            except:
+                print(f"epoch{self.epochs}: {item[0]} = no value stored")
 
     def train_one_epoch(self, dataloader):
         sum_loss = 0
@@ -127,28 +134,27 @@ class BaseTraining:
 
     def train(self, num_epochs, dataloader, validate = False,
               dataloader_val=None, save_freq = 10, save_observables = False):
-        if save_observables:
-            losses = []
+
         if validate:
-            val_losses = []
+            self.observables["loss_val"] = []
 
         self.network.train()
-        for e in (tqdm(range(start_epoch + 1, num_epochs+1)) if self.verbose > 0 
+        for e in (tqdm(range(start_epoch + 1, num_epochs+1)) if self.verbose > 0
                 else range(1, num_epochs+1)):
 
             self.epochs += 1
 
             loss = self.train_one_epoch(dataloader)
-            if self.verbose > 0:
-                print(f"epoch{self.epochs}: loss = {loss}")
+            self.observables["loss"].append(loss)
+            if validate:
+                self.validate(dataloader_val)
             if e % save_freq == 0:
                 self.save_weights()
-                self.save_configuration()
-            if save_observables:
-                self.save_configuration()
-
-            losses.append(loss)
-        return losses
+                if save_observables:
+                    for item in self.observables.items():
+                        np.save(f"{self.path}/{item[0]}.npy", np.array(item[1]))
+            if self.verbose > 0:
+                self._print_observables()
 
 
     def validate(self, dataloader_val):
@@ -163,9 +169,9 @@ class BaseTraining:
                     x = x.cuda()
 
                 output = self.network(x)
-                self._evaluation_methods(output, y)
-
-        self._print_eval()
+                loss_val = self.criterion(output, y)
+                self.observables["loss_val"].append(loss_val)
+                #self._evaluation_methods(output, y)
 
 
 class PretrainTraining(BaseTraining):
@@ -188,4 +194,3 @@ class UnetTraining(BaseTraining):
         y = y.squeeze()
         x = x.float()
         return x, y
-
