@@ -178,7 +178,7 @@ class BaseTraining:
 
                 output = self.network(x)
                 loss_val = self.criterion(output, y)
-                sum_val_loss += float(loss_val)
+                sum_val_loss += float(torch.mean(loss_val))
             self.observables["loss_val"].append(sum_val_loss/len(dataloader_val))
             #self._evaluation_methods(output, y)
 
