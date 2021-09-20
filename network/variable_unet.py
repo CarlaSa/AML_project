@@ -3,6 +3,7 @@ import torch
 from typing import List, Union, Dict
 from utils.device import device
 
+
 def ConvBlock(in_channels, out_channels, kernel_size, padding, batch_norm):
     if batch_norm:
         return nn.Sequential(
@@ -49,7 +50,7 @@ class Unet(nn.Module):
 
         # Encoder
         chan_in, chan_out = 1, n_initial_block_channels
-        self.down_blocks, self.pools = [], []
+        self.down_blocks, self.pools = nn.ModuleList(), nn.ModuleList()
         for i in range(n_blocks):
             self.down_blocks.append(ConvBlock(chan_in, chan_out, 3,
                                               padding='same',
@@ -61,7 +62,7 @@ class Unet(nn.Module):
                                     batch_norm=batch_norm)
 
         # Decoder
-        self.ups, self.up_blocks = [], []
+        self.ups, self.up_blocks = nn.ModuleList(), nn.ModuleList()
         for i in range(n_blocks):
             chan_in, chan_out = chan_out, chan_out // 2
             self.ups.append(Up(chan_in, chan_out, upsample_conv))
