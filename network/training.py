@@ -71,7 +71,7 @@ class BaseTraining:
         if self.data_trafo is not None:
             config["data_trafo"] = self.data_trafo._json_serializable()
 
-        with open(f'{self.path}/net_config.json', 'w') as file:
+        with open(f'{self.path}/{self.name}_net_config.json', 'w') as file:
             json.dump(config, file)
 
     def load_weights(self, path_end):
@@ -159,7 +159,7 @@ class BaseTraining:
                 self.save_weights()
                 if save_observables:
                     for item in self.observables.items():
-                        np.save(f"{self.path}/{item[0]}.npy", np.array(item[1]))
+                        np.save(f"{self.path}/{self.name}_{item[0]}.npy", np.array(item[1]))
             if self.verbose > 0:
                 self.print_observables()
 
