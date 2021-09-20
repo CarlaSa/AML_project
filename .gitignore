@@ -2,7 +2,7 @@
 /data/
 
 # Python
-/.venv/
+/.venv
 __pycache__/
 
 # dev
@@ -10,3 +10,7 @@ _*
 !__*__.py
 .ipynb_checkpoints/
 .~lock.*\#
+
+# runtime
+*.out
+tmp.*
