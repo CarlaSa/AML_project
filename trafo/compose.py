@@ -24,12 +24,15 @@ class Compose(Trafo):
                 return transformands[0]
             else:
                 return transformands
-        for step in self.pipeline[:-1]:
+        for step in self.pipeline:
+            transformands = list(transformands)
             partially_transformed = step(*transformands[:_max])
             if not isinstance(partially_transformed, tuple):
                 partially_transformed = (partially_transformed,)
             transformands[:_max] = partially_transformed
-        return self.pipeline[-1](*transformands)
+        if len(transformands) > 1:
+            return tuple(transformands)
+        return transformands[0]
 
     def _json_serializable(self) -> dict:
         return {
