@@ -61,10 +61,13 @@ class BaseTraining:
                   "batch_size": self.batch_size,
                   "learning_rate": self.lr,
                   "loss": self.criterion.__class__.__name__,
-                  "data_trafos": self.data_trafo._json_serializable(),
+                  #"data_trafos": self.data_trafo._json_serializable(),
                   **getattr(self.network, "hyperparameters", {})
                   }
-        with open(f'./{self.path}/net_config.json', 'w') as file:
+        if data_trafo is not None:
+            config["data_trafo"] = self.data_trafo._json_serializable()
+
+        with open(f'{self.path}/net_config.json', 'w') as file:
             json.dump(config, file)
 
     def load_weights(self, path_end):
@@ -122,9 +125,12 @@ class BaseTraining:
             self.optimizer.step()
         return sum_loss/len(dataloader)
 
-    def train(self, num_epochs, dataloader, save_freq = 10):
-
-        losses = []
+    def train(self, num_epochs, dataloader, validate = False,
+              dataloader_val=None, save_freq = 10, save_observables = False):
+        if save_observables:
+            losses = []
+        if validate:
+            val_losses = []
 
         self.network.train()
         for e in (tqdm(range(start_epoch + 1, num_epochs+1)) if self.verbose > 0 
@@ -137,6 +143,9 @@ class BaseTraining:
                 print(f"epoch{self.epochs}: loss = {loss}")
             if e % save_freq == 0:
                 self.save_weights()
+                self.save_configuration()
+            if save_observables:
+                self.save_configuration()
 
             losses.append(loss)
         return losses
