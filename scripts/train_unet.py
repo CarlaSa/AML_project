@@ -58,6 +58,7 @@ def get_args(*args):
     parser.add_argument("--cuda-device", type=int, default=None)
     parser.add_argument("--get-abbrev-only", action='store_true')
     parser.add_argument("--get-path-only", action='store_true')
+    parser.add_argument("--get-cuda-device-count-only", action='store_true')
     parser.add_argument("--path", type=str)
     parser.add_argument("criterion", type=Criterion.__getitem__,
                         choices=Criterion)
@@ -76,6 +77,8 @@ def default_args():
 
 
 def get_abbrev(args):
+    if isinstance(args, list):
+        args = get_args(*args)
     abbrev = (f"a{args.augmentation.name}_c{args.criterion.name}"
               + f"_b{args.batch_size}_e{args.epochs}")
     if args.do_batch_norm is True:
@@ -96,15 +99,17 @@ def get_abbrev(args):
     return abbrev
 
 
-def get_path(abbrev):
-    return f"{datetime.now().strftime('%d-%m_%H-%M')}_{abbrev}"
+def get_path(args):
+    if args.path is not None:
+        return args.path
+    path = f"{datetime.now().strftime('%d-%m_%H-%M')}_{get_abbrev(args)}"
+    return os.path.join("./_trainings/", path)
 
 
 def main(*args):
     args = get_args(*args)
     abbrev = get_abbrev(args)  # abbreviation to save meta data etc.
-    path = args.path if args.path is not None else get_path(abbrev)
-    path = os.path.realpath(os.path.join("./_trainings/", path))
+    path = get_path(args)
 
     if args.get_abbrev_only is True:
         print(abbrev)
@@ -112,6 +117,10 @@ def main(*args):
     if args.get_path_only is True:
         print(path)
         return path
+    if args.get_cuda_device_count_only is True:
+        device_count = torch.cuda.device_count()
+        print(device_count)
+        return device_count
 
     if args.do_batch_norm and args.p_dropout > 0:
         print("Warning: Batch Normalisation and Dropout was selected."
