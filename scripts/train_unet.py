@@ -156,16 +156,17 @@ def main(*args):
     train_indices, val_indices = train_test_split(indices, random_state=4,
                                                   train_size=train_size,
                                                   test_size=val_size,
-                                                  drop_last=(not
-                                                             args.no_drop_last))
+                                                  )
 
     train_set = Subset(dataset_aug, train_indices)
     val_set = Subset(dataset_plain, val_indices)
 
     dataloader_train = DataLoader(train_set, batch_size=args.batch_size,
-                                  shuffle=True, num_workers=0)
+                                  shuffle=True, num_workers=0,
+                                  drop_last=(not args.no_drop_last))
     dataloader_val = DataLoader(val_set, batch_size=args.batch_size,
-                                shuffle=True, num_workers=0, pin_memory=True)
+                                shuffle=True, num_workers=0, pin_memory=True,
+                                drop_last=(not args.no_drop_last))
 
     if os.path.exists(path):
         print(f"{path} already exists")
