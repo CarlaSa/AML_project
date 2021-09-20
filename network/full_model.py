@@ -1,9 +1,9 @@
 
 import torch.nn as nn
 import torch.nn.functional as F
-from network_blocks import ConvBlock, FCBlock
+from network.network_blocks import ConvBlock, FCBlock
 
-class end_network(nn.Module):
+class EndNetwork(nn.Module):
 	def __init__(self, 
 			img_shape = 256,
 			features_shape = 1024,
@@ -26,15 +26,15 @@ class end_network(nn.Module):
 
 		# second: the feature input
 		shapes = [features_shape]
-		shapes.append(int(0.5(features_shape + latent_shape)))
+		shapes.append(int(0.5 * (features_shape + latent_shape)))
 		shapes.append(latent_shape)
-		self.input_features = FC_Block(shapes = shapes, use_dropout = use_dropout)
+		self.input_features = FCBlock(shapes = shapes, use_dropout = use_dropout)
 
-		# third: the compined part
+		# third: the combined part
 		shapes = [2*latent_shape]
 		shapes.append(latent_shape)
 		shapes.append(out_shape)
-		self.end = FC_Block(shapes = shapes, use_dropout = use_dropout)
+		self.end = FCBlock(shapes = shapes, use_dropout = use_dropout)
 
 	def forward(self, image, features):
 		image = self.input_img(image)

@@ -51,7 +51,7 @@ class BasicBlock(nn.Module):
         return self.relu(out)
 
 class ResNet(nn.Module):
-    def __init__(self, dims, out_shape = 4 , block = BasicBlock):
+    def __init__(self, dims, out_shape = 4 , block = BasicBlock, sigmoid_activation = True):
         """
         
         dims: list of 4 
@@ -71,11 +71,19 @@ class ResNet(nn.Module):
         self.layer3 = self._create_blocks(block, 256, dims[2], stride = 2)
         self.layer4 = self._create_blocks(block, 512, dims[3], stride = 2)
 
-        self.end = nn.Sequential(
-                nn.AdaptiveAvgPool2d((1,1)),
-                nn.Flatten(),
-                nn.Linear(512, out_shape)
-            )
+        layers = []
+        layers.append(nn.AdaptiveAvgPool2d((1,1)))
+        layers.append(nn.Flatten())
+        layers.append(nn.Linear(512, out_shape))
+        if sigmoid_activation:
+            layers.append(nn.Sigmoid())
+        self.end = nn.Sequential(*layers)
+
+        # self.end = nn.Sequential(
+        #         nn.AdaptiveAvgPool2d((1,1)),
+        #         nn.Flatten(),
+        #         nn.Linear(512, out_shape)
+        #     )
 
     def _create_blocks(self, block, out_ch, num_blocks, stride = 1):
         """
