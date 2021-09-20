@@ -147,7 +147,7 @@ class BaseTraining:
         start = self.start_epoch + 1
         end = self.start_epoch + num_epochs + 1
         for e in (tqdm(range(start, end)) if self.verbose > 0
-            else range(start, end):
+                  else range(start, end)):
 
             self.epochs += 1
 
