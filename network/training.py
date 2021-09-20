@@ -39,6 +39,7 @@ class BaseTraining:
         self.use_cuda = use_cuda
         self.path = path_dir
         self.data_trafo = data_trafo
+        self.epochs = 0
 
         if batch_size is None:
             warn("Batch size is not specified."
@@ -73,11 +74,11 @@ class BaseTraining:
             path = path_end
         self.network.load_state_dict(torch.load(path))
 
-    def save_weights(self, epoch):
+    def save_weights(self):
         if self.path is not None:
-            path = f'{self.path}/{self.name}_e{epoch}.ckpt'
+            path = f'{self.path}/{self.name}_e{self.epochs}.ckpt'
         else:
-            path = f'./{self.name}_e{epoch}.ckpt'
+            path = f'./{self.name}_e{self.epochs}.ckpt'
         torch.save(self.network.state_dict(), path)
 
     def _preprocess(self,x,y):
@@ -126,14 +127,16 @@ class BaseTraining:
         losses = []
 
         self.network.train()
-        for e in (tqdm(range(1, num_epochs+1)) if self.verbose > 0 
+        for e in (tqdm(range(start_epoch + 1, num_epochs+1)) if self.verbose > 0 
                 else range(1, num_epochs+1)):
+
+            self.epochs += 1
 
             loss = self.train_one_epoch(dataloader)
             if self.verbose > 0:
-                print(f"epoch{e}: loss = {loss}")
+                print(f"epoch{self.epochs}: loss = {loss}")
             if e % save_freq == 0:
-                self.save_weights(e)
+                self.save_weights()
 
             losses.append(loss)
         return losses
