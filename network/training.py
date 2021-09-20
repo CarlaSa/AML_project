@@ -67,7 +67,7 @@ class BaseTraining:
                   #"data_trafos": self.data_trafo._json_serializable(),
                   **getattr(self.network, "hyperparameters", {})
                   }
-        if data_trafo is not None:
+        if self.data_trafo is not None:
             config["data_trafo"] = self.data_trafo._json_serializable()
 
         with open(f'{self.path}/net_config.json', 'w') as file:
