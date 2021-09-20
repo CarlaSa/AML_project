@@ -47,6 +47,7 @@ class Augmentation(ArgparseEnum):
 def get_args(*args):
     parser = ArgumentParser(description="Train Unet, save weights + results.")
     parser.add_argument("--epochs", type=int, default=100)
+    parser.add_argument("--absolute-training-size", type=int, default=5200)
     parser.add_argument("--batch-size", type=int, default=16)
     parser.add_argument("--variable-unet", action='store_true')
     parser.add_argument("--n-blocks", type=int, default=4)
@@ -59,6 +60,7 @@ def get_args(*args):
     parser.add_argument("--get-abbrev-only", action='store_true')
     parser.add_argument("--get-path-only", action='store_true')
     parser.add_argument("--get-cuda-device-count-only", action='store_true')
+    parser.add_argument("--no-drop-last", action='store_true')
     parser.add_argument("--path", type=str)
     parser.add_argument("criterion", type=Criterion.__getitem__,
                         choices=Criterion)
@@ -146,13 +148,16 @@ def main(*args):
     # get good split of dataset -> dividable by batch_size
     l_data = len(dataset_aug)
     indices = list(range(l_data))
-    train_size = (l_data // (args.batch_size * 6)) * args.batch_size * 5
+    # train_size = (l_data // (args.batch_size * 6)) * args.batch_size * 5
+    train_size = args.absolute_training_size
     val_size = l_data - train_size
 
     print("Training: ", train_size, "Validation: ", val_size)
-    train_indices, val_indices = train_test_split(
-        indices, random_state=4, train_size=train_size, test_size=val_size
-        )
+    train_indices, val_indices = train_test_split(indices, random_state=4,
+                                                  train_size=train_size,
+                                                  test_size=val_size,
+                                                  drop_last=(not
+                                                             args.no_drop_last))
 
     train_set = Subset(dataset_aug, train_indices)
     val_set = Subset(dataset_plain, val_indices)
