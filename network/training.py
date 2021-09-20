@@ -40,6 +40,7 @@ class BaseTraining:
         self.path = path_dir
         self.data_trafo = data_trafo
         self.epochs = 0
+        self.start_epoch = 0
 
         self.observables = {"loss": []
                             }
@@ -79,6 +80,10 @@ class BaseTraining:
         else:
             path = path_end
         self.network.load_state_dict(torch.load(path))
+        try:
+            self.start_epoch
+        except:
+            warn("Could not extract epoch from weights.")
 
     def save_weights(self):
         if self.path is not None:
@@ -100,7 +105,7 @@ class BaseTraining:
 
         self.acc += sum(y_pred == y_true)
 
-    def _print_observables(self):
+    def print_observables(self):
         """
         print the observables (e.g. losses)
         """
@@ -139,8 +144,10 @@ class BaseTraining:
             self.observables["loss_val"] = []
 
         self.network.train()
-        for e in (tqdm(range(start_epoch + 1, num_epochs+1)) if self.verbose > 0
-                else range(1, num_epochs+1)):
+        start = self.start_epoch + 1
+        end = self.start_epoch + num_epochs + 1
+        for e in (tqdm(range(start, end)) if self.verbose > 0
+            else range(start, end):
 
             self.epochs += 1
 
@@ -154,7 +161,7 @@ class BaseTraining:
                     for item in self.observables.items():
                         np.save(f"{self.path}/{item[0]}.npy", np.array(item[1]))
             if self.verbose > 0:
-                self._print_observables()
+                self.print_observables()
 
 
     def validate(self, dataloader_val):
