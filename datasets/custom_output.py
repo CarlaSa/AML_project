@@ -106,6 +106,16 @@ def study_label(self: Dataset, _index: int) -> np.ndarray:
 
 
 @typechecked
+def study_label_5(self: Dataset, _index: int) -> np.ndarray:
+    _bounding_boxes = bounding_boxes(self, _index)
+    _study_label = study_label(self, _index)
+    return np.array([*_study_label, 0]  # for negative or annotated images
+                    if _study_label[0] or _bounding_boxes.sum() > 0
+                    else [*[0]*4, 1],  # for positive but missing bbox
+                    dtype=bool)
+
+
+@typechecked
 def bounding_boxes(self: Dataset, _index: int) -> BoundingBoxes:
     boxes = getattr(self, "bounding_boxes", None)
     if boxes is not None:
