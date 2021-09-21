@@ -5,7 +5,6 @@ We Use a Version of ResNet for Feature Extraction on the full images.
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torchvision.models as models
 from network.network_blocks import ConvBlock, FCBlock
 
 class BasicBlock(nn.Module):
@@ -129,7 +128,7 @@ class ResnetOriginal(nn.Module):
     """
     Build up a feature extractor on top of an existing trained network.
     """
-    def __init__(self, type = "resnet50", shapes = [512, 124, 32, 14], trainable_resnet = False):
+    def __init__(self, type = "resnet50", shapes = [512, 124, 32, 14], trainable_resnet = False, trainable_level = 5):
         super().__init__()
         self.trainable_resnet = trainable_resnet
 
@@ -148,8 +147,15 @@ class ResnetOriginal(nn.Module):
         layer0 = modules[0].weight
         modules[0] = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=2, bias=False)
         modules[0].weight = nn.Parameter(torch.mean(layer0, dim=1, keepdim=True))
-        self.features = nn.Sequential(*modules)
-        if not trainable_resnet:
+
+        if trainable_resnet:
+            self.untrainable_features = nn.Sequential(*modules[:trainable_level])
+            self.trainable_features = nn.Sequential(*modules[trainable_level:])
+            for parameter in self.untrainable_features.parameters():
+                parameter.requires_grad = False
+
+        else:
+            self.features = nn.Sequential(*modules)
             for parameter in self.features.parameters():
                 parameter.requires_grad = False
 
@@ -157,8 +163,11 @@ class ResnetOriginal(nn.Module):
         self.fc = FCBlock( shapes, use_dropout = True)
 
     def forward(self, x):
+
         if self.trainable_resnet:
-            temp = self.features(x)
+            with torch.no_grad():
+                temp = self.untrainable_features(x)
+            temp = self.trainable_features(temp)
         else:
             with torch.no_grad():
                 temp = self.features(x)
