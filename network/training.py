@@ -136,7 +136,7 @@ class BaseTraining:
         """
         for item in self.observables.items():
             try:
-                print(f"epoch{self.epochs}: {item[0]} = {items[1][-1]}")
+                print(f"epoch{self.epochs}: {item[0]} = {item[1][-1]}")
             except:
                 print(f"epoch{self.epochs}: {item[0]} = no value stored")
 
