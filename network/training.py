@@ -33,6 +33,7 @@ class BaseTraining:
         self.lr = lr
         self.optimizer = torch.optim.Adam(self.network.parameters(), lr,
                                           weight_decay = adam_regul_factor)
+        self.adam_regul_factor = adam_regul_factor
         self.criterion = criterion
         self.batch_size = batch_size
 
