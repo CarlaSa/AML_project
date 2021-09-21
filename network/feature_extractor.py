@@ -2,8 +2,11 @@
 We Use a Version of ResNet for Feature Extraction on the full images.
 """
 
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torchvision.models as models
+from network.network_blocks import ConvBlock, FCBlock
 
 class BasicBlock(nn.Module):
     """
@@ -121,4 +124,55 @@ class ResNet(nn.Module):
         x = self.layer4(x)
         x = self.end(x)
         return x
+
+class ResnetOriginal(nn.Module):
+    """
+    Build up a feature extractor on top of an existing trained network.
+    """
+    def __init__(self, type = "resnet50", shapes = [512, 124, 32, 15], trainable_resnet = False):
+        super().__init__()
+        self.trainable_resnet = trainable_resnet
+
+        if type == "resnet18":
+            base_model = models.resnet18(pretrained=True)
+            end_shape = 512
+        if type == "resnet50":
+            base_model = models.resnet50(pretrained=True)
+            end_shape = 2048
+
+
+        # remove last layer
+        modules = list(base_model.children())[:-1]
+        # because our input is in black and white, we change the networks first layer to receive input with 
+        # #channels = 1. We do this by taking the average of the the weights for each colour channel
+        layer0 = modules[0].weight
+        modules[0] = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=2, bias=False)
+        modules[0].weight = nn.Parameter(torch.mean(layer0, dim=1, keepdim=True))
+        self.features = nn.Sequential(*modules)
+        if not trainable_resnet:
+            for parameter in self.features.parameters():
+                parameter.requires_grad = False
+
+        shapes = [end_shape] + shapes
+        self.fc = FCBlock( shapes, use_dropout = True)
+
+    def forward(self, x):
+        if self.trainable_resnet:
+            temp = self.features(x)
+        else:
+            with torch.no_grad():
+                temp = self.features(x)
+
+        temp = torch.flatten(temp,1)
+        temp = self.fc(temp)
+        temp = torch.sigmoid(temp)
+        return temp
+
+
+
+
+
+
+        
+
 
