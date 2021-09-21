@@ -23,14 +23,16 @@ class BaseTraining:
             path_weights = None,
             use_cuda = torch.cuda.is_available(),
             verbose_level = 0,
-            data_trafo = None
+            data_trafo = None,
+            adam_regul_factor = 0.
             ):
 
         # define model
         self.name = name
         self.network = network
         self.lr = lr
-        self.optimizer = torch.optim.Adam(self.network.parameters(), lr)
+        self.optimizer = torch.optim.Adam(self.network.parameters(), lr,
+                                          weight_decay = adam_regul_factor)
         self.criterion = criterion
         self.batch_size = batch_size
 
@@ -62,6 +64,7 @@ class BaseTraining:
     def save_configuration(self):
         config = {"network": self.network.__class__.__name__,
                   "optimizer": self.optimizer.__class__.__name__,
+                  "adam_regul_factor": self.adam_regul_factor,
                   "batch_size": self.batch_size,
                   "learning_rate": self.lr,
                   "loss": self.criterion.__class__.__name__,
