@@ -22,8 +22,9 @@ def main():
                               "n_boxes": len(meta.label.split("opacity")) - 1,
                               "study_label": study_label,
                               "pixel_min": array.min(),
-                              "pixel_mean": array.mean(),
                               "pixel_max": array.max(),
+                              "pixel_mean": array.mean(),
+                              "pixel_std": array.std(),
                               **{el.keyword: el.value for el in elements
                                  if el.keyword not in exclude}},
                              ignore_index=True)
