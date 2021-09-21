@@ -129,7 +129,7 @@ class ResnetOriginal(nn.Module):
     """
     Build up a feature extractor on top of an existing trained network.
     """
-    def __init__(self, type = "resnet50", shapes = [512, 124, 32, 15], trainable_resnet = False):
+    def __init__(self, type = "resnet50", shapes = [512, 124, 32, 14], trainable_resnet = False):
         super().__init__()
         self.trainable_resnet = trainable_resnet
 

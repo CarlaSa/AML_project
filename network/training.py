@@ -12,6 +12,26 @@ np.random.seed(42)
 torch.manual_seed(42)
 torch.cuda.manual_seed(42)
 
+def get_balanced_crossentropy_loss(dataset, verbose = False, shape = 4):
+    """
+    Returns a Crossentropy Loss with weights according to the balancing
+    in the dataset
+
+    A higher weight corresponds with a greater emphasis on this class.
+    So smaller classes should get a higher weight.
+    """
+
+    if verbose:
+        print("calculate balancing vector:")
+    b = torch.tensor([0]* shape)
+    for x,y in (tqdm(dataset) if verbose else dataset):
+        b += y
+    c_weights = (torch.sum(b)/ (4*b))
+    if verbose:
+        print("balancing vector will be " + str(c_weights))
+    loss = nn.CrossEntropyLoss(weight= c_weights.float())
+    return loss
+
 class BaseTraining:
     def __init__(self,
             name,
@@ -23,17 +43,14 @@ class BaseTraining:
             path_weights = None,
             use_cuda = torch.cuda.is_available(),
             verbose_level = 0,
-            data_trafo = None,
-            adam_regul_factor = 0.
+            data_trafo = None
             ):
 
         # define model
         self.name = name
         self.network = network
         self.lr = lr
-        self.optimizer = torch.optim.Adam(self.network.parameters(), lr,
-                                          weight_decay = adam_regul_factor)
-        self.adam_regul_factor = adam_regul_factor
+        self.optimizer = torch.optim.Adam(self.network.parameters(), lr)
         self.criterion = criterion
         self.batch_size = batch_size
 
@@ -65,7 +82,6 @@ class BaseTraining:
     def save_configuration(self):
         config = {"network": self.network.__class__.__name__,
                   "optimizer": self.optimizer.__class__.__name__,
-                  "adam_regul_factor": self.adam_regul_factor,
                   "batch_size": self.batch_size,
                   "learning_rate": self.lr,
                   "loss": self.criterion.__class__.__name__,
@@ -181,10 +197,7 @@ class BaseTraining:
 
                 output = self.network(x)
                 loss_val = self.criterion(output, y)
-                try:
-                    self.observables["loss_val"].append(loss_val)
-                except:
-                    print(loss_val)
+                self.observables["loss_val"].append(loss_val)
                 #self._evaluation_methods(output, y)
 
 
@@ -209,5 +222,10 @@ class UnetTraining(BaseTraining):
         x = x.float()
         return x, y
 
-#class FullTraining(BaseTraining):
+class FullTraining(BaseTraining):
+    def _preprocess(self, x, y):
+        y = y.float()
+        x = x.float()
+        return x,y
+
 
