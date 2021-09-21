@@ -7,6 +7,7 @@ from sklearn.metrics import confusion_matrix
 from .losses import dice_score
 from warnings import warn
 import random
+import re
 
 np.random.seed(42)
 torch.manual_seed(42)
@@ -44,6 +45,7 @@ class BaseTraining:
             use_cuda = torch.cuda.is_available(),
             verbose_level = 0,
             data_trafo = None
+            adam_regul_factor = 0.
             ):
 
         # define model
@@ -51,6 +53,7 @@ class BaseTraining:
         self.network = network
         self.lr = lr
         self.optimizer = torch.optim.Adam(self.network.parameters(), lr)
+        self.adam_regul_factor = adam_regul_factor
         self.criterion = criterion
         self.batch_size = batch_size
 
@@ -82,6 +85,7 @@ class BaseTraining:
     def save_configuration(self):
         config = {"network": self.network.__class__.__name__,
                   "optimizer": self.optimizer.__class__.__name__,
+                  "adam_regul_factor": self.adam_regul_factor,
                   "batch_size": self.batch_size,
                   "learning_rate": self.lr,
                   "loss": self.criterion.__class__.__name__,
@@ -101,7 +105,8 @@ class BaseTraining:
             path = path_end
         self.network.load_state_dict(torch.load(path))
         try:
-            self.start_epoch
+            pattern = re.compile(r"^.*_e(\d+).*$")
+            self.start_epoch = int(pattern.match(path_end).group(1))
         except:
             warn("Could not extract epoch from weights.")
 
@@ -169,7 +174,7 @@ class BaseTraining:
         for e in (tqdm(range(start, end)) if self.verbose > 0
                   else range(start, end)):
 
-            self.epochs += 1
+            self.epochs = e
 
             loss = self.train_one_epoch(dataloader)
             self.observables["loss"].append(loss)
@@ -188,6 +193,7 @@ class BaseTraining:
         self.network.eval()
 
         with torch.no_grad():
+            sum_val_loss = 0
             for x,y in tqdm(dataloader_val):
 
                 x,y = self._preprocess(x,y)
@@ -197,7 +203,8 @@ class BaseTraining:
 
                 output = self.network(x)
                 loss_val = self.criterion(output, y)
-                self.observables["loss_val"].append(loss_val)
+                sum_val_loss += float(torch.mean(loss_val))
+            self.observables["loss_val"].append(sum_val_loss/len(dataloader_val))
                 #self._evaluation_methods(output, y)
 
 
@@ -227,5 +234,3 @@ class FullTraining(BaseTraining):
         y = y.float()
         x = x.float()
         return x,y
-
-
