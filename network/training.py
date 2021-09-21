@@ -44,7 +44,7 @@ class BaseTraining:
             path_weights = None,
             use_cuda = torch.cuda.is_available(),
             verbose_level = 0,
-            data_trafo = None
+            data_trafo = None,
             adam_regul_factor = 0.
             ):
 
