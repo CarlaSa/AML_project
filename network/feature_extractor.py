@@ -5,6 +5,7 @@ We Use a Version of ResNet for Feature Extraction on the full images.
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torchvision.models as models
 from network.network_blocks import ConvBlock, FCBlock
 
 class BasicBlock(nn.Module):
