@@ -38,13 +38,16 @@ class BaseTraining:
             name,
             network,
             criterion,
-            lr = 0.01,
             batch_size = None,
             path_dir = None,
             path_weights = None,
             use_cuda = torch.cuda.is_available(),
             verbose_level = 0,
             data_trafo = None,
+            use_lr_scheduler = False:
+            lr_scheduler = None,
+            optimizer = None,
+            lr = 0.01,
             adam_regul_factor = 0.
             ):
 
@@ -52,7 +55,10 @@ class BaseTraining:
         self.name = name
         self.network = network
         self.lr = lr
-        self.optimizer = torch.optim.Adam(self.network.parameters(), lr)
+        if optimizer = None:
+            self.optimizer = torch.optim.Adam(self.network.parameters(), lr)
+        else:
+            self.optimizer = optimizer
         self.adam_regul_factor = adam_regul_factor
         self.criterion = criterion
         self.batch_size = batch_size
