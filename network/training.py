@@ -73,6 +73,7 @@ class BaseTraining:
         self.data_trafo = data_trafo
         self.epochs = 0
         self.start_epoch = 0
+        self.batches = 0 # counts how many batches are already used for training
 
         self.observables = {"loss": []
                             }
@@ -92,20 +93,21 @@ class BaseTraining:
             load_weights(path_weights)
 
     def save_configuration(self):
-        config = {"network": self.network.__class__.__name__,
+        self.config = {"network": self.network.__class__.__name__,
                   "optimizer": self.optimizer.__class__.__name__,
                   "adam_regul_factor": self.adam_regul_factor,
                   "batch_size": self.batch_size,
                   "learning_rate": self.lr,
                   "loss": self.criterion.__class__.__name__,
+                  "use_lr_scheduler": self.use_lr_scheduler,
                   #"data_trafos": self.data_trafo._json_serializable(),
                   **getattr(self.network, "hyperparameters", {})
                   }
         if self.data_trafo is not None:
-            config["data_trafo"] = self.data_trafo._json_serializable()
+            self.config["data_trafo"] = self.data_trafo._json_serializable()
 
         with open(f'{self.path}/{self.name}_net_config.json', 'w') as file:
-            json.dump(config, file)
+            json.dump(self.config, file)
 
     def load_weights(self, path_end):
         if self.path is not None:
@@ -139,20 +141,32 @@ class BaseTraining:
 
         self.acc += sum(y_pred == y_true)
 
-    def print_observables(self):
+    def print_observables(self, detailed=False):
         """
         print the observables (e.g. losses)
         """
-        for item in self.observables.items():
-            try:
-                print(f"epoch{self.epochs}: {item[0]} = {item[1][-1]}")
-            except:
-                print(f"epoch{self.epochs}: {item[0]} = no value stored")
+        if not detailed:
+            for item in self.observables.items():
+                try:
+                    print(f"epoch{self.epochs}: {item[0]} = {item[1][-1]}")
+                except:
+                    print(f"epoch{self.epochs}: {item[0]} = no value stored")
+        else:
+            for item in self.observables_per_batches.items():
+                try:
+                    print(f"batch{self.batches}: {item[0]} = {item[1][-1]}")
+                except:
+                    print(f"batch{self.batches}: {item[0]} = no value stored")
 
-    def train_one_epoch(self, dataloader):
+    def train_one_epoch(self, dataloader, det_obs_freq, validate, dataloader_val):
         sum_loss = 0
+        if det_obs_freq>0:
+            batch_ensemble_loss = 0
+
         for x,y in (tqdm(dataloader)
                     if self.verbose == 2 else dataloader):
+
+            self.batches += 1
 
             self.optimizer.zero_grad()
 
@@ -166,16 +180,36 @@ class BaseTraining:
             loss = self.criterion(output, y)
             loss.backward()
 
-            sum_loss += float(torch.mean(loss))
+            mean_loss = float(torch.mean(loss))
+
+            sum_loss += mean_loss
+            batch_ensemble_loss += mean_loss
+
+            if det_obs_freq>0:
+                if self.batches%det_obs_freq==0:
+                    self.observables_per_batches["loss_batch"].append(batch_ensemble_loss/det_obs_freq)
+                    batch_ensemble_loss = 0
+                    if validate:
+                        batch_ensemble_loss_val = self.validate(dataloader_val)
+                        self.observables_per_batches["loss_val_batch"].append(batch_ensemble_loss_val)
+                    if self.verbose > 1:
+                        self.print_observables(detailed=True)
 
             self.optimizer.step()
         return sum_loss/len(dataloader)
 
     def train(self, num_epochs, dataloader, validate = False,
-              dataloader_val=None, save_freq = 10, save_observables = False):
+              dataloader_val=None, save_freq = 10, save_observables = False,
+              det_obs_freq=100
+              ):
+        if det_obs_freq>0:
+            self.config["batches_per_obs": det_obs_freq]
+            self.observables_per_batches = {"loss_batch": []}
 
         if validate:
             self.observables["loss_val"] = []
+            if det_obs_freq>0:
+                self.observables["loss_val_batch"] = []
 
         self.network.train()
         start = self.start_epoch + 1
@@ -185,10 +219,11 @@ class BaseTraining:
 
             self.epochs = e
 
-            loss = self.train_one_epoch(dataloader)
+            loss = self.train_one_epoch(dataloader, det_obs_freq, validate, dataloader_val)
             self.observables["loss"].append(loss)
             if validate:
-                self.validate(dataloader_val)
+                loss_val = self.validate(dataloader_val)
+                self.observables["loss_val"].append(loss_val)
             if e % save_freq == 0:
                 self.save_weights()
                 if save_observables:
@@ -213,8 +248,8 @@ class BaseTraining:
                 output = self.network(x)
                 loss_val = self.criterion(output, y)
                 sum_val_loss += float(torch.mean(loss_val))
-            self.observables["loss_val"].append(sum_val_loss/len(dataloader_val))
-                #self._evaluation_methods(output, y)
+            return sum_val_loss/len(dataloader_val)
+            #self._evaluation_methods(output, y)
 
 
 class PretrainTraining(BaseTraining):
