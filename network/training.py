@@ -226,8 +226,11 @@ class BaseTraining:
                 self.observables["loss_val"].append(loss_val)
             if e % save_freq == 0:
                 self.save_weights()
-                if save_observables:
-                    for item in self.observables.items():
+            if save_observables:
+                for item in self.observables.items():
+                    np.save(f"{self.path}/{self.name}_{item[0]}.npy", np.array(item[1]))
+                if det_obs_freq >0:
+                    for item in self.observables_per_batches.items():
                         np.save(f"{self.path}/{self.name}_{item[0]}.npy", np.array(item[1]))
             if self.verbose > 0:
                 self.print_observables()
