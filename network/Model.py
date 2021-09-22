@@ -63,7 +63,7 @@ class OurModel:
         self.lr_sch_patience = lr_sch_patience
         if use_lr_scheduler:
             self.lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-                self.optimizer, "min", patience=lr_sch_patience)
+                self.optimizer, "min", patience=lr_sch_patience, verbose=True)
         self.criterion = criterion
         self.verbose = verbose
         self.use_cuda = use_cuda
