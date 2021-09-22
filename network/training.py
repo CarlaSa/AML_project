@@ -55,7 +55,7 @@ class BaseTraining:
         self.name = name
         self.network = network
         self.lr = lr
-        if optimizer = None:
+        if optimizer == None:
             self.optimizer = torch.optim.Adam(self.network.parameters(), lr)
         else:
             self.optimizer = optimizer
