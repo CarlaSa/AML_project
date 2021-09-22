@@ -86,7 +86,8 @@ class OurModel:
             self.criterion = self.criterion.cuda()
 
         if path_weights is not None:
-            load_weights(path_weights)
+            warn(f"loading weights from {path_weights}")
+            self.load_weights(path_weights)
 
     def save_configuration(self):
         config = {"network": self.network.__class__.__name__,
