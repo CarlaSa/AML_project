@@ -60,7 +60,7 @@ class BaseTraining:
         else:
             self.optimizer = optimizer
         if use_lr_scheduler:
-            self.lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, "min", patience = lr_sch_patience)
+            self.lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, "min", patience = lr_sch_patience, verbose = True)
         self.use_lr_scheduler = use_lr_scheduler
         self.adam_regul_factor = adam_regul_factor
         self.criterion = criterion
@@ -206,6 +206,7 @@ class BaseTraining:
               ):
         if det_obs_freq>0:
             self.config["batches_per_obs"] = det_obs_freq
+            self.save_configuration()
             self.observables_per_batches = {"loss_batch": []}
 
         if validate:
@@ -238,12 +239,12 @@ class BaseTraining:
                 self.print_observables()
 
 
-    def validate(self, dataloader_val):
+    def validate(self, dataloader_val, silent = False):
         self.network.eval()
 
         with torch.no_grad():
             sum_val_loss = 0
-            for x,y in tqdm(dataloader_val):
+            for x,y in (tqdm(dataloader_val) if not silent else dataloader_val):
 
                 x,y = self._preprocess(x,y)
                 if self.use_cuda:

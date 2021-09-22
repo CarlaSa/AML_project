@@ -51,12 +51,18 @@ class OurModel:
             pretrain = False,
             data_trafo = None,
             adam_regul_factor = 0.
+            use_lr_scheduler = False,
+            lr_sch_patience = 10
             ):
 
         self.name = name
         self.network = network
         self.optimizer = torch.optim.Adam(self.network.parameters(), lr,
                                           weight_decay=adam_regul_factor)
+        self.use_lr_scheduler = use_lr_scheduler
+        self.lr_sch_patience = lr_sch_patience
+        if use_lr_scheduler:
+            self.lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, "min", patience = lr_sch_patience)
         self.criterion = criterion
         self.verbose = verbose
         self.use_cuda = use_cuda
@@ -87,6 +93,8 @@ class OurModel:
                   "adam_regul_factor": self.adam_regul_factor,
                   "batch_size": self.batch_size,
                   "learning_rate": self.lr,
+                  "use_lr_scheduler": self.use_lr_scheduler,
+                  **({"lr_sch_patience": self.lr_sch_patience} if self.use_lr_scheduler else {}),
                   "loss": self.criterion.__class__.__name__,
                   "data_trafos": self.data_trafo._json_serializable(),
                   **getattr(self.network, "hyperparameters", {})
@@ -169,7 +177,8 @@ class OurModel:
                     if self.verbose:
                         print(f"epoch{e}: validation_loss = {loss_val}")
                         print(f"epoch{e}: validation_dice = {dce_val}")
-
+                    if self.use_lr_scheduler:
+                        self.lr_scheduler.step(loss_val)
                     # Make network trainable again
                     self.network.train()
 
