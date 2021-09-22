@@ -15,7 +15,7 @@ from .losses import dice_score
 from warnings import warn
 
 
-def get_balanced_crossentropy_loss(dataset, verbose = False):
+def get_balanced_crossentropy_loss(dataset, verbose=False):
     """
     Returns a Crossentropy Loss with weights according to the balancing
     in the dataset
@@ -26,34 +26,34 @@ def get_balanced_crossentropy_loss(dataset, verbose = False):
 
     if verbose:
         print("calculate balancing vector:")
-    b = torch.tensor([0,0,0,0])
-    for x,y in (tqdm(dataset) if verbose else dataset):
+    b = torch.tensor([0, 0, 0, 0])
+    for x, y in (tqdm(dataset) if verbose else dataset):
         b += y
-    c_weights = (torch.sum(b)/ (4*b))
+    c_weights = (torch.sum(b) / (4*b))
     if verbose:
         print("balancing vector will be " + str(c_weights))
-    loss = nn.CrossEntropyLoss(weight= c_weights.float())
+    loss = nn.CrossEntropyLoss(weight=c_weights.float())
     return loss
 
 
 class OurModel:
     def __init__(self,
-            name,
-            network,
-            criterion,
-            lr = 0.01,
-            batch_size = None,
-            path_dir = None,
-            path_weights = None,
-            use_cuda = torch.cuda.is_available(),
-            verbose = False,
-            segmentation = False,
-            pretrain = False,
-            data_trafo = None,
-            adam_regul_factor = 0.
-            use_lr_scheduler = False,
-            lr_sch_patience = 10
-            ):
+                 name,
+                 network,
+                 criterion,
+                 lr=0.01,
+                 batch_size=None,
+                 path_dir=None,
+                 path_weights=None,
+                 use_cuda=torch.cuda.is_available(),
+                 verbose=False,
+                 segmentation=False,
+                 pretrain=False,
+                 data_trafo=None,
+                 adam_regul_factor=0.,
+                 use_lr_scheduler=False,
+                 lr_sch_patience=10
+                 ):
 
         self.name = name
         self.network = network
@@ -62,7 +62,8 @@ class OurModel:
         self.use_lr_scheduler = use_lr_scheduler
         self.lr_sch_patience = lr_sch_patience
         if use_lr_scheduler:
-            self.lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, "min", patience = lr_sch_patience)
+            self.lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+                self.optimizer, "min", patience=lr_sch_patience)
         self.criterion = criterion
         self.verbose = verbose
         self.use_cuda = use_cuda
@@ -76,10 +77,10 @@ class OurModel:
 
         if batch_size is None:
             warn("Batch size is not specified."
-                  + " It can't be stored in net_config.json")
+                 + " It can't be stored in net_config.json")
         if data_trafo is None:
             warn("Data trafos are not specified."
-                  + " It can't be stored in net_config.json")
+                 + " It can't be stored in net_config.json")
         if self.use_cuda:
             self.network = self.network.cuda()
             self.criterion = self.criterion.cuda()
@@ -119,8 +120,8 @@ class OurModel:
     def train_one_epoch(self, dataloader):
         sum_loss = 0
         sum_dce = 0
-        for x,y in (tqdm(dataloader)
-                    if self.verbose and self.segmentation else dataloader):
+        for x, y in (tqdm(dataloader)
+                     if self.verbose and self.segmentation else dataloader):
 
             self.optimizer.zero_grad()
 
@@ -130,7 +131,7 @@ class OurModel:
             elif self.pretrain:
                 y = y.float()
             else:
-                y = torch.argmax(y.float(), dim = 1)
+                y = torch.argmax(y.float(), dim=1)
 
             x = x.float()
 
@@ -141,7 +142,8 @@ class OurModel:
             output = self.network(x)
             loss = self.criterion(output, y)
             loss.backward()
-            sum_loss += float(torch.mean(loss)) # float() important to reduce memory!
+            # float() important to reduce memory!
+            sum_loss += float(torch.mean(loss))
             self.optimizer.step()
 
             if self.segmentation:
@@ -154,17 +156,17 @@ class OurModel:
         else:
             return sum_loss/len(dataloader)
 
-    def train(self, num_epochs, dataloader, validate = False,
-              dataloader_val=None, save_freq = 10, save_observables = False):
+    def train(self, num_epochs, dataloader, validate=False,
+              dataloader_val=None, save_freq=10, save_observables=False):
         if save_observables and self.segmentation:
             losses = []
             dce_scores = []
             if validate:
                 losses_val = []
-                dce_scores_val =[]
+                dce_scores_val = []
 
         for e in (tqdm(range(1, num_epochs+1))
-                        if self.verbose else range(1, num_epochs+1)):
+                  if self.verbose else range(1, num_epochs+1)):
 
             if self.segmentation:
                 loss, dce = self.train_one_epoch(dataloader)
@@ -192,18 +194,18 @@ class OurModel:
                         losses_val.append(loss_val)
                         dce_scores_val.append(dce_val)
                         if e % save_freq == 0 or e == num_epochs:
-                            np.save(f'{self.path}/loss_val.npy', np.array(losses_val))
-                            np.save(f'{self.path}/dce_val.npy', np.array(dce_scores_val))
+                            np.save(f'{self.path}/loss_val.npy',
+                                    np.array(losses_val))
+                            np.save(f'{self.path}/dce_val.npy',
+                                    np.array(dce_scores_val))
 
             else:
                 loss = self.train_one_epoch(dataloader)
                 if self.verbose:
                     print(f"epoch{e}: loss = {loss}")
 
-
             if e % save_freq == 0:
                 self.save_weights(e)
-
 
     def val(self, dataloader_val):
         if not self.segmentation:
@@ -213,8 +215,8 @@ class OurModel:
             y_pred = []
 
             with torch.no_grad():
-                for x,y in tqdm(dataloader_val):
-                    y = torch.argmax(y.float(), dim = 1)
+                for x, y in tqdm(dataloader_val):
+                    y = torch.argmax(y.float(), dim=1)
                     x = x.float()
 
                     if self.use_cuda:
@@ -222,7 +224,7 @@ class OurModel:
                         x = x.cuda()
 
                     output = self.network(x)
-                    output = torch.argmax(output, dim = 1)
+                    output = torch.argmax(output, dim=1)
                     y_true.extend(y.tolist())
                     y_pred.extend(output.tolist())
                     acc += sum(output == y)
@@ -235,7 +237,7 @@ class OurModel:
             sum_dce = 0
 
             with torch.no_grad():
-                for x,y in tqdm(dataloader_val):
+                for x, y in tqdm(dataloader_val):
                     y = y.float()
                     y = y.squeeze()
                     x = x.float()
@@ -249,5 +251,5 @@ class OurModel:
                     sum_loss += float(loss)
                     dce = dice_score(torch.round(output), y, reduction='none')
                     sum_dce += float(torch.mean(dce))
-                    del x,y, loss, dce, output # maybe too much
+                    del x, y, loss, dce, output  # maybe too much
             return sum_loss/len(dataloader_val), sum_dce/len(dataloader_val)
