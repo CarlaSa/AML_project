@@ -44,7 +44,7 @@ class BaseTraining:
             use_cuda = torch.cuda.is_available(),
             verbose_level = 0,
             data_trafo = None,
-            use_lr_scheduler = False:
+            use_lr_scheduler = False,
             lr_scheduler = None,
             optimizer = None,
             lr = 0.01,
