@@ -209,7 +209,7 @@ class BaseTraining:
         if validate:
             self.observables["loss_val"] = []
             if det_obs_freq>0:
-                self.observables["loss_val_batch"] = []
+                self.observables_per_batches["loss_val_batch"] = []
 
         self.network.train()
         start = self.start_epoch + 1
@@ -251,6 +251,7 @@ class BaseTraining:
                 output = self.network(x)
                 loss_val = self.criterion(output, y)
                 sum_val_loss += float(torch.mean(loss_val))
+            self.network.train()
             return sum_val_loss/len(dataloader_val)
             #self._evaluation_methods(output, y)
 
