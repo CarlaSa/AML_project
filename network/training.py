@@ -203,7 +203,7 @@ class BaseTraining:
               det_obs_freq=100
               ):
         if det_obs_freq>0:
-            self.config["batches_per_obs": det_obs_freq]
+            self.config["batches_per_obs"] = det_obs_freq
             self.observables_per_batches = {"loss_batch": []}
 
         if validate:
