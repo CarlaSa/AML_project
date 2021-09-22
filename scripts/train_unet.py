@@ -62,6 +62,8 @@ def get_args(*args):
     parser.add_argument("--get-path-only", action='store_true')
     parser.add_argument("--get-cuda-device-count-only", action='store_true')
     parser.add_argument("--no-drop-last", action='store_true')
+    parser.add_argument("--use-lr-scheduler", action='store_true')
+    parser.add_argument("--lr-sch-patience", type=int, default=10)
     parser.add_argument("--path", type=str)
     parser.add_argument("criterion", type=Criterion.__getitem__,
                         choices=Criterion)
@@ -97,6 +99,8 @@ def get_abbrev(args):
             abbrev += f"_ch{args.n_initial_block_channels}"
     if args.learning_rate != default.learning_rate:
         abbrev += f"_lr{args.learning_rate}"
+    if args.use_lr_scheduler is True:
+        abbrev += f"_lrsp{args.lr_sch_patience}"
     if args.adam_regul_factor != default.adam_regul_factor:
         abbrev += f"_wd{args.adam_regul_factor}"
     return abbrev
@@ -193,7 +197,9 @@ def main(*args):
                      lr=args.learning_rate, batch_size=args.batch_size,
                      verbose=True, segmentation=True,
                      data_trafo=dataset_aug.trafo,
-                     adam_regul_factor=args.adam_regul_factor
+                     adam_regul_factor=args.adam_regul_factor,
+                     use_lr_scheduler=args.use_lr_scheduler,
+                     lr_sch_patience=args.lr_sch_patience
                      )
 
     # save a json file which indicates what parameters are used for training
