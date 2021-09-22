@@ -45,9 +45,9 @@ class BaseTraining:
             verbose_level = 0,
             data_trafo = None,
             use_lr_scheduler = False,
-            lr_scheduler = None,
+            lr_sch_patience = 10,
             optimizer = None,
-            lr = 0.01,
+            lr = 0.1,
             adam_regul_factor = 0.
             ):
 
@@ -59,6 +59,9 @@ class BaseTraining:
             self.optimizer = torch.optim.Adam(self.network.parameters(), lr)
         else:
             self.optimizer = optimizer
+        if use_lr_scheduler:
+            self.lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, "min", patience = lr_sch_patience)
+        self.use_lr_scheduler = use_lr_scheduler
         self.adam_regul_factor = adam_regul_factor
         self.criterion = criterion
         self.batch_size = batch_size
