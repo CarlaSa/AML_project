@@ -192,6 +192,8 @@ class BaseTraining:
                     if validate:
                         batch_ensemble_loss_val = self.validate(dataloader_val)
                         self.observables_per_batches["loss_val_batch"].append(batch_ensemble_loss_val)
+                        if self.use_lr_scheduler:
+                            self.lr_scheduler.step(batch_ensemble_loss_val)
                     if self.verbose > 1:
                         self.print_observables(detailed=True)
 
