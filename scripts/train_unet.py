@@ -33,6 +33,7 @@ class Criterion(ArgparseEnum):
     BD = BCEandDiceLoss()
     B2D = BCEandDiceLoss(dice_factor=2)
     B3D = BCEandDiceLoss(dice_factor=3)
+    B4D = BCEandDiceLoss(dice_factor=4)
     B1p5D = BCEandDiceLoss(dice_factor=1.5)
 
 
