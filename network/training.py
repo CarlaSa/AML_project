@@ -231,6 +231,7 @@ class UnetTraining(BaseTraining):
 
 class FullTraining(BaseTraining):
     def _preprocess(self, x, y):
-        y = y.float()
+        #y = y.float()
+        y = torch.argmax(y.float(), dim = 1)
         x = x.float()
         return x,y
