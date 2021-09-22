@@ -10,11 +10,11 @@ from network.network_blocks import ConvBlock, FCBlock
 
 class BasicBlock(nn.Module):
     """
-    Our ResNet Blocks consist of 2 Convolutional Layers with Batch 
-    normalization and ReLU as activation function; and of course a skip 
+    Our ResNet Blocks consist of 2 Convolutional Layers with Batch
+    normalization and ReLU as activation function; and of course a skip
     connection.
-    
-    
+
+
     """
 
     def __init__(self, in_ch, out_ch, stri = 1, downsample = None):
@@ -43,7 +43,7 @@ class BasicBlock(nn.Module):
         self.block = nn.Sequential(*layers)
         self.downsample = downsample
         self.relu = nn.ReLU()
-    
+
     def forward(self, x):
         identity = x
 
@@ -56,14 +56,14 @@ class BasicBlock(nn.Module):
 class ResNet(nn.Module):
     def __init__(self, dims, out_shape = 4 , block = BasicBlock, sigmoid_activation = True):
         """
-        
-        dims: list of 4 
+
+        dims: list of 4
 
         """
         super().__init__()
         self.current_ch = 64
         self.start = nn.Sequential(
-                nn.Conv2d(1, self.current_ch, kernel_size = 7, stride = 2, padding = 3, 
+                nn.Conv2d(1, self.current_ch, kernel_size = 7, stride = 2, padding = 3,
                     bias = False),
                 nn.BatchNorm2d(self.current_ch),
                 nn.ReLU(),
@@ -90,11 +90,11 @@ class ResNet(nn.Module):
 
     def _create_blocks(self, block, out_ch, num_blocks, stride = 1):
         """
-        This function gives back num_block many layers of type block 
-        If out_ch is different from self.current_ch, then in the first layer the 
-        number of channels is changed and downsampling is applied. 
+        This function gives back num_block many layers of type block
+        If out_ch is different from self.current_ch, then in the first layer the
+        number of channels is changed and downsampling is applied.
         """
-        # If stride is set to something else than 1, the stride is used to 
+        # If stride is set to something else than 1, the stride is used to
         # downsample the images in a convolution layer.
         downsample = None
         if stride != 1 or self.current_ch != out_ch:
@@ -115,7 +115,7 @@ class ResNet(nn.Module):
                 block(self.current_ch, out_ch)
             )
         return nn.Sequential(*layers)
-        
+
     def forward(self, x):
         x = self.start(x)
         x = self.layer1(x)
@@ -132,6 +132,10 @@ class ResnetOriginal(nn.Module):
     def __init__(self, type = "resnet50", shapes = [512, 124, 32, 14], trainable_resnet = False, trainable_level = 5):
         super().__init__()
         self.trainable_resnet = trainable_resnet
+        self.hyperparameters = {"type": type,
+                                "shapes": shapes,
+                                "trainable_resnet": trainable_resnet,
+                                "trainable_level": trainable_level}
 
         if type == "resnet18":
             base_model = models.resnet18(pretrained=True)
@@ -143,7 +147,7 @@ class ResnetOriginal(nn.Module):
 
         # remove last layer
         modules = list(base_model.children())[:-1]
-        # because our input is in black and white, we change the networks first layer to receive input with 
+        # because our input is in black and white, we change the networks first layer to receive input with
         # #channels = 1. We do this by taking the average of the the weights for each colour channel
         layer0 = modules[0].weight
         modules[0] = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=2, bias=False)
@@ -177,12 +181,3 @@ class ResnetOriginal(nn.Module):
         temp = self.fc(temp)
         temp = torch.sigmoid(temp)
         return temp
-
-
-
-
-
-
-        
-
-
