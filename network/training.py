@@ -64,7 +64,7 @@ class BaseTraining:
         self.use_lr_scheduler = use_lr_scheduler
         self.adam_regul_factor = adam_regul_factor
         self.criterion = criterion
-        self.batch_size = batch_size
+        self.batch_size = batch_sizea
 
 
         self.verbose = verbose_level
