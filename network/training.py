@@ -160,7 +160,7 @@ class BaseTraining:
 
     def train_one_epoch(self, dataloader, det_obs_freq, validate, dataloader_val):
         sum_loss = 0
-        if det_obs_freq>0:
+        if det_obs_freq>0 and self.batches == 0:
             batch_ensemble_loss = 0
 
         for x,y in (tqdm(dataloader)
