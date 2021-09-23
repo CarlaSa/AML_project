@@ -129,13 +129,15 @@ class ResnetOriginal(nn.Module):
     """
     Build up a feature extractor on top of an existing trained network.
     """
-    def __init__(self, type = "resnet50", shapes = [512, 124, 32, 14], trainable_resnet = False, trainable_level = 5):
+    def __init__(self, type = "resnet50", shapes = [512, 124, 32, 14], trainable_resnet = False, \
+                 trainable_level = 5, sigmoid_activation = True):
         super().__init__()
         self.trainable_resnet = trainable_resnet
         self.hyperparameters = {"type": type,
                                 "shapes": shapes,
                                 "trainable_resnet": trainable_resnet,
                                 "trainable_level": trainable_level}
+        self.sigmoid_activation = sigmoid_activation
 
         if type == "resnet18":
             base_model = models.resnet18(pretrained=True)
@@ -179,5 +181,6 @@ class ResnetOriginal(nn.Module):
 
         temp = torch.flatten(temp,1)
         temp = self.fc(temp)
-        temp = torch.sigmoid(temp)
+        if self.sigmoid_activation:
+            temp = torch.sigmoid(temp)
         return temp
