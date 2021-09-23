@@ -37,7 +37,7 @@ class FullCLITraining(CLITraining):
                          image_csv="_data/train_image_level.csv")
         dataset_plain = CustomOutput(knit_data, image_tensor, study_label_5)
         dataset_aug = CustomOutput(knit_data, image_tensor, study_label_5,
-                                   trafo=self.args.augmentation)
+                                   trafo=self.args.augmentation.value)
         dataset_aug.trafo.max_transformands = 1
 
         l_data = len(dataset_aug)
