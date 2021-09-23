@@ -96,6 +96,7 @@ class UnetTrainingCLI(TrainingCLI):
         parser.add_argument("--variable-unet", action='store_true')
         parser.add_argument("--n-blocks", type=int, default=4)
         parser.add_argument("--n-initial-block-channels", type=int, default=64)
+        parser.add_argument("--path-prefix", default="_trainings")
         parser.add_argument("criterion", type=Criterion.__getitem__,
                             choices=Criterion)
         parser.add_argument("augmentation", type=Augmentation.__getitem__,
