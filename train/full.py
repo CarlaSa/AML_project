@@ -32,7 +32,7 @@ CEBAL_WEIGHTS = [0.9078, 0.5553, 1.5064, 4.0752, 5.3061]
 class Criterion(ArgparseEnum):
     BCE = nn.BCELoss().cuda()
     CE = nn.CrossEntropyLoss().cuda()
-    CEBAL = nn.CrossEntropyLoss(weights=CEBAL_WEIGHTS).cuda()
+    CEBAL = nn.CrossEntropyLoss(weight=CEBAL_WEIGHTS).cuda()
 
 
 class FullCLITraining(CLITraining):
