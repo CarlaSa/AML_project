@@ -123,8 +123,8 @@ class TrainingCLI:
 
     def get_abbrev(self, args: Namespace) -> str:
         abbrev = (f"a{args.augmentation.name}"
-                  + f"_c{args.criterion.name}" if hasattr(args, "criterion")
-                  else ""
+                  + (f"_c{args.criterion.name}"
+                  if hasattr(args, "criterion") else "")
                   + f"_b{args.batch_size}_e{args.epochs}")
         if args.do_batch_norm is True:
             abbrev += "_BN"
