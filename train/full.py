@@ -92,6 +92,8 @@ class FullCLITraining(CLITraining):
             else:
                 raise RuntimeError("No nn.Linear found in ResNet")
         elif resnet_config["network"] == "ResnetOriginal":
+            if self.args.resnet_fc_cutoff is None:
+                raise RuntimeError("Please specify --resnet-fc-cutoff=n")
             resnet_type = resnet_config["type"]
             shapes = list(resnet_config["shapes"])
             trainable_level = int(resnet_config["trainable_level"])
