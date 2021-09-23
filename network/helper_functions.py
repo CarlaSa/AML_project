@@ -5,6 +5,7 @@ from sklearn.metrics import multilabel_confusion_matrix
 
 def get_multilabel_confusion_matrix(model, dataloader):
     model.eval()
+    device = "cuda" if torch.cuda.is_available() else "gpu"
     ylist =torch.zeros(0, device='cpu')
     outlist =torch.zeros(0, device='cpu')
     with torch.no_grad():
@@ -19,4 +20,3 @@ def get_multilabel_confusion_matrix(model, dataloader):
             outlist=torch.cat([outlist,out.cpu()])
     return multilabel_confusion_matrix(ylist, outlist)
 
-    
