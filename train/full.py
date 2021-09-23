@@ -127,8 +127,8 @@ class FullCLITraining(CLITraining):
         print("Number of parameters:",
               sum(p.numel() for p in model.parameters()))
 
-        loss = get_balanced_crossentropy_loss(train_set, verbose=True, shape=5)
-        training = FullTraining(self.path + "/", model, loss,
+        training = FullTraining(self.path + "/", model,
+                                criterion=self.args.criterion.value,
                                 batch_size=self.args.batch_size,
                                 verbose_level=2, path_dir=".", data_trafo=None,
                                 use_lr_scheduler=self.args.use_lr_scheduler,
