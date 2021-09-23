@@ -29,7 +29,6 @@ def file_path(string):
 class FullCLITraining(CLITraining):
     def run(self):
         super().run()
-        print("debug augmentation:", self.args.augmentation)
 
         # Get Data
         loaded_data = LoadDataset("_data/preprocessed256_new",
@@ -80,6 +79,7 @@ class FullCLITraining(CLITraining):
         if resnet_config["network"] == "ResnetOriginal":
             rn = [int(n) for n
                   in re.search(r"resnet(\d+)", resnet_config_file).group(1)]
+            print("trying to load", rn)
             resnet = ResNet(rn, out_shape=self.args.resnet_out_shape)
             resnet.load_state_dict(torch.load(self.args.resnet_weights,
                                               map_location=device))
