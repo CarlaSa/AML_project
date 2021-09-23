@@ -43,10 +43,10 @@ class CLITraining:
     @staticmethod
     def get_path(args: Namespace, abbrev: str) -> str:
         if args.path is not None:
-            return args.path
+            path = args.path
         else:
             path = f"{datetime.now().strftime('%d-%m_%H-%M')}_{abbrev}"
-            return os.path.join("./_trainings/", path)
+        return os.path.join(args.path_prefix, path)
 
     def main(self):
         if self.args.get_abbrev_only is True:
