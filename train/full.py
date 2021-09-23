@@ -15,7 +15,7 @@ from network.feature_extractor import ResNet, ResnetOriginal
 from network.full_model import EndNetwork, FullModel
 from network.training import FullTraining, get_balanced_crossentropy_loss
 
-from .common_train import TrainingCLI, Augmentation, CLITraining
+from .common_train import TrainingCLI, Augmentation, CLITraining, ArgparseEnum
 from utils.device import device
 
 
@@ -24,6 +24,15 @@ def file_path(string):
         return string
     else:
         raise FileNotFoundError(string)
+
+
+CEBAL_WEIGHTS = [0.9078, 0.5553, 1.5064, 4.0752, 5.3061]
+
+
+class Criterion(ArgparseEnum):
+    BCE = nn.BCELoss().cuda()
+    CE = nn.CrossEntropyLoss().cuda()
+    CEBAL = nn.CrossEntropyLoss(weights=CEBAL_WEIGHTS).cuda()
 
 
 class FullCLITraining(CLITraining):
@@ -141,6 +150,8 @@ class FullTrainingCLI(TrainingCLI):
         parser.add_argument("--resnet-weights", type=file_path)
         parser.add_argument("--augmentation", type=Augmentation.__getitem__,
                             choices=Augmentation, default=Augmentation.NA)
+        parser.add_argument("--criterion", type=Criterion.__getitem__,
+                            choices=Criterion, default=Criterion.CEBAL)
         parser.add_argument("--feature-shape", type=int, default=512)
         parser.add_argument("--resnet-out-shape", type=int)
         parser.add_argument("--resnet-fc-cutoff", type=int)
