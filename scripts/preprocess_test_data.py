@@ -45,7 +45,7 @@ def main():
                 dicom.__repr__()
                 elements = list(dicom.elements())
                 array = dicom.pixel_array
-                png_filename = f"{image_id}.png"
+                png_filename = f"{study_id}_{image_id}.png"
                 table = table.append({"filename": png_filename,
                                       "pixel_min": array.min(),
                                       "pixel_max": array.max(),
