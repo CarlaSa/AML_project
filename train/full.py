@@ -78,8 +78,8 @@ class FullCLITraining(CLITraining):
             resnet_config = json.load(f)
 
         if resnet_config["network"] == "ResnetOriginal":
-            rn = re.search(r"resnet(\d+)",
-                           resnet_config_file).group(1).split("")
+            rn = [int(n) for n
+                  in re.search(r"resnet(\d+)", resnet_config_file).group(1)]
             resnet = ResNet(rn, out_shape=self.args.out_shape)
             resnet.load_state_dict(torch.load(self.args.resnet_weights,
                                               map_location=device))
