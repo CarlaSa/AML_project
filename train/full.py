@@ -140,7 +140,6 @@ class FullTrainingCLI(TrainingCLI):
         parser.add_argument("--resnet-out-shape", type=int)
         parser.add_argument("--resnet-fc-cutoff", type=int)
         parser.add_argument("--path-prefix", default="_full_training")
-        parser.add_argument("--resnet")
         super().__init__(parser)
 
 
