@@ -1,7 +1,9 @@
 import os
 import torch
 import random
-import network
+import network.full_model
+import network.unet
+import network.variable_unet
 import numpy as np
 from shutil import copyfile
 from enum import Enum
