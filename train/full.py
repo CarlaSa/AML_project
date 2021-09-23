@@ -76,7 +76,7 @@ class FullCLITraining(CLITraining):
         with open(resnet_config_file) as f:
             resnet_config = json.load(f)
 
-        if resnet_config["network"] == "ResnetOriginal":
+        if resnet_config["network"] == "ResNet":
             rn = [int(n) for n
                   in re.search(r"resnet(\d+)", resnet_config_file).group(1)]
             print("trying to load", rn)
@@ -91,7 +91,6 @@ class FullCLITraining(CLITraining):
                     break
             else:
                 raise RuntimeError("No nn.Linear found in ResNet")
-
         elif resnet_config["network"] == "ResnetOriginal":
             resnet_type = resnet_config["type"]
             shapes = list(resnet_config["shapes"])
