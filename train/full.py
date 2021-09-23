@@ -29,6 +29,7 @@ def file_path(string):
 class FullCLITraining(CLITraining):
     def run(self):
         super().run()
+        print("debug augmentation:", self.args.augmentation)
 
         # Get Data
         loaded_data = LoadDataset("_data/preprocessed256_new",
