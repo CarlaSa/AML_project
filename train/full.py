@@ -26,7 +26,7 @@ def file_path(string):
         raise FileNotFoundError(string)
 
 
-CEBAL_WEIGHTS = [0.9078, 0.5553, 1.5064, 4.0752, 5.3061]
+CEBAL_WEIGHTS = torch.tensor([0.9078, 0.5553, 1.5064, 4.0752, 5.3061])
 
 
 class Criterion(ArgparseEnum):
