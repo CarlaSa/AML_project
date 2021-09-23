@@ -34,7 +34,6 @@ def get_balanced_crossentropy_loss(dataset, verbose=False, shape=4):
     loss = nn.CrossEntropyLoss(weight=c_weights.float())
     return loss
 
-
 class BaseTraining:
     def __init__(self,
                  name,
