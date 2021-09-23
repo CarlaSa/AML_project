@@ -1,4 +1,5 @@
 import os
+import json
 import torch
 import random
 import network.full_model
@@ -78,6 +79,9 @@ class CLITraining:
         for module in ("unet", "variable_unet", "full_model"):
             file = getattr(network, module).__file__
             copyfile(file, os.path.join(self.path, os.path.basename(file)))
+
+        with open(os.path.join(self.path, "args.json"), "w") as f:
+            json.dump(vars(self.args), f)
 
         # Set seeds for reproducibility:
         torch.manual_seed(42)
