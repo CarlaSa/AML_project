@@ -81,8 +81,7 @@ class CLITraining:
             copyfile(file, os.path.join(self.path, os.path.basename(file)))
 
         serializable = vars(self.args)
-        serializable["augmentation"] = \
-            serializable["augmentation"]._json_serializable()
+        serializable["augmentation"] = serializable["augmentation"].name
         with open(os.path.join(self.path, "args.json"), "w") as f:
             json.dump(serializable, f)
 
