@@ -31,6 +31,7 @@ TRAFO = Compose(
 def main():
     table = pd.DataFrame()
     keywords = {}
+    os.makedirs(os.path.join(OUTPUT_PATH, "images"), exist_ok=True)
     for study_id in tqdm(os.listdir(INPUT_PATH)):
         study_path = os.path.join(INPUT_PATH, study_id)
         for sub_dir in os.listdir(study_path):
