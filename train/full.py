@@ -80,7 +80,7 @@ class FullCLITraining(CLITraining):
         if resnet_config["network"] == "ResnetOriginal":
             rn = [int(n) for n
                   in re.search(r"resnet(\d+)", resnet_config_file).group(1)]
-            resnet = ResNet(rn, out_shape=self.args.out_shape)
+            resnet = ResNet(rn, out_shape=self.args.resnet_out_shape)
             resnet.load_state_dict(torch.load(self.args.resnet_weights,
                                               map_location=device))
             children = list(resnet.end.children())
