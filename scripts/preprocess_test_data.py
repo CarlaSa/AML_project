@@ -12,7 +12,7 @@ from trafo.color import Color0ToMax, TruncateGrayValues
 from trafo.box_mutating import CropToLungs, CropPadding, Scale, \
     RoundBoundingBoxes
 
-INPUT_PATH = "_data/data/test"
+INPUT_PATH = "_data/test"
 OUTPUT_PATH = "_data/test_preprocessed256"
 EXCLUDE_DICOM = {"PixelData"}
 TRAFO = Compose(
