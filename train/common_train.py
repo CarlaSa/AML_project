@@ -87,6 +87,7 @@ class CLITraining:
 
 class TrainingCLI:
     parser: ArgumentParser
+    training_class: type = CLITraining
 
     def __init__(self, parser: ArgumentParser = ArgumentParser()):
         parser.add_argument("--epochs", type=int, default=100)
@@ -130,4 +131,4 @@ class TrainingCLI:
 
     def get_training(self, *args: str) -> CLITraining:
         _args = self.get_args(*args)
-        return CLITraining(_args, self.get_abbrev(_args))
+        return self.training_class(_args, self.get_abbrev(_args))

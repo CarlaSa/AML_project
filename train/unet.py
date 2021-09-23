@@ -24,42 +24,6 @@ class Criterion(ArgparseEnum):
     B1p5D = BCEandDiceLoss(dice_factor=1.5)
 
 
-class UnetTrainingCLI(TrainingCLI):
-    def __init__(self):
-        parser = ArgumentParser(
-            description="Train Unet, save weights + results.")
-        parser.add_argument("--p-dropout", type=float, default=0)
-        parser.add_argument("--variable-unet", action='store_true')
-        parser.add_argument("--n-blocks", type=int, default=4)
-        parser.add_argument("--n-initial-block-channels", type=int, default=64)
-        parser.add_argument("criterion", type=Criterion.__getitem__,
-                            choices=Criterion)
-        parser.add_argument("augmentation", type=Augmentation.__getitem__,
-                            choices=Augmentation)
-        super().__init__(parser)
-
-    def default_args(self):
-        args = self.get_args(
-            list(Criterion)[0].name, list(Augmentation)[0].name)
-        del args.criterion
-        del args.augmentation
-        return args
-
-    def get_abbrev(self, args: Namespace):
-        abbrev = super().get_abbrev(args)
-        default = self.default_args()
-        if args.p_dropout != default.p_dropout:
-            abbrev += f"_do{args.p_dropout}"
-        if args.variable_unet is True:
-            abbrev += "_varUnet"
-            if args.n_blocks != default.n_blocks:
-                abbrev += f"_blk{args.n_blocks}"
-            if args.n_initial_block_channels != \
-                    default.n_initial_block_channels:
-                abbrev += f"_ch{args.n_initial_block_channels}"
-        return abbrev
-
-
 class UnetCLITraining(CLITraining):
     def run(self):
         super().run()
@@ -120,6 +84,44 @@ class UnetCLITraining(CLITraining):
         Model.save_configuration()
         Model.train(self.args.epochs, dataloader_train, validate=True,
                     dataloader_val=dataloader_val, save_observables=True)
+
+
+class UnetTrainingCLI(TrainingCLI):
+    training_class: type = UnetCLITraining
+
+    def __init__(self):
+        parser = ArgumentParser(
+            description="Train Unet, save weights + results.")
+        parser.add_argument("--p-dropout", type=float, default=0)
+        parser.add_argument("--variable-unet", action='store_true')
+        parser.add_argument("--n-blocks", type=int, default=4)
+        parser.add_argument("--n-initial-block-channels", type=int, default=64)
+        parser.add_argument("criterion", type=Criterion.__getitem__,
+                            choices=Criterion)
+        parser.add_argument("augmentation", type=Augmentation.__getitem__,
+                            choices=Augmentation)
+        super().__init__(parser)
+
+    def default_args(self):
+        args = self.get_args(
+            list(Criterion)[0].name, list(Augmentation)[0].name)
+        del args.criterion
+        del args.augmentation
+        return args
+
+    def get_abbrev(self, args: Namespace):
+        abbrev = super().get_abbrev(args)
+        default = self.default_args()
+        if args.p_dropout != default.p_dropout:
+            abbrev += f"_do{args.p_dropout}"
+        if args.variable_unet is True:
+            abbrev += "_varUnet"
+            if args.n_blocks != default.n_blocks:
+                abbrev += f"_blk{args.n_blocks}"
+            if args.n_initial_block_channels != \
+                    default.n_initial_block_channels:
+                abbrev += f"_ch{args.n_initial_block_channels}"
+        return abbrev
 
 
 def main(*args):
