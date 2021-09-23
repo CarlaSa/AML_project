@@ -80,8 +80,11 @@ class CLITraining:
             file = getattr(network, module).__file__
             copyfile(file, os.path.join(self.path, os.path.basename(file)))
 
+        serializable = vars(self.args)
+        serializable["augmentation"] = \
+            serializable["augmentation"]._json_serializable()
         with open(os.path.join(self.path, "args.json"), "w") as f:
-            json.dump(vars(self.args), f)
+            json.dump(serializable, f)
 
         # Set seeds for reproducibility:
         torch.manual_seed(42)
