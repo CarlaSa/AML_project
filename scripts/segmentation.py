@@ -75,6 +75,7 @@ def get_args(*args: str) -> Namespace:
                         + datetime.now().strftime('%d_%H-%M-%S'))
     parser.add_argument("--criterion", type=Criterion.__getitem__,
                         choices=Criterion, default=Criterion.B3D)
+    parser.add_argument("--batch-size", type=int)
     parser.add_argument("--cuda-device", type=int)
     if len(args) > 0:
         return parser.parse_args(args)
@@ -111,7 +112,7 @@ def main(*args: str):
                      criterion=args.criterion.value,
                      path_dir=args.model_dir, path_weights=weights_filename,
                      lr=0, verbose=True, segmentation=True)
-    batch_size = optimal_batch_size(data, model, start=16)
+    batch_size = args.batch_size or optimal_batch_size(data, model, start=16)
     dataloader = DataLoader(data, batch_size=batch_size)
 
     table = pd.DataFrame()
