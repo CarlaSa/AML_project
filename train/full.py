@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader, Subset
 import torch
 from torch import nn
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 
 from datasets import LoadDataset, CustomOutput, Knit
 from datasets.custom_output import image_tensor, study_label_5
@@ -13,7 +13,7 @@ from datasets.custom_output import image_tensor, study_label_5
 from network.unet import Unet
 from network.feature_extractor import ResNet, ResnetOriginal
 from network.full_model import EndNetwork, FullModel
-from network.training import FullTraining, get_balanced_crossentropy_loss
+from network.training import FullTraining
 
 from .common_train import TrainingCLI, Augmentation, CLITraining, ArgparseEnum
 from utils.device import device
@@ -85,7 +85,7 @@ class FullCLITraining(CLITraining):
         with open(resnet_config_file) as f:
             resnet_config = json.load(f)
 
-        sigmoid_activation = not self.args.resnet_no_sigmoid_activation
+        sigmoid_activation = self.args.resnet_no_sigmoid_activation is not True
         if resnet_config["network"] == "ResNet":
             dims = [int(n) for n
                     in re.search(r"resnet(\d+)", resnet_config_file).group(1)]
@@ -163,6 +163,12 @@ class FullTrainingCLI(TrainingCLI):
                             action="store_true")
         parser.add_argument("--path-prefix", default="_full_training")
         super().__init__(parser)
+
+    def get_abbrev(self, args: Namespace):
+        abbrev = super().get_abbrev(args)
+        if args.resnet_no_sigmoid_activation is True:
+            abbrev += f"_nosig"
+        return abbrev
 
 
 def main(*args):
