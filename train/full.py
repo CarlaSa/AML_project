@@ -120,7 +120,8 @@ class FullCLITraining(CLITraining):
                                             [:-self.args.resnet_fc_cutoff])
 
         # Full network
-        end_network = EndNetwork(features_shape=self.args.feature_shape)
+        end_network = EndNetwork(features_shape=self.args.feature_shape,
+                                 use_dropout=self.args.no_dropout is not True)
 
         model = FullModel(unet=unet, feature_extractor=resnet, end=end_network,
                           threshold=0.5, unet_trainable=False,
@@ -161,13 +162,18 @@ class FullTrainingCLI(TrainingCLI):
         parser.add_argument("--resnet-fc-cutoff", type=int)
         parser.add_argument("--resnet-no-sigmoid-activation",
                             action="store_true")
+        parser.add_argument("--no-dropout", action="store_true")
         parser.add_argument("--path-prefix", default="_full_training")
         super().__init__(parser)
 
     def get_abbrev(self, args: Namespace):
         abbrev = super().get_abbrev(args)
         if args.resnet_no_sigmoid_activation is True:
-            abbrev += f"_nosig"
+            abbrev += "_nosig"
+        if args.no_dropout is True:
+            abbrev += "_nodo"
+        if args.resnet_fc_cutoff is not None:
+            abbrev += f"_fcc{args.resnet_fc_cutoff}"
         return abbrev
 
 
