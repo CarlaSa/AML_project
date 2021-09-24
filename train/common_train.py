@@ -120,7 +120,7 @@ class TrainingCLI:
         return self.parser.parse_args()
 
     def default_args(self) -> Namespace:
-        return self.get_args()
+        return self.parser.parse_args([])
 
     def get_abbrev(self, args: Namespace) -> str:
         abbrev = (f"a{args.augmentation.name}"
