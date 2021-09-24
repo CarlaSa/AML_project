@@ -50,11 +50,13 @@ class BoundingBoxes(np.ndarray):
         return boxes
 
     @staticmethod
-    def from_mask(mask: np.ndarray, max_bounding_boxes: int) -> BoundingBoxes:
-        boxes = BoundingBoxes.from_array(np.zeros((max_bounding_boxes, 4)))
+    def from_mask(mask: np.ndarray, max_bounding_boxes: int = 0,
+                  enlarge_array: bool = True) -> BoundingBoxes:
         mask = mask.astype(int)
         labeled = label(mask)
         regions = regionprops(labeled)
+        n_boxes = max(max_bounding_boxes, len(regions))
+        boxes = BoundingBoxes.from_array(np.zeros((n_boxes, 4)))
         for i, r in enumerate(regions):
             boxes[i] = [r.bbox[1], r.bbox[0], r.bbox[3]-r.bbox[1],
                         r.bbox[2]-r.bbox[0]]
