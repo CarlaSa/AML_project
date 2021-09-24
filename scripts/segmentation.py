@@ -75,6 +75,7 @@ def get_args(*args: str) -> Namespace:
                         + datetime.now().strftime('%d_%H-%M-%S'))
     parser.add_argument("--criterion", type=Criterion.__getitem__,
                         choices=Criterion, default=Criterion.B3D)
+    parser.add_argument("--cuda-device", type=int)
     if len(args) > 0:
         return parser.parse_args(args)
     return parser.parse_args()
@@ -85,6 +86,10 @@ def main(*args: str):
     SEED = 42
 
     assert torch.cuda.is_available(), "Missing CUDA"
+
+    if args.cuda_device is not None:
+        torch.cuda.set_device(args.cuda_device)
+
     random.seed(SEED)
     np.random.seed(SEED)
     torch.manual_seed(SEED)
