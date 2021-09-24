@@ -22,6 +22,7 @@ def optimal_batch_size(data: Dataset, model: OurModel, start: int = 16):
     working: int = 0
     too_high: int = 0
     while too_high == 0 or working < candidate:
+        torch.cuda.empty_cache()
         print("trying", candidate)
         dataloader = DataLoader(data, batch_size=candidate)
         try:
@@ -41,6 +42,7 @@ def optimal_batch_size(data: Dataset, model: OurModel, start: int = 16):
             print(too_high, "too high")
             candidate = (candidate + working)//2
     print("using batch size", working)
+    torch.cuda.empty_cache()
     return working
 
 
