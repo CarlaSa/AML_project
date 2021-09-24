@@ -43,7 +43,7 @@ class ChestXrayDataset(Dataset):
     def get_loss_weights(self):
         weights = list(self.dataframe.drop(columns = ["Path"])\
                        .apply(pd.Series.sum))
-        weights = [(len(dataframe)- w)/w for w in weights] 
+        weights = [(len(self.dataframe)- w)/w for w in weights] 
         return weights
         
     def __len__(self):
