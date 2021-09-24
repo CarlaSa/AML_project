@@ -27,6 +27,9 @@ class ChestXrayDataset(Dataset):
         
         self.folder_dir = folder_dir
         self.labels = labels
+        # only use frontal images
+        dataframe = dataframe[dataframe['Frontal/Lateral'] == "Frontal"]
+        # only keep labels, replace nan and -1 with 0
         self.dataframe = dataframe[labels].replace(np.nan, 0).replace(-1, 0)
         
         # Define list of image transformations
