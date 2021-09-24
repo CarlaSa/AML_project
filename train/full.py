@@ -89,7 +89,8 @@ class FullCLITraining(CLITraining):
         if resnet_config["network"] == "ResNet":
             dims = [int(n) for n
                     in re.search(r"resnet(\d+)", resnet_config_file).group(1)]
-            print("trying to load", dims)
+            print("trying to load", f"dims={dims}",
+                  f"out_shape={self.args.resnet_out_shape}")
             resnet = ResNet(dims, out_shape=self.args.resnet_out_shape,
                             sigmoid_activation=sigmoid_activation)
             resnet.load_state_dict(torch.load(self.args.resnet_weights,
