@@ -87,10 +87,10 @@ class FullCLITraining(CLITraining):
 
         sigmoid_activation = not self.args.resnet_no_sigmoid_activation
         if resnet_config["network"] == "ResNet":
-            rn = [int(n) for n
-                  in re.search(r"resnet(\d+)", resnet_config_file).group(1)]
-            print("trying to load", rn)
-            resnet = ResNet(rn, out_shape=self.args.resnet_out_shape,
+            dims = [int(n) for n
+                    in re.search(r"resnet(\d+)", resnet_config_file).group(1)]
+            print("trying to load", dims)
+            resnet = ResNet(dims, out_shape=self.args.resnet_out_shape,
                             sigmoid_activation=sigmoid_activation)
             resnet.load_state_dict(torch.load(self.args.resnet_weights,
                                               map_location=device))
