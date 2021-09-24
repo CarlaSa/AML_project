@@ -140,4 +140,5 @@ class TrainingCLI:
 
     def get_training(self, *args: str) -> CLITraining:
         _args = self.get_args(*args)
+        print("getting training with", _args)
         return self.training_class(_args, self.get_abbrev(_args))
