@@ -1,5 +1,7 @@
 import pandas as pd
+import numpy as np
 from torch.utils.data import Dataset
+import PIL.Image as Image
 import torchvision.transforms as transforms
 
 class ChestXrayDataset(Dataset):
