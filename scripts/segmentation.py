@@ -112,6 +112,7 @@ def main(*args: str):
     table = pd.DataFrame()
 
     os.makedirs(args.output_dir)
+    print("output to", args.output_dir)
     with open(os.path.join(args.output_dir,
                            "image_prediction_config.json"), "w") as f:
         json.dump({"input_dir": args.input_dir, "model_dir": args.model_dir,
