@@ -132,9 +132,10 @@ def main(*args: str):
         x = x.float().cuda()
         y_hat = model.network(x)
         for tensor, study_id, image_id in zip(y_hat, study_ids, image_ids):
-            table.append({"Id": f"{image_id}_image",
-                          "PredictionString": prediction_string(tensor)},
-                         ignore_index=True)
+            table = table.append({"Id": f"{image_id}_image",
+                                  "PredictionString":
+                                  prediction_string(tensor)},
+                                 ignore_index=True)
     table.to_csv(os.path.join(args.output_dir, "image_predictions.csv"))
 
 
