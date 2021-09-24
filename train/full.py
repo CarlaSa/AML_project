@@ -85,11 +85,13 @@ class FullCLITraining(CLITraining):
         with open(resnet_config_file) as f:
             resnet_config = json.load(f)
 
+        sigmoid_activation = not self.args.resnet_no_sigmoid_activation
         if resnet_config["network"] == "ResNet":
             rn = [int(n) for n
                   in re.search(r"resnet(\d+)", resnet_config_file).group(1)]
             print("trying to load", rn)
-            resnet = ResNet(rn, out_shape=self.args.resnet_out_shape)
+            resnet = ResNet(rn, out_shape=self.args.resnet_out_shape,
+                            sigmoid_activation=sigmoid_activation)
             resnet.load_state_dict(torch.load(self.args.resnet_weights,
                                               map_location=device))
             children = list(resnet.end.children())
@@ -109,7 +111,8 @@ class FullCLITraining(CLITraining):
             trainable_resnet = bool(resnet_config["trainable_resnet"])
             resnet = ResnetOriginal(type=resnet_type, shapes=shapes,
                                     trainable_resnet=trainable_resnet,
-                                    trainable_level=trainable_level)
+                                    trainable_level=trainable_level,
+                                    sigmoid_activation=sigmoid_activation)
             resnet.load_state_dict(torch.load(self.args.resnet_weights,
                                               map_location=device))
             resnet.fc.block = nn.Sequential(*list(resnet.fc.block.children())
@@ -155,6 +158,8 @@ class FullTrainingCLI(TrainingCLI):
         parser.add_argument("--feature-shape", type=int, default=512)
         parser.add_argument("--resnet-out-shape", type=int)
         parser.add_argument("--resnet-fc-cutoff", type=int)
+        parser.add_argument("--resnet-no-sigmoid-activation",
+                            action="store_true")
         parser.add_argument("--path-prefix", default="_full_training")
         super().__init__(parser)
 
