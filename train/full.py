@@ -173,8 +173,8 @@ class FullTrainingCLI(TrainingCLI):
 
 def main(*args):
     cli = FullTrainingCLI()
-    training = cli.get_training()
-    training.main(*args)
+    training = cli.get_training(*args)
+    training.main()
 
 
 if __name__ == '__main__':

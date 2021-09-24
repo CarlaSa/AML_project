@@ -127,8 +127,8 @@ class UnetTrainingCLI(TrainingCLI):
 
 def main(*args):
     cli = UnetTrainingCLI()
-    training = cli.get_training()
-    training.main(*args)
+    training = cli.get_training(*args)
+    training.main()
 
 
 if __name__ == '__main__':
