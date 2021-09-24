@@ -1,12 +1,16 @@
-abbrev,model,learning_rate,augmentation,adam_regul_factor,trainable,trainable_level,validation_size,epochs,node,comment
-resnet1111_20-09,resnet1111,0.01,NA,0,,,234,24,gpu08,overfitting from e10
-resnet1111_lr1e-3_20-09,resnet1111,0.001,NA,0,,,234,24,gpu08,heavy overfitting
-resnet1111_21-09,resnet1111,0.01,NA,0.001,,,234,12,,"no training, loss > 20"
-resnet1111_21-09_trafo,resnet1111,0.01,DAOG,0,,,234,24,,"no overfitting, no training"
-resnet50_orig_ntr_09_21,resnet50_orig,0.01,NA,0,FALSE,,234,21,,no training
-resnet18_orig_tr=6_09_21,resnet18_orig,0.001,NA,0.001,TRUE,6,0.1,18,,no training
-resnet50_orig_tr=6_09_22,resnet50_orig,0.01,NA,0.001,TRUE,6,0.1,15,,"no training, loss ~16"
-resnet18_orig_tr=all_09_22,resnet18_orig,0.01,NA,0.001,TRUE,0,0.1,,,
-resnet50_orig_tr6_09_22,resnet50_orig,0.01,NA,0,TRUE,7,0.1,,,
-resnet50_orig_tr6_lr01_09_22,resnet50_orig,0.01,NA,0,TRUE,6,0.1,,,
-resnet1111_lr-scheduler_new-split,resnet1111,Scheduled 0.1,DAOG,0,,,0.01,30,gpu02,
+resnet_training_runs
+abbrev;Date;model;learning_rate;augmentation;adam_regul_factor;trainable;trainable_level;Dims;validation_size;epochs;node;Loss;comment
+resnet1111_20-09;09-20;resnet1111;0.01;NA;0;;;;234;24;gpu08;;overfitting from e10
+resnet1111_lr1e-3_20-09;09-20;resnet1111;1;NA;0;;;;234;24;gpu08;;heavy overfitting
+resnet1111_21-09;09-21;resnet1111;0.01;NA;1;;;;234;12;;;no training, loss > 20
+resnet1111_21-09_trafo;09-21;resnet1111;0.01;DAOG;0;;;;234;24;;;no overfitting, no training
+resnet50_orig_ntr_09_21;09-21;resnet50_orig;0.01;NA;0;FALSE;;;234;21;;;no training
+resnet18_orig_tr=6_09_21;09-21;resnet18_orig;1;NA;1;TRUE;6;;0.1;18;;;no training
+resnet50_orig_tr=6_09_22;09-22;resnet50_orig;0.01;NA;1;TRUE;6;;0.1;15;;;no training, loss ~16
+resnet18_orig_tr=all_09_22;09-22;resnet18_orig;0.01;NA;1;TRUE;0;;0.1;;;;
+resnet50_orig_tr6_09_22;09-22;resnet50_orig;0.01;NA;0;TRUE;7;;0.1;;;;
+resnet50_orig_tr6_lr01_09_22;09-22;resnet50_orig;0.01;NA;0;TRUE;6;;0.1;;;;
+resnet1111_lr-scheduler_new-split;;resnet1111;Scheduled 0.1;DAOG;0;;;1111;0.01;30;gpu02;;
+2021-09-23T00:08oresnet18_lr=0.0001_trl=4;09-23;resnet18_orig;0.0001;NA;0;TRUE;4;;0.01;24;Gpu07;BCELoss;
+oresnet18_24-09_01-34_NewLoss;09-23;resnet18_orig;0.0001;NA;0,01;TRUE;4;;0.01;12;Gpu07;BCEWithLogitsLoss with balanced weights;New loss
+resnet2222_24-09_01-38_NewLoss;09-23;Resnet2222;0.01;NA;0.01;NA;;2222;0.01;12;gpu08;BCEWithLogitsLoss with balanced weights;New loss
