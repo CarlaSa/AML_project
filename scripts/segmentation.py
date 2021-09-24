@@ -136,7 +136,8 @@ def main(*args: str):
                                   "PredictionString":
                                   prediction_string(tensor)},
                                  ignore_index=True)
-    table.to_csv(os.path.join(args.output_dir, "image_predictions.csv"))
+    table.to_csv(os.path.join(args.output_dir, "image_predictions.csv"),
+                 index=False)
 
 
 if __name__ == '__main__':
