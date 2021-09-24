@@ -120,7 +120,7 @@ class TrainingCLI:
         return self.parser.parse_args()
 
     def default_args(self) -> Namespace:
-        return self.get_args()
+        return self.parser.parse_args([])
 
     def get_abbrev(self, args: Namespace) -> str:
         abbrev = (f"a{args.augmentation.name}"
@@ -140,4 +140,5 @@ class TrainingCLI:
 
     def get_training(self, *args: str) -> CLITraining:
         _args = self.get_args(*args)
+        print("getting training with", _args)
         return self.training_class(_args, self.get_abbrev(_args))
