@@ -136,7 +136,7 @@ class FullCLITraining(CLITraining):
                 features_shape=self.args.feature_shape,
                 latent_shape=self.args.latent_shape, use_dropout=use_dropout,
                 use_dropout_conv=self.args.dropout_conv is True,
-                use_batchnorm=self.args.batch_norm is True)
+                use_batchnorm=self.args.do_batch_norm is True)
         else:
             end_network = EndNetwork(features_shape=self.args.feature_shape,
                                      use_dropout=use_dropout)
