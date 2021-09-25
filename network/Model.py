@@ -68,7 +68,7 @@ class OurModel:
             self.lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
                 self.optimizer, "min", patience=lr_sch_patience, verbose=True)
         self.use_step_lr_scheduler = use_step_lr_scheduler
-        self.lr_steps = use_lr_steps
+        self.lr_steps = lr_steps
         self.lr_gamma = lr_gamma
         if use_lr_scheduler and use_step_lr_scheduler:
             warn("Decide for one learning rate scheduler!")
