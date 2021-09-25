@@ -20,16 +20,21 @@ class ConvBlock(nn.Module):
         Conv2d -> BatchNorm2d -> Maxpool2d -> ReLU
     """
     def __init__(self, in_channel, out_channel, kernelsize = 3, 
-            padding = 1, use_batchnorm = False, use_MaxPool = True):
+            padding = 1, num_conv = 1, use_batchnorm = False, use_MaxPool = True, use_dropout = False):
         super(ConvBlock, self).__init__()
         layers = []
         layers.append(nn.Conv2d(in_channel, out_channel, kernelsize, 
+            padding = padding))
+        for _ in range(1, num_conv):
+            layers.append(nn.Conv2d(out_channel, out_channel, kernelsize, 
             padding = padding))
         if use_batchnorm:
             layers.append(nn.BatchNorm2d(out_channel))
         if use_MaxPool:
             layers.append(nn.MaxPool2d(2,2))
         layers.append(nn.ReLU())
+        if use_dropout:
+            layers.append(nn.Dropout(0.2))
 
         self.block = nn.Sequential(*layers)  
     

@@ -35,11 +35,12 @@ class ChestXrayDataset(Dataset):
         
         # Define list of image transformations
         image_transformation = [
-            transforms.Resize((image_size+ 20, image_size + 20)),
+            transforms.Resize((image_size + 20, image_size + 20)),
             transforms.RandomRotation(7),
-            transforms.CenterCrop((image_size +15, image_size + 15)),
+            transforms.CenterCrop((image_size + 15, image_size + 15)),
             transforms.RandomCrop((image_size, image_size)),
             transforms.ToTensor()
+            transforms.Normalize(mean=[0.5], std=[0.23])
         ]
         
         self.image_transformation = transforms.Compose(image_transformation)
@@ -47,7 +48,7 @@ class ChestXrayDataset(Dataset):
     def get_loss_weights(self):
         weights = list(self.dataframe.drop(columns = ["Path"])\
                        .apply(pd.Series.sum))
-        weights = [(len(self.dataframe)- w)/w for w in weights] 
+        weights = [(len(self.dataframe) - w)/w for w in weights] 
         return weights
         
     def __len__(self):
