@@ -65,7 +65,7 @@ class EndNetwork_minimal(nn.Module):
         layers.append(ConvBlock(64, 64, use_dropout= use_dropout_conv, use_batchnorm= use_batchnorm))
         layers.append(nn.Flatten())
         #after_flatten = 65536
-        after_flatten = int(img_shape  * img_shape / 32)
+        after_flatten = int(img_shape  * img_shape / 64)
 
         layers.append(nn.Linear(after_flatten, latent_shape))
         if use_dropout:
