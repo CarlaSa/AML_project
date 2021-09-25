@@ -27,7 +27,7 @@ def get_confusion_matrix(model, dataloader):
     ylist =torch.zeros(0, device='cpu')
     outlist =torch.zeros(0, device='cpu')
     with torch.no_grad():
-        for x,y in dataloader_val:
+        for x,y in dataloader:
             x = x.to(device)
             y = y.to(device)
             x = x.float()
