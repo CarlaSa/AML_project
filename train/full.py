@@ -161,7 +161,8 @@ class FullCLITraining(CLITraining):
                                 adam_regul_factor=self.args.adam_regul_factor)
         training.train(self.args.epochs, dataloader=dataloader_train,
                        dataloader_val=dataloader_val, validate=True,
-                       save_observables=True, det_obs_freq=0)
+                       save_observables=True, det_obs_freq=0,
+                       early_stopping=self.args.early_stopping)
 
 
 class FullTrainingCLI(TrainingCLI):
@@ -188,10 +189,13 @@ class FullTrainingCLI(TrainingCLI):
         parser.add_argument("--endnet-minimal", action="store_true")
         parser.add_argument("--latent-shape", type=int, default=64)
         parser.add_argument("--dropout-conv", action="store_true")
+        parser.add_argument("--early-stopping", type=int)
         super().__init__(parser)
 
     def get_abbrev(self, args: Namespace):
         abbrev = super().get_abbrev(args)
+        if args.early_stopping is not None:
+          abbrev += "_es"
         if args.resnet_no_sigmoid_activation is True:
             abbrev += "_nosig"
         if args.no_dropout is True:
