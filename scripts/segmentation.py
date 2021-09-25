@@ -26,7 +26,7 @@ def optimal_batch_size(data: Dataset, model: OurModel, start: int = 16):
         print("trying", candidate)
         dataloader = DataLoader(data, batch_size=candidate)
         try:
-            for x, study_id, image_id in dataloader:
+            for x, _, _, _ in dataloader:
                 model.network.eval()
                 x = x.float().cuda()
                 y_hat = model.network(x)
