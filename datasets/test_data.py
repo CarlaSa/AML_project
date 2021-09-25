@@ -21,8 +21,7 @@ class TestData(Dataset):
     def __len__(self) -> int:
         return len(self.table)
 
-    def __getitem__(self, index: int) -> Tuple[torch.Tensor, str, str,
-                                               CanvasTrafoRecorder]:
+    def __getitem__(self, index: int) -> Tuple[torch.Tensor, str, str, dict]:
         meta = self.table.iloc[index]
         filename = meta.filename
         path = os.path.join(self.input_dir, "images", filename)
@@ -30,6 +29,5 @@ class TestData(Dataset):
         assert len(study_id) == 12 and len(image_id) == 12
         recorder_kwargs = {key: meta[key] for key
                            in CanvasTrafoRecorder.__annotations__.keys()}
-        recorder = CanvasTrafoRecorder(**recorder_kwargs)
         tensor = io.read_image(path, io.ImageReadMode.GRAY).to(float)/255
-        return tensor, study_id, image_id, recorder
+        return tensor, study_id, image_id, recorder_kwargs

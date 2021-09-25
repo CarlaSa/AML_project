@@ -47,8 +47,8 @@ def optimal_batch_size(data: Dataset, model: OurModel, start: int = 16):
     return working
 
 
-def prediction_string(unet_out: torch.Tensor, recorder: CanvasTrafoRecorder) \
-        -> str:
+def prediction_string(unet_out: torch.Tensor, rec: dict) -> str:
+    recorder = CanvasTrafoRecorder(**rec)
     unet_out = unet_out.cpu().detach().numpy()
     unet_out_rounded = np.round(unet_out)
     boxes = BoundingBoxes.from_mask(unet_out_rounded, max_bounding_boxes=8)
@@ -130,15 +130,15 @@ def main(*args: str):
                    "batch_norm": batch_norm, "batch_size": batch_size,
                    "criterion": args.criterion.name}, f)
 
-    for x, study_ids, image_ids, recorders in tqdm(dataloader):
+    for x, study_ids, image_ids, recs in tqdm(dataloader):
         model.network.eval()
         x = x.float().cuda()
         y_hat = model.network(x)
-        for tensor, study_id, image_id, recorder in zip(y_hat, study_ids,
-                                                        image_ids, recorders):
+        for tensor, study_id, image_id, rec in zip(y_hat, study_ids, image_ids,
+                                                   recs):
             table = table.append({"Id": f"{image_id}_image",
                                   "PredictionString":
-                                  prediction_string(tensor, recorder)},
+                                  prediction_string(tensor, rec)},
                                  ignore_index=True)
     table.to_csv(os.path.join(args.output_dir, "image_predictions.csv"),
                  index=False)
