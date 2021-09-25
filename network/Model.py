@@ -202,7 +202,7 @@ class OurModel:
                     # Make network trainable again
                     self.network.train()
 
-                if use_step_lr_scheduler:
+                if self.use_step_lr_scheduler:
                     self.lr_scheduler.step()
 
                 if save_observables:
