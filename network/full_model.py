@@ -44,6 +44,50 @@ class EndNetwork(nn.Module):
         out = self.end(combined)
         return out
 
+class EndNetwork_minimal(nn.Module):
+    def __init__(self, 
+            img_shape = 256,
+            features_shape = 512,
+            latent_shape = 256,
+            out_shape = 5,
+            use_dropout = True,
+            use_dropout_conv = False,
+            use_batchnorm = False):
+        super().__init__()
+
+        # first: the image input
+        layers = []
+        layers.append(ConvBlock(1, 16,  use_dropout= use_dropout_conv, use_batchnorm= use_batchnorm))
+        layers.append(ConvBlock(16, 16, use_dropout= use_dropout_conv, use_batchnorm= use_batchnorm))
+        layers.append(ConvBlock(16, 32, use_dropout= use_dropout_conv, use_batchnorm= use_batchnorm))
+        layers.append(ConvBlock(32, 32, use_dropout= use_dropout_conv, use_batchnorm= use_batchnorm))
+        layers.append(ConvBlock(32, 64, use_dropout= use_dropout_conv, use_batchnorm= use_batchnorm))
+        layers.append(ConvBlock(64, 64, use_dropout= use_dropout_conv, use_batchnorm= use_batchnorm))
+        layers.append(nn.Flatten())
+        #after_flatten = 65536
+        after_flatten = int(img_shape  * img_shape / 16)
+        layers.append(nn.Linear(after_flatten, latent_shape))
+        if use_dropout:
+            layers.append(nn.Dropout(0.5))
+        self.input_img = nn.Sequential(*layers)
+
+        # second: the feature input
+        shapes = [features_shape]
+        shapes.append(latent_shape)
+        self.input_features = FCBlock(shapes = shapes, use_dropout = use_dropout)
+
+        # third: the combined part
+        shapes = [2*latent_shape]
+        shapes.append(latent_shape)
+        shapes.append(out_shape)
+        self.end = FCBlock(shapes = shapes, use_dropout = use_dropout)
+
+    def forward(self, image, features):
+        image = self.input_img(image)
+        features = self.input_features(features)
+        combined = torch.cat((image, features), dim = 1)
+        out = self.end(combined)
+        return out
 
 class FullModel(nn.Module):
     def __init__(self, 
