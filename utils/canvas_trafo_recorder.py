@@ -47,10 +47,11 @@ class CanvasTrafoRecorder:
 
     def reconstruct_boxes(self, boxes: BoundingBoxes) -> BoundingBoxes:
         boxes = boxes.astype("float")
-        boxes[:, (0, 2)] /= self.scale_width
-        boxes[:, (1, 3)] /= self.scale_height
-        boxes[:, 0] += self.cropped_left
-        boxes[:, 1] += self.cropped_top
-        boxes[:, :2] = np.floor(boxes[:, :2])
-        boxes[:, 2:] = np.ceil(boxes[:, 2:])
+        relevant_rows = boxes.sum(axis=1) != 0
+        boxes[relevant_rows, (0, 2)] /= self.scale_width
+        boxes[relevant_rows, (1, 3)] /= self.scale_height
+        boxes[relevant_rows, 0] += self.cropped_left
+        boxes[relevant_rows, 1] += self.cropped_top
+        boxes[relevant_rows, :2] = np.floor(boxes[relevant_rows, :2])
+        boxes[relevant_rows, 2:] = np.ceil(boxes[relevant_rows, 2:])
         return boxes.astype("int")
