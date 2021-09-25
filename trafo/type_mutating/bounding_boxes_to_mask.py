@@ -4,11 +4,11 @@ from typing import Dict
 from typeguard import typechecked
 
 from ..trafo import Trafo, Transformable
-from ..rules import preserve_tensor
-from utils import BoundingBoxes
+from ..rules import preserve
+from utils import BoundingBoxes, CanvasTrafoRecorder
 
 
-@preserve_tensor
+@preserve(torch.Tensor, CanvasTrafoRecorder)
 class BoundingBoxesToMask(Trafo):
     """
     Convert a numpy.ndarray to a 3d torch.Tensor.

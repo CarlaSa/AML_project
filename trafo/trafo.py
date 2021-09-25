@@ -4,9 +4,9 @@ import torch
 import numpy as np
 from typing import Union, Any, Dict, Tuple
 
-from utils import singledispatchmethod
+from utils import singledispatchmethod, CanvasTrafoRecorder
 
-Transformable = Union[np.ndarray, torch.Tensor]
+Transformable = Union[np.ndarray, torch.Tensor, CanvasTrafoRecorder]
 
 
 class TrafoMeta(type):

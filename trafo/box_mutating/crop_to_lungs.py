@@ -1,5 +1,5 @@
 from ..trafo import Trafo, Transformable
-from .crop_common import crop_image, crop_boxes
+from .crop_common import crop_image, crop_boxes, crop_recorder
 
 import math
 import numpy as np
@@ -190,3 +190,4 @@ class CropToLungs(Trafo):
 
 CropToLungs.transform.register(crop_image)
 CropToLungs.transform.register(crop_boxes)
+CropToLungs.transform.register(crop_recorder)

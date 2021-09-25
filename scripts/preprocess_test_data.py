@@ -11,9 +11,11 @@ from trafo.type_mutating.dicom_to_ndarray import DicomToNDArray
 from trafo.color import Color0ToMax, TruncateGrayValues
 from trafo.box_mutating import CropToLungs, CropPadding, Scale, \
     RoundBoundingBoxes
+from utils import CanvasTrafoRecorder
+
 
 INPUT_PATH = "_data/test"
-OUTPUT_PATH = "_data/test_preprocessed256"
+OUTPUT_PATH = "_data/test_preprocessed256_rec"
 EXCLUDE_DICOM = {"PixelData"}
 TRAFO = Compose(
    DicomToNDArray(),
@@ -47,7 +49,12 @@ def main():
                 elements = list(dicom.elements())
                 array = dicom.pixel_array
                 png_filename = f"{study_id}_{image_id}.png"
+
+                recorder = CanvasTrafoRecorder(*array.shape)
+                image, recorder = TRAFO(dicom, recorder)
+
                 table = table.append({"filename": png_filename,
+                                      **vars(recorder),
                                       "pixel_min": array.min(),
                                       "pixel_max": array.max(),
                                       "pixel_mean": array.mean(),
@@ -58,11 +65,12 @@ def main():
                                      ignore_index=True)
                 keywords = {**keywords, **{el.keyword: el.name
                                            for el in elements}}
-                image = TRAFO(dicom)
                 torchvision.utils.save_image(image, os.path.join(OUTPUT_PATH,
                                                                  "images",
                                                                  png_filename))
-    table.to_csv(os.path.join(OUTPUT_PATH, "dicom_meta.csv"))
+    table.to_csv(os.path.join(OUTPUT_PATH, "dicom_meta.csv"), index=False)
+    rec = ["filename", *CanvasTrafoRecorder.__annotations__.keys()]
+    table[rec].to_csv(os.path.join(OUTPUT_PATH, "images.csv"), index=False)
     with open(os.path.join(OUTPUT_PATH, "dicom_keywords.json"), "w") as f:
         json.dump(keywords, f)
 
