@@ -124,8 +124,9 @@ class FullCLITraining(CLITraining):
                                  use_dropout=self.args.no_dropout is not True)
 
         model = FullModel(unet=unet, feature_extractor=resnet, end=end_network,
-                          threshold=0.5, unet_trainable=False,
-                          feature_extractor_trainable=False)
+                          threshold=0.5,
+                          unet_trainable=self.args.unet_trainable,
+                          feature_extractor_trainable=self.args.resnet_trainable)
 
         print("Number of trainable parameters:",
               sum(p.numel() for p in model.parameters() if p.requires_grad))
@@ -163,6 +164,8 @@ class FullTrainingCLI(TrainingCLI):
         parser.add_argument("--resnet-no-sigmoid-activation",
                             action="store_true")
         parser.add_argument("--no-dropout", action="store_true")
+        parser.add_argument("--resnet-trainable", action="store_true")
+        parser.add_argument("--unet-trainable", action="store_true")
         parser.add_argument("--path-prefix", default="_full_training")
         super().__init__(parser)
 
