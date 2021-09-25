@@ -132,12 +132,12 @@ def main(*args: str):
                    "criterion": args.criterion.name}, f)
 
     for x, study_ids, image_ids, recs in tqdm(dataloader):
+        print(study_ids, image_ids, recs)
         model.network.eval()
         x = x.float().cuda()
         y_hat = model.network(x)
         for tensor, study_id, image_id, rec in zip(y_hat, study_ids, image_ids,
                                                    recs):
-            print(study_id, image_id, rec)
             table = table.append({"Id": f"{image_id}_image",
                                   "PredictionString":
                                   prediction_string(tensor, rec)},
