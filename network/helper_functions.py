@@ -1,5 +1,5 @@
 import torch
-from sklearn.metrics import multilabel_confusion_matrix, confustion_matrix
+from sklearn.metrics import multilabel_confusion_matrix, confusion_matrix
 
 
 
@@ -36,5 +36,5 @@ def get_confusion_matrix(model, dataloader):
             ylist =torch.cat([ylist,y.cpu()])
             out = torch.argmax(out, dim = 1)
             outlist=torch.cat([outlist,out.cpu()])
-    return confustion_matrix(ylist, outlist)
+    return confusion_matrix(ylist, outlist)
 
