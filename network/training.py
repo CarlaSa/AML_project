@@ -241,6 +241,8 @@ class BaseTraining:
                             f"{self.path}/{self.name}_{item[0]}.npy", np.array(item[1]))
             if self.verbose > 0:
                 self.print_observables()
+            if det_obs_freq == 0:
+                self.lr_scheduler.step(loss_val)
 
     def validate(self, dataloader_val, silent=False):
         self.network.eval()

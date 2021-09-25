@@ -72,6 +72,7 @@ class OurModel:
         self.lr_gamma = lr_gamma
         if use_lr_scheduler and use_step_lr_scheduler:
             warn("Decide for one learning rate scheduler!")
+        if use_step_lr_scheduler:
             self.lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(
                 self.optimizer, self.lr_steps, verbose=True
             )
