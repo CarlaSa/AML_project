@@ -138,7 +138,7 @@ def main(*args: str):
         y_hat = model.network(x)
         for i, (tensor, image_id) in enumerate(zip(y_hat, image_ids)):
             print(recs["original_height"])
-            rec = {key: values[i]
+            rec = {key: values[i].item()
                    for key, values in recs.items()}
             table = table.append({"Id": f"{image_id}_image",
                                   "PredictionString":
