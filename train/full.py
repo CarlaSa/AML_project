@@ -78,10 +78,10 @@ class FullCLITraining(CLITraining):
         if "n_blocks" in unet_config or "n_initial_block_channels" in unet_config:
             n_blk = unet_config["n_blocks"]
             n_in_ch = unet_config["n_initial_block_channels"]
-            unet = VUnet(batch_norm=self.args.do_batch_norm,
+            unet = VUnet(batch_norm=unet_config["batch_norm"],
                          n_blocks=n_blk, n_initial_block_channels=n_in_ch)
         else:
-            unet = Unet(batch_norm=self.args.do_batch_norm)
+            unet = Unet(batch_norm=unet_config["batch_norm"])
         unet.load_state_dict(torch.load(self.args.unet_weights,
                                         map_location=device))
 
@@ -136,7 +136,7 @@ class FullCLITraining(CLITraining):
                 features_shape=self.args.feature_shape,
                 latent_shape=self.args.latent_shape, use_dropout=use_dropout,
                 use_dropout_conv=self.args.dropout_conv is True,
-                use_batchnorm=self.args.batch_norm is True)
+                use_batchnorm=self.args.do_batch_norm is True)
         else:
             end_network = EndNetwork(features_shape=self.args.feature_shape,
                                      use_dropout=use_dropout)
@@ -158,11 +158,11 @@ class FullCLITraining(CLITraining):
                                 use_lr_scheduler=self.args.use_lr_scheduler,
                                 lr_sch_patience=self.args.lr_sch_patience,
                                 lr=self.args.learning_rate,
-                                adam_regul_factor=self.args.adam_regul_factor)
+                                adam_regul_factor=self.args.adam_regul_factor,
+                                early_stopping=self.args.early_stopping)
         training.train(self.args.epochs, dataloader=dataloader_train,
                        dataloader_val=dataloader_val, validate=True,
-                       save_observables=True, det_obs_freq=0,
-                       early_stopping=self.args.early_stopping)
+                       save_observables=True, det_obs_freq=0)
 
 
 class FullTrainingCLI(TrainingCLI):
