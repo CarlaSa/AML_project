@@ -100,7 +100,6 @@ def main(*args: str):
     torch.manual_seed(SEED)
 
     data = TestData(args.input_dir)
-    print("first data item:", data[0])
     with open(os.path.join(args.model_dir, "net_config.json")) as f:
         unet_config = json.load(f)
 
