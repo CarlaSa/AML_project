@@ -158,11 +158,11 @@ class FullCLITraining(CLITraining):
                                 use_lr_scheduler=self.args.use_lr_scheduler,
                                 lr_sch_patience=self.args.lr_sch_patience,
                                 lr=self.args.learning_rate,
-                                adam_regul_factor=self.args.adam_regul_factor)
+                                adam_regul_factor=self.args.adam_regul_factor,
+                                early_stopping=self.args.early_stopping)
         training.train(self.args.epochs, dataloader=dataloader_train,
                        dataloader_val=dataloader_val, validate=True,
-                       save_observables=True, det_obs_freq=0,
-                       early_stopping=self.args.early_stopping)
+                       save_observables=True, det_obs_freq=0)
 
 
 class FullTrainingCLI(TrainingCLI):
