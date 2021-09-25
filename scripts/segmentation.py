@@ -99,7 +99,7 @@ def main(*args: str):
     np.random.seed(SEED)
     torch.manual_seed(SEED)
 
-    data = TestData(os.path.join(args.input_dir, "images"))
+    data = TestData(args.input_dir)
     with open(os.path.join(args.model_dir, "net_config.json")) as f:
         unet_config = json.load(f)
 
