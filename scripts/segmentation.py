@@ -137,7 +137,8 @@ def main(*args: str):
         x = x.float().cuda()
         y_hat = model.network(x)
         for i, (tensor, image_id) in enumerate(zip(y_hat, image_ids)):
-            rec = {key: values[i] for key, values in recs.items()}
+            rec = {key: values.cpu().detach()[i]
+                   for key, values in recs.items()}
             table = table.append({"Id": f"{image_id}_image",
                                   "PredictionString":
                                   prediction_string(tensor, rec)},
