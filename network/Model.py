@@ -52,7 +52,10 @@ class OurModel:
                  data_trafo=None,
                  adam_regul_factor=0.,
                  use_lr_scheduler=False,
-                 lr_sch_patience=10
+                 lr_sch_patience=10,
+                 use_step_lr_scheduler=False,
+                 lr_steps = [100,125,150,175],
+                 lr_gamma = 0.1
                  ):
 
         self.name = name
@@ -64,6 +67,14 @@ class OurModel:
         if use_lr_scheduler:
             self.lr_scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
                 self.optimizer, "min", patience=lr_sch_patience, verbose=True)
+        self.use_step_lr_scheduler = use_step_lr_scheduler
+        self.lr_steps = use_lr_steps
+        self.lr_gamma = lr_gamma
+        if use_lr_scheduler and use_step_lr_scheduler:
+            warn("Decide for one learning rate scheduler!")
+            self.lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(
+                self.optimizer, self.lr_steps, verbose=True
+            )
         self.criterion = criterion
         self.verbose = verbose
         self.use_cuda = use_cuda
@@ -97,6 +108,8 @@ class OurModel:
                   "learning_rate": self.lr,
                   "use_lr_scheduler": self.use_lr_scheduler,
                   **({"lr_sch_patience": self.lr_sch_patience} if self.use_lr_scheduler else {}),
+                  "use_step_lr_scheduler": self.use_lr_scheduler,
+                  **({"lr_steps": self.lr_steps, "gamma": self.lr_gamma} if self.use_step_lr_scheduler else {}),
                   "loss": self.criterion.__class__.__name__,
                   "data_trafos": self.data_trafo._json_serializable(),
                   **getattr(self.network, "hyperparameters", {})
@@ -184,6 +197,9 @@ class OurModel:
                         self.lr_scheduler.step(loss_val)
                     # Make network trainable again
                     self.network.train()
+
+                if use_step_lr_scheduler:
+                    self.lr_scheduler.step()
 
                 if save_observables:
                     losses.append(loss)

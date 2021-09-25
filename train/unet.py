@@ -78,7 +78,10 @@ class UnetCLITraining(CLITraining):
                          segmentation=True, data_trafo=dataset_aug.trafo,
                          adam_regul_factor=self.args.adam_regul_factor,
                          use_lr_scheduler=self.args.use_lr_scheduler,
-                         lr_sch_patience=self.args.lr_sch_patience)
+                         lr_sch_patience=self.args.lr_sch_patience,
+                         use_step_lr_scheduler=self.args.use_step_lr_scheduler,
+                         lr_steps=self.args.lr_step,
+                         lr_gamma=self.args.lr_gamma)
 
         # save a json file which indicates what parameters are used for training
         Model.save_configuration()
@@ -97,6 +100,9 @@ class UnetTrainingCLI(TrainingCLI):
         parser.add_argument("--n-blocks", type=int, default=4)
         parser.add_argument("--n-initial-block-channels", type=int, default=64)
         parser.add_argument("--path-prefix", default="_trainings")
+        parser.add_argument("--use-step-lr-scheduler", action="store_true")
+        parser.add_argument("--lr-step", type=int, nargs="+", default=[100,125,150,175])
+        parser.add_argument("--lr-gamma", type=float, default=0.1)
         parser.add_argument("criterion", type=Criterion.__getitem__,
                             choices=Criterion)
         parser.add_argument("augmentation", type=Augmentation.__getitem__,
