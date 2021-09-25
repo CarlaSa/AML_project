@@ -13,7 +13,7 @@ from datasets.custom_output import image_tensor, study_label_5
 from network.unet import Unet
 from network.variable_unet import Unet as VUnet
 from network.feature_extractor import ResNet, ResnetOriginal
-from network.full_model import EndNetwork, FullModel
+from network.full_model import EndNetwork, FullModel, EndNetwork_minimal
 from network.training import FullTraining
 
 from .common_train import TrainingCLI, Augmentation, CLITraining, ArgparseEnum
@@ -130,8 +130,16 @@ class FullCLITraining(CLITraining):
                                             [:-self.args.resnet_fc_cutoff])
 
         # Full network
-        end_network = EndNetwork(features_shape=self.args.feature_shape,
-                                 use_dropout=self.args.no_dropout is not True)
+        use_dropout = self.args.no_dropout is not True
+        if self.args.endnet_minimal is True:
+            end_network = EndNetwork_minimal(
+                features_shape=self.args.feature_shape,
+                latent_shape=self.args.latent_shape, use_dropout=use_dropout,
+                use_dropout_conv=self.args.dropout_conv is True,
+                use_batchnorm=self.args.batch_norm is True)
+        else:
+            end_network = EndNetwork(features_shape=self.args.feature_shape,
+                                     use_dropout=use_dropout)
 
         model = FullModel(unet=unet, feature_extractor=resnet, end=end_network,
                           threshold=0.5,
@@ -177,6 +185,9 @@ class FullTrainingCLI(TrainingCLI):
         parser.add_argument("--resnet-trainable", action="store_true")
         parser.add_argument("--unet-trainable", action="store_true")
         parser.add_argument("--path-prefix", default="_full_training")
+        parser.add_argument("--endnet-minimal", action="store_true")
+        parser.add_argument("--latent-shape", type=int, default=64)
+        parser.add_argument("--dropout-conv", action="store_true")
         super().__init__(parser)
 
     def get_abbrev(self, args: Namespace):
@@ -187,6 +198,10 @@ class FullTrainingCLI(TrainingCLI):
             abbrev += "_nodo"
         if args.resnet_fc_cutoff is not None:
             abbrev += f"_fcc{args.resnet_fc_cutoff}"
+        if args.endnet_minimal is True:
+            abbrev += "_mini"
+            abbrev += f"_ls{args.latent_shape}"
+            abbrev += "_doconv" if args.dropout_conv is True else "_nodoconv"
         return abbrev
 
 
