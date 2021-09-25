@@ -100,6 +100,7 @@ def main(*args: str):
     torch.manual_seed(SEED)
 
     data = TestData(args.input_dir)
+    print("first data item:", data[0])
     with open(os.path.join(args.model_dir, "net_config.json")) as f:
         unet_config = json.load(f)
 
@@ -136,6 +137,7 @@ def main(*args: str):
         y_hat = model.network(x)
         for tensor, study_id, image_id, rec in zip(y_hat, study_ids, image_ids,
                                                    recs):
+            print(study_id, image_id, rec)
             table = table.append({"Id": f"{image_id}_image",
                                   "PredictionString":
                                   prediction_string(tensor, rec)},
