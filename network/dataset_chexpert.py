@@ -8,7 +8,7 @@ import torchvision.transforms as transforms
 class ChestXrayDataset(Dataset):
     
     def __init__(self, folder_dir, dataframe, \
-                 labels, image_size = 256):
+                 labels, image_size = 256, normalize = False):
         """
         Init Dataset
         
@@ -32,6 +32,8 @@ class ChestXrayDataset(Dataset):
         dataframe = dataframe[dataframe['Frontal/Lateral'] == "Frontal"]
         # only keep labels, replace nan and -1 with 0
         self.dataframe = dataframe[labels].replace(np.nan, 0).replace(-1, 0)
+
+        mean = 
         
         # Define list of image transformations
         image_transformation = [
@@ -40,8 +42,10 @@ class ChestXrayDataset(Dataset):
             transforms.CenterCrop((image_size + 15, image_size + 15)),
             transforms.RandomCrop((image_size, image_size)),
             transforms.ToTensor()
-            transforms.Normalize(mean=[0.5], std=[0.23])
         ]
+        if normalize:
+            image_transformation.append(transforms.Normalize(mean=[0.5], std=[0.23]))
+
         
         self.image_transformation = transforms.Compose(image_transformation)
         
