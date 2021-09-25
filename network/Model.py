@@ -54,8 +54,8 @@ class OurModel:
                  use_lr_scheduler=False,
                  lr_sch_patience=10,
                  use_step_lr_scheduler=False,
-                 lr_steps = [100,125,150,175],
-                 lr_gamma = 0.1
+                 lr_steps=[100, 125, 150, 175],
+                 lr_gamma=0.1
                  ):
 
         self.name = name
@@ -102,18 +102,20 @@ class OurModel:
             self.load_weights(path_weights)
 
         self.config = {"network": self.network.__class__.__name__,
-                  "optimizer": self.optimizer.__class__.__name__,
-                  "adam_regul_factor": self.adam_regul_factor,
-                  "batch_size": self.batch_size,
-                  "learning_rate": self.lr,
-                  "use_lr_scheduler": self.use_lr_scheduler,
-                  **({"lr_sch_patience": self.lr_sch_patience} if self.use_lr_scheduler else {}),
-                  "use_step_lr_scheduler": self.use_lr_scheduler,
-                  **({"lr_steps": self.lr_steps, "gamma": self.lr_gamma} if self.use_step_lr_scheduler else {}),
-                  "loss": self.criterion.__class__.__name__,
-                  "data_trafos": self.data_trafo._json_serializable(),
-                  **getattr(self.network, "hyperparameters", {})
-                  }
+                       "optimizer": self.optimizer.__class__.__name__,
+                       "adam_regul_factor": self.adam_regul_factor,
+                       "batch_size": self.batch_size,
+                       "learning_rate": self.lr,
+                       "use_lr_scheduler": self.use_lr_scheduler,
+                       **({"lr_sch_patience": self.lr_sch_patience} if self.use_lr_scheduler else {}),
+                       "use_step_lr_scheduler": self.use_lr_scheduler,
+                       **({"lr_steps": self.lr_steps, "gamma": self.lr_gamma} if self.use_step_lr_scheduler else {}),
+                       "loss": self.criterion.__class__.__name__,
+                       "data_trafos": (self.data_trafo._json_serializable()
+                                       if self.data_trafo is not None
+                                       else None),
+                       **getattr(self.network, "hyperparameters", {})
+                       }
 
     def save_configuration(self):
         with open(f'{self.path}/net_config.json', 'w') as file:
