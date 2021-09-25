@@ -1,5 +1,5 @@
 from ..trafo import Trafo, Transformable
-from .crop_common import crop_image, crop_boxes
+from .crop_common import crop_image, crop_boxes, crop_recorder
 
 import numpy as np
 from typing import Dict
@@ -44,3 +44,4 @@ class CropPadding(Trafo):
 
 CropPadding.transform.register(crop_image)
 CropPadding.transform.register(crop_boxes)
+CropPadding.transform.register(crop_recorder)

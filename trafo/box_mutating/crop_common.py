@@ -1,6 +1,6 @@
 import numpy as np
 
-from utils.bounding_boxes import BoundingBoxes
+from utils import BoundingBoxes, CanvasTrafoRecorder
 
 
 def crop_image(self, img: np.ndarray,
@@ -32,3 +32,11 @@ def crop_boxes(self, boxes: BoundingBoxes,
     rows_to_zero = np.array(np.prod(boxes[:, 2:] <= 0, axis=1), dtype=bool)
     boxes[rows_to_zero, :] = 0
     return boxes
+
+
+def crop_recorder(self, recorder: CanvasTrafoRecorder,
+                  left_crop, right_crop, top_crop, bottom_crop) \
+        -> CanvasTrafoRecorder:
+    recorder.crop_to(left=left_crop, right=right_crop,
+                     top=top_crop, bottom=bottom_crop)
+    return recorder

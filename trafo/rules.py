@@ -1,8 +1,20 @@
 import torch
 import numpy as np
+from typing import Callable
 
 from utils.bounding_boxes import BoundingBoxes
 from .trafo import TrafoMeta
+
+
+def preserve(*classes: type) -> Callable[[TrafoMeta], TrafoMeta]:
+    def real_decorator(cls: TrafoMeta) -> TrafoMeta:
+        for preservee_class in classes:
+            @cls.transform.register
+            def _(self, preservee: preservee_class, **parameters) \
+                    -> preservee_class:
+                return preservee
+        return cls
+    return real_decorator
 
 
 def preserve_bounding_boxes(cls: TrafoMeta) -> TrafoMeta:

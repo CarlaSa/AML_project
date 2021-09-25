@@ -5,7 +5,7 @@ from typing import Tuple, Dict
 
 from ..trafo import Trafo, Transformable
 from ..rules import numpy_as_3d_tensor
-from utils.bounding_boxes import BoundingBoxes
+from utils import BoundingBoxes, CanvasTrafoRecorder
 
 
 @numpy_as_3d_tensor
@@ -38,6 +38,15 @@ def _(self, boxes: BoundingBoxes,
     boxes[:, (0, 2)] *= width/original_width
     boxes[:, (1, 3)] *= height/original_height
     return boxes
+
+
+@Scale.transform.register
+def _(self, recorder: CanvasTrafoRecorder,
+      original_height: int, original_width: int) -> BoundingBoxes:
+    """Bounding box scaling"""
+    height, width = self.target_size
+    recorder.scale(height/original_height, width/original_width)
+    return recorder
 
 
 @Scale.transform.register
