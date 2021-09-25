@@ -1,29 +1,35 @@
 import os
 import torch
+import pandas as pd
 from torchvision import io
-from typing import List, Tuple
-
+from typing import Tuple
 from torch.utils.data import Dataset
+
+from utils import CanvasTrafoRecorder
 
 
 class TestData(Dataset):
     """Dataset featuring ids versus image tensor."""
 
-    image_dir: str
-    filenames: List[str]
+    input_dir: str
+    table: pd.DataFrame
 
-    def __init__(self, image_dir):
-        self.image_dir = image_dir
-        self.filenames = [fn for fn in os.listdir(image_dir)
-                          if fn.endswith(".png")]
+    def __init__(self, input_dir):
+        self.input_dir = input_dir
+        self.table = pd.read_csv(os.path.join(input_dir, "images.csv"))
 
     def __len__(self) -> int:
-        return len(self.filenames)
+        return len(self.table)
 
-    def __getitem__(self, index) -> Tuple[torch.Tensor, str, str]:
-        filename = self.filenames[index]
-        path = os.path.join(self.image_dir, filename)
+    def __getitem__(self, index: int) -> Tuple[torch.Tensor, str, str,
+                                               CanvasTrafoRecorder]:
+        meta = self.table.iloc[index]
+        filename = meta.filename
+        path = os.path.join(self.input_dir, "images", filename)
         study_id, image_id = filename.split(".")[0].split("_")
         assert len(study_id) == 12 and len(image_id) == 12
+        recorder_kwargs = {key: meta[key] for key
+                           in CanvasTrafoRecorder.__annotations__.keys()}
+        recorder = CanvasTrafoRecorder(**recorder_kwargs)
         tensor = io.read_image(path, io.ImageReadMode.GRAY).to(float)/255
-        return tensor, study_id, image_id
+        return tensor, study_id, image_id, recorder
