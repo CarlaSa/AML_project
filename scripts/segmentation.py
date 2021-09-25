@@ -52,7 +52,7 @@ def prediction_string(unet_out: torch.Tensor, rec: dict) -> str:
     unet_out = unet_out.cpu().detach().numpy()
     unet_out_rounded = np.round(unet_out)
     boxes_pp = BoundingBoxes.from_mask(unet_out_rounded, max_bounding_boxes=8)
-    boxes_dcm = recorder.reconstruct_boxes(boxes)
+    boxes_dcm = recorder.reconstruct_boxes(boxes_pp)
     opacities = []
     for i, (box_pp, box) in enumerate(zip(boxes_pp, boxes_dcm)):
         if sum(box_pp) == 0:
