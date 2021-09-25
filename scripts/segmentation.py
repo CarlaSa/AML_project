@@ -51,13 +51,13 @@ def prediction_string(unet_out: torch.Tensor, rec: dict) -> str:
     recorder = CanvasTrafoRecorder(**rec)
     unet_out = unet_out.cpu().detach().numpy()
     unet_out_rounded = np.round(unet_out)
-    boxes = BoundingBoxes.from_mask(unet_out_rounded, max_bounding_boxes=8)
-    boxes = recorder.reconstruct_boxes(boxes)
+    boxes_pp = BoundingBoxes.from_mask(unet_out_rounded, max_bounding_boxes=8)
+    boxes_dcm = recorder.reconstruct_boxes(boxes)
     opacities = []
-    for i, box in enumerate(boxes):
-        if sum(box) == 0:
+    for i, (box_pp, box) in enumerate(zip(boxes_pp, boxes_dcm)):
+        if sum(box_pp) == 0:
             break
-        mask = boxes[i:i+1].get_mask(unet_out.shape)
+        mask = boxes_pp[i:i+1].get_mask(unet_out.shape)
         confidence = float(unet_out[mask].mean())
         opacities.append(" ".join(str(s)
                                   for s in ["opacity", np.round(confidence, 1),
