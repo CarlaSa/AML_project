@@ -100,8 +100,7 @@ class OurModel:
             warn(f"loading weights from {path_weights}")
             self.load_weights(path_weights)
 
-    def save_configuration(self):
-        config = {"network": self.network.__class__.__name__,
+        self.config = {"network": self.network.__class__.__name__,
                   "optimizer": self.optimizer.__class__.__name__,
                   "adam_regul_factor": self.adam_regul_factor,
                   "batch_size": self.batch_size,
@@ -114,8 +113,10 @@ class OurModel:
                   "data_trafos": self.data_trafo._json_serializable(),
                   **getattr(self.network, "hyperparameters", {})
                   }
+
+    def save_configuration(self):
         with open(f'{self.path}/net_config.json', 'w') as file:
-            json.dump(config, file)
+            json.dump(self.config, file)
 
     def load_weights(self, path_end):
         if self.path is not None:
@@ -172,6 +173,9 @@ class OurModel:
 
     def train(self, num_epochs, dataloader, validate=False,
               dataloader_val=None, save_freq=10, save_observables=False):
+        if self.verbose:
+            print("Network config:\n":self.config)
+
         if save_observables and self.segmentation:
             losses = []
             dce_scores = []
