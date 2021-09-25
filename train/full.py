@@ -72,7 +72,7 @@ class FullCLITraining(CLITraining):
                                     pin_memory=True)
 
         # Get Networks
-        unet_dir = os.path.dirname(unet_weights)
+        unet_dir = os.path.dirname(self.args.unet_weights)
         with open(os.path.join(unet_dir, "net_config.json")) as config_file:
             unet_config = json.load(config_file)
         if "n_blocks" in unet_config or "n_initial_block_channels" in unet_config:
