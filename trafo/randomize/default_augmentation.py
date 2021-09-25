@@ -55,3 +55,13 @@ bounding_boxes_to_tensor_only = Compose(
     BoundingBoxesToMask(),
     NDArrayTo3dTensor(),
 )
+
+default_augmentation_carla = Compose(
+    BoundingBoxesToMask(),
+    NDArrayTo3dTensor(),
+    Rotate(angle=(0, 10)),
+    Shear(shear_x=(0, 4), shear_y=(0, 4)),
+    Translate(translate_x=(0, 10), translate_y=(0, 10)),
+    Scale(scale_factor= (1, 0.2), random_function=positive_half_gauss),
+)
+
