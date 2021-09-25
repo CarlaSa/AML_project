@@ -174,7 +174,7 @@ class OurModel:
     def train(self, num_epochs, dataloader, validate=False,
               dataloader_val=None, save_freq=10, save_observables=False):
         if self.verbose:
-            print("Network config:\n":self.config)
+            print("Network config:\n", self.config)
 
         if save_observables and self.segmentation:
             losses = []
