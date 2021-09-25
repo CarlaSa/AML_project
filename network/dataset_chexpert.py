@@ -33,7 +33,6 @@ class ChestXrayDataset(Dataset):
         # only keep labels, replace nan and -1 with 0
         self.dataframe = dataframe[labels].replace(np.nan, 0).replace(-1, 0)
 
-        mean = 
         
         # Define list of image transformations
         image_transformation = [
