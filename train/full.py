@@ -11,6 +11,7 @@ from datasets import LoadDataset, CustomOutput, Knit
 from datasets.custom_output import image_tensor, study_label_5
 
 from network.unet import Unet
+from network.variable_unet import Unet as VUnet
 from network.feature_extractor import ResNet, ResnetOriginal
 from network.full_model import EndNetwork, FullModel
 from network.training import FullTraining
@@ -71,7 +72,16 @@ class FullCLITraining(CLITraining):
                                     pin_memory=True)
 
         # Get Networks
-        unet = Unet(batch_norm=self.args.do_batch_norm)
+        unet_dir = os.path.dirname(unet_weights)
+        with open(os.path.join(unet_dir, "net_config.json")) as config_file:
+            unet_config = json.load(config_file)
+        if "n_blocks" in unet_config or "n_initial_block_channels" in unet_config:
+            n_blk = unet_config["n_blocks"]
+            n_in_ch = unet_config["n_initial_block_channels"]
+            unet = VUnet(batch_norm=self.args.do_batch_norm,
+                         n_blocks=n_blk, n_initial_block_channels=n_in_ch)
+        else:
+            unet = Unet(batch_norm=self.args.do_batch_norm)
         unet.load_state_dict(torch.load(self.args.unet_weights,
                                         map_location=device))
 
