@@ -129,7 +129,7 @@ class UnetTrainingCLI(TrainingCLI):
                     default.n_initial_block_channels:
                 abbrev += f"_ch{args.n_initial_block_channels}"
         if args.use_step_lr_scheduler:
-            abbrev += f"_lrstep{args.lr_step}"
+            abbrev += f"_lrstep{'-'.join(args.lr_step)}"
             if args.lr_gamma != default.lr_gamma:
                 abbrev += f"_lrgam{args.lr_gamma}"
         return abbrev
