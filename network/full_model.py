@@ -92,7 +92,7 @@ class EndNetwork_minimal(nn.Module):
 
 class EndNetwork_no_images(nn.Module):
     def __init__(self, 
-            shapes = [512, 128, 32, 5]
+            shapes = [512, 128, 32, 5],
             use_dropout = True,
             ):
         super().__init__()
