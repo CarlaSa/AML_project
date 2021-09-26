@@ -208,6 +208,8 @@ class BaseTraining:
     def train(self, num_epochs, dataloader, validate=False,
               dataloader_val=None, save_freq=10, save_observables=False,
               det_obs_freq=100):
+
+
         if det_obs_freq > 0:
             self.config["batches_per_obs"] = det_obs_freq
             self.save_configuration()
@@ -296,7 +298,6 @@ class UnetTraining(BaseTraining):
 
 class FullTraining(BaseTraining):
     def _preprocess(self, x, y):
-        #y = y.float()
         y = torch.argmax(y.float(), dim=1)
         x = x.float()
         return x, y
