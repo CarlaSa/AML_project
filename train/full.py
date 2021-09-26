@@ -13,7 +13,7 @@ from datasets.custom_output import image_tensor, study_label_5
 from network.unet import Unet
 from network.variable_unet import Unet as VUnet
 from network.feature_extractor import ResNet, ResnetOriginal
-from network.full_model import EndNetwork, FullModel
+from network.full_model import EndNetwork, FullModel, EndNetwork_minimal
 from network.training import FullTraining
 
 from .common_train import TrainingCLI, Augmentation, CLITraining, ArgparseEnum
@@ -78,10 +78,10 @@ class FullCLITraining(CLITraining):
         if "n_blocks" in unet_config or "n_initial_block_channels" in unet_config:
             n_blk = unet_config["n_blocks"]
             n_in_ch = unet_config["n_initial_block_channels"]
-            unet = VUnet(batch_norm=self.args.do_batch_norm,
+            unet = VUnet(batch_norm=unet_config["batch_norm"],
                          n_blocks=n_blk, n_initial_block_channels=n_in_ch)
         else:
-            unet = Unet(batch_norm=self.args.do_batch_norm)
+            unet = Unet(batch_norm=unet_config["batch_norm"])
         unet.load_state_dict(torch.load(self.args.unet_weights,
                                         map_location=device))
 
@@ -130,8 +130,16 @@ class FullCLITraining(CLITraining):
                                             [:-self.args.resnet_fc_cutoff])
 
         # Full network
-        end_network = EndNetwork(features_shape=self.args.feature_shape,
-                                 use_dropout=self.args.no_dropout is not True)
+        use_dropout = self.args.no_dropout is not True
+        if self.args.endnet_minimal is True:
+            end_network = EndNetwork_minimal(
+                features_shape=self.args.feature_shape,
+                latent_shape=self.args.latent_shape, use_dropout=use_dropout,
+                use_dropout_conv=self.args.dropout_conv is True,
+                use_batchnorm=self.args.do_batch_norm is True)
+        else:
+            end_network = EndNetwork(features_shape=self.args.feature_shape,
+                                     use_dropout=use_dropout)
 
         model = FullModel(unet=unet, feature_extractor=resnet, end=end_network,
                           threshold=0.5,
@@ -150,7 +158,8 @@ class FullCLITraining(CLITraining):
                                 use_lr_scheduler=self.args.use_lr_scheduler,
                                 lr_sch_patience=self.args.lr_sch_patience,
                                 lr=self.args.learning_rate,
-                                adam_regul_factor=self.args.adam_regul_factor)
+                                adam_regul_factor=self.args.adam_regul_factor,
+                                early_stopping=self.args.early_stopping)
         training.train(self.args.epochs, dataloader=dataloader_train,
                        dataloader_val=dataloader_val, validate=True,
                        save_observables=True, det_obs_freq=0)
@@ -177,16 +186,26 @@ class FullTrainingCLI(TrainingCLI):
         parser.add_argument("--resnet-trainable", action="store_true")
         parser.add_argument("--unet-trainable", action="store_true")
         parser.add_argument("--path-prefix", default="_full_training")
+        parser.add_argument("--endnet-minimal", action="store_true")
+        parser.add_argument("--latent-shape", type=int, default=64)
+        parser.add_argument("--dropout-conv", action="store_true")
+        parser.add_argument("--early-stopping", type=int)
         super().__init__(parser)
 
     def get_abbrev(self, args: Namespace):
         abbrev = super().get_abbrev(args)
+        if args.early_stopping is not None:
+            abbrev += f"_es{args.early_stopping}"
         if args.resnet_no_sigmoid_activation is True:
             abbrev += "_nosig"
         if args.no_dropout is True:
             abbrev += "_nodo"
         if args.resnet_fc_cutoff is not None:
             abbrev += f"_fcc{args.resnet_fc_cutoff}"
+        if args.endnet_minimal is True:
+            abbrev += "_mini"
+            abbrev += f"_ls{args.latent_shape}"
+            abbrev += "_doconv" if args.dropout_conv is True else "_nodoconv"
         return abbrev
 
 

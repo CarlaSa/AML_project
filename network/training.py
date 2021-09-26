@@ -49,7 +49,8 @@ class BaseTraining:
                  lr_sch_patience=10,
                  optimizer=None,
                  lr=0.1,
-                 adam_regul_factor=0.
+                 adam_regul_factor=0,
+                 early_stopping = None
                  ):
 
         # define model
@@ -76,8 +77,14 @@ class BaseTraining:
         self.start_epoch = 0
         self.batches = 0  # counts how many batches are already used for training
         self.batch_ensemble_loss = 0
+        self.early_stopping = early_stopping
         self.observables = {"loss": []
                             }
+        if early_stopping is not None:
+            self.epochs_no_improvement = 0
+            self.curr_best = 1000
+
+
 
         self.config = {"network": self.network.__class__.__name__,
                        "optimizer": self.optimizer.__class__.__name__,
@@ -135,13 +142,6 @@ class BaseTraining:
         """
         raise NotImplementedError
 
-    def _evaluation_methods(self, y_true, y_pred):
-        # if opened first time
-        if not "acc" in dir(self):
-            self.acc = 0
-
-        self.acc += sum(y_pred == y_true)
-
     def print_observables(self, detailed=False):
         """
         print the observables (e.g. losses)
@@ -198,13 +198,18 @@ class BaseTraining:
                     if self.verbose > 1:
                         self.print_observables(detailed=True)
 
+
             self.optimizer.step()
+
+            # Apply weight clipping:
+
         return sum_loss/len(dataloader)
 
     def train(self, num_epochs, dataloader, validate=False,
               dataloader_val=None, save_freq=10, save_observables=False,
-              det_obs_freq=100
-              ):
+              det_obs_freq=100):
+
+
         if det_obs_freq > 0:
             self.config["batches_per_obs"] = det_obs_freq
             self.save_configuration()
@@ -244,6 +249,19 @@ class BaseTraining:
             if det_obs_freq == 0:
                 self.lr_scheduler.step(loss_val)
 
+            if self.early_stopping is not None:
+                if loss_val < self.curr_best:
+                    self.curr_best = loss_val
+                    self.epochs_no_improvement = 0
+                else:
+                    self.epochs_no_improvement += 1
+                    if self.epochs_no_improvement == self.early_stopping:
+                        print("early stopping because no improvement")
+                        break
+
+
+
+
     def validate(self, dataloader_val, silent=False):
         self.network.eval()
 
@@ -270,13 +288,6 @@ class PretrainTraining(BaseTraining):
         x = x.float()
         return x, y
 
-    def _evaluation_methods(self, y_true, y_pred):
-        # if opened first time
-        if not "acc" in dir(self):
-            self.acc = 0
-
-        self.acc += torch.mean((y_true-y_pred)**2)
-
 
 class UnetTraining(BaseTraining):
     def _preprocess(self, x, y):
@@ -288,7 +299,6 @@ class UnetTraining(BaseTraining):
 
 class FullTraining(BaseTraining):
     def _preprocess(self, x, y):
-        #y = y.float()
         y = torch.argmax(y.float(), dim=1)
         x = x.float()
         return x, y
