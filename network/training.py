@@ -58,7 +58,7 @@ class BaseTraining:
         self.network = network
         self.lr = lr
         if optimizer == None:
-            self.optimizer = torch.optim.Adam(self.network.parameters(), lr)
+            self.optimizer = torch.optim.Adam(self.network.parameters(), lr, weight_decay = adam_regul_factor )
         else:
             self.optimizer = optimizer
         if use_lr_scheduler:
