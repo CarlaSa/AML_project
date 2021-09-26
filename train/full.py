@@ -195,7 +195,7 @@ class FullTrainingCLI(TrainingCLI):
     def get_abbrev(self, args: Namespace):
         abbrev = super().get_abbrev(args)
         if args.early_stopping is not None:
-          abbrev += "_es"
+            abbrev += f"_es{args.early_stopping}"
         if args.resnet_no_sigmoid_activation is True:
             abbrev += "_nosig"
         if args.no_dropout is True:
