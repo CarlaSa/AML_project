@@ -252,6 +252,7 @@ class BaseTraining:
             if self.early_stopping is not None:
                 if loss_val < self.curr_best:
                     self.curr_best = loss_val
+                    self.epochs_no_improvement = 0
                 else:
                     self.epochs_no_improvement += 1
                     if self.epochs_no_improvement == self.early_stopping:
