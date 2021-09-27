@@ -39,8 +39,28 @@ class Criterion(ArgparseEnum):
 class FullCLITraining(CLITraining):
     def run(self):
         super().run()
+        model = self.get_model()
+        dataloader_train, dataloader_val = self.get_dataloaders()
 
-        # Get Data
+        print("Number of trainable parameters:",
+              sum(p.numel() for p in model.parameters() if p.requires_grad))
+        print("Number of parameters:",
+              sum(p.numel() for p in model.parameters()))
+
+        training = FullTraining(self.path + "/", model,
+                                criterion=self.args.criterion.value,
+                                batch_size=self.args.batch_size,
+                                verbose_level=2, path_dir=".", data_trafo=None,
+                                use_lr_scheduler=self.args.use_lr_scheduler,
+                                lr_sch_patience=self.args.lr_sch_patience,
+                                lr=self.args.learning_rate,
+                                adam_regul_factor=self.args.adam_regul_factor,
+                                early_stopping=self.args.early_stopping)
+        training.train(self.args.epochs, dataloader=dataloader_train,
+                       dataloader_val=dataloader_val, validate=True,
+                       save_observables=True, det_obs_freq=0)
+
+    def get_dataloaders(self):
         loaded_data = LoadDataset("_data/preprocessed256_new",
                                   image_dtype=float, label_dtype=float)
         knit_data = Knit(loaded_data, study_csv="_data/train_study_level.csv",
@@ -70,7 +90,9 @@ class FullCLITraining(CLITraining):
                                     batch_size=self.args.batch_size,
                                     shuffle=True, num_workers=0,
                                     pin_memory=True)
+        return dataloader_train, dataloader_val
 
+    def get_model(self):
         # Get Networks
         unet_dir = os.path.dirname(self.args.unet_weights)
         with open(os.path.join(unet_dir, "net_config.json")) as config_file:
@@ -141,28 +163,10 @@ class FullCLITraining(CLITraining):
             end_network = EndNetwork(features_shape=self.args.feature_shape,
                                      use_dropout=use_dropout)
 
-        model = FullModel(unet=unet, feature_extractor=resnet, end=end_network,
-                          threshold=0.5,
-                          unet_trainable=self.args.unet_trainable,
-                          feature_extractor_trainable=self.args.resnet_trainable)
-
-        print("Number of trainable parameters:",
-              sum(p.numel() for p in model.parameters() if p.requires_grad))
-        print("Number of parameters:",
-              sum(p.numel() for p in model.parameters()))
-
-        training = FullTraining(self.path + "/", model,
-                                criterion=self.args.criterion.value,
-                                batch_size=self.args.batch_size,
-                                verbose_level=2, path_dir=".", data_trafo=None,
-                                use_lr_scheduler=self.args.use_lr_scheduler,
-                                lr_sch_patience=self.args.lr_sch_patience,
-                                lr=self.args.learning_rate,
-                                adam_regul_factor=self.args.adam_regul_factor,
-                                early_stopping=self.args.early_stopping)
-        training.train(self.args.epochs, dataloader=dataloader_train,
-                       dataloader_val=dataloader_val, validate=True,
-                       save_observables=True, det_obs_freq=0)
+        return FullModel(unet=unet, feature_extractor=resnet, end=end_network,
+                         threshold=0.5,
+                         unet_trainable=self.args.unet_trainable,
+                         feature_extractor_trainable=self.args.resnet_trainable)
 
 
 class FullTrainingCLI(TrainingCLI):
