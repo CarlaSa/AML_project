@@ -1,3 +1,9 @@
+"""
+This module features the CustomOutput Dataset which wraps an existing dataset
+to manipulate the form of its output.
+Along with the class, this module defines some functions that may be used as
+parameters for CustomOutput.
+"""
 import numpy as np
 import pandas as pd
 import torch
@@ -61,16 +67,49 @@ class CustomOutput(Dataset):
 
 @typechecked
 def image_id(self: Dataset, _index: int) -> str:
+    """Output the id of an image as string.
+
+    Intended for use with CustomOutput.
+
+    Args:
+        self (Dataset): The wrapped dataset.
+        _index (int): The index of the data point queried.
+
+    Returns:
+        str: The image id of the data point.
+    """
     return self.image_ids[_index]
 
 
 @typechecked
 def index(self: Dataset, _index: int) -> int:
+    """Output the index in the dataset.
+
+    Intended for use with CustomOutput.
+
+    Args:
+        self (Dataset): The wrapped dataset.
+        _index (int): The index of the data point queried.
+
+    Returns:
+        int: The index of the data point queried.
+    """
     return _index
 
 
 @typechecked
 def image_csv_index(self: Dataset, _index: int) -> int:
+    """Output the index of an image within the image CSV table of the dataset.
+
+    Intended for use with CustomOutput.
+
+    Args:
+        self (Dataset): The wrapped dataset.
+        _index (int): The index of the data point queried.
+
+    Returns:
+        int: The index of an image within the image CSV table of the dataset.
+    """
     id = image_id(self, _index)
     mask = self.image_table["id"] == f"{id}_image"
     indices = mask.index[mask]
@@ -79,24 +118,73 @@ def image_csv_index(self: Dataset, _index: int) -> int:
 
 
 @typechecked
-def image_csv_meta(self: Dataset, _index: int) -> pd.Series:
+def image_csv_meta(self: Dataset, _index: int) -> pd.code.series.Series:
+    """Output the row of an image from the image CSV table of the dataset.
+
+    Intended for use with CustomOutput.
+
+    Args:
+        self (Dataset): The wrapped dataset.
+        _index (int): The index of the data point queried.
+
+    Returns:
+        pd.code.series.Series: The row of an image from the image CSV table of
+            the dataset.
+    """
     csv_ind = image_csv_index(self, _index)
     return self.image_table.iloc[csv_ind]
 
 
 @typechecked
 def image_tensor(self: Dataset, _index: int) -> torch.Tensor:
+    """Output the image as a torch Tensor.
+
+    Intended for use with CustomOutput.
+
+    Args:
+        self (Dataset): The wrapped dataset.
+        _index (int): The index of the data point queried.
+
+    Returns:
+        torch.Tensor: The image.
+    """
     return self[_index][0]
 
 
 @typechecked
 def study_id(self: Dataset, _index: int) -> str:
+    """Output the study id of an image from the image CSV table of the dataset.
+
+    Intended for use with CustomOutput.
+
+    Args:
+        self (Dataset): The wrapped dataset.
+        _index (int): The index of the data point queried.
+
+    Returns:
+        str: The study id of an image from the image CSV table of the dataset.
+    """
     meta = image_csv_meta(self, _index)
     return meta['StudyInstanceUID']
 
 
 @typechecked
 def study_label(self: Dataset, _index: int) -> np.ndarray:
+    """Output the study label of an image.
+
+    Intended for use with CustomOutput.
+    This requires both the image and study tables of the dataset.
+
+    This label has the following meanings: negative, typical, indeterminate,
+    atypical.
+
+    Args:
+        self (Dataset): The wrapped dataset.
+        _index (int): The index of the data point queried.
+
+    Returns:
+        np.ndarray: The study label of length 4 with dtype=bool.
+    """
     _study_id = study_id(self, _index)
     study_label = self.study_table.loc[self.study_table["id"]
                                        == f"{_study_id}_study"]
@@ -107,6 +195,23 @@ def study_label(self: Dataset, _index: int) -> np.ndarray:
 
 @typechecked
 def study_label_5(self: Dataset, _index: int) -> np.ndarray:
+    """Output the modified study label (of length 5) of an image.
+
+
+    Intended for use with CustomOutput.
+    This requires both the image and study tables of the dataset.
+
+    Meanings of True value at certain indices are the following: 0 - negative,
+    4 - any positive class but no bounding boxes in the image. If there are
+    bounding boxes in the image: 1 - typical, 2 - indeterminate, 3 - atypical.
+
+    Args:
+        self (Dataset): The wrapped dataset.
+        _index (int): The index of the data point queried.
+
+    Returns:
+        np.ndarray: The modified study label of length 5 with dtype=bool.
+    """
     _bounding_boxes = bounding_boxes(self, _index)
     _study_label = study_label(self, _index)
     return np.array([*_study_label, 0]  # for negative or annotated images
@@ -117,6 +222,19 @@ def study_label_5(self: Dataset, _index: int) -> np.ndarray:
 
 @typechecked
 def bounding_boxes(self: Dataset, _index: int) -> BoundingBoxes:
+    """Output the (transformed) bounding boxes of an image.
+
+
+    Intended for use with CustomOutput.
+    This requires the bounding boxes in the dataset.
+
+    Args:
+        self (Dataset): The wrapped dataset.
+        _index (int): The index of the data point queried.
+
+    Returns:
+        BoundingBoxes: The corresponding bounding boxes.
+    """
     boxes = getattr(self, "bounding_boxes", None)
     if boxes is not None:
         return boxes[_index]
@@ -127,18 +245,57 @@ def bounding_boxes(self: Dataset, _index: int) -> BoundingBoxes:
 
 @typechecked
 def mask(self: Dataset, _index: int) -> np.ndarray:
+    """Output the (transformed) bounding boxes mask of an image.
+
+
+    Intended for use with CustomOutput.
+    This requires the bounding boxes in the dataset.
+
+    Args:
+        self (Dataset): The wrapped dataset.
+        _index (int): The index of the data point queried.
+
+    Returns:
+        np.ndarray: The corresponding bounding boxes mask.
+    """
     shape = image_tensor(self, _index).shape[-2:]
     return bounding_boxes(self, _index).get_mask(shape)
 
 
 @typechecked
 def float_mask(self: Dataset, _index: int) -> np.ndarray:
+    """Output the (transformed) bounding boxes float mask of an image.
+
+
+    Intended for use with CustomOutput.
+    This requires the bounding boxes in the dataset.
+
+    Args:
+        self (Dataset): The wrapped dataset.
+        _index (int): The index of the data point queried.
+
+    Returns:
+        np.ndarray: The corresponding bounding boxes float mask.
+    """
     shape = image_tensor(self, _index).shape[-2:]
     return bounding_boxes(self, _index).get_float_mask(shape)
 
 
 @typechecked
 def masked_image_tensor(self: Dataset, _index: int) -> torch.Tensor:
+    """Output the (transformed) bounding boxes masked image.
+
+
+    Intended for use with CustomOutput.
+    This requires the bounding boxes in the dataset.
+
+    Args:
+        self (Dataset): The wrapped dataset.
+        _index (int): The index of the data point queried.
+
+    Returns:
+        np.ndarray: The image, area outside bounding boxes valued to 0.
+    """
     image = image_tensor(self, _index).clone().detach()
     bounding_boxes(self, _index).mask_image(image[0])
     return image
@@ -146,5 +303,18 @@ def masked_image_tensor(self: Dataset, _index: int) -> torch.Tensor:
 
 @typechecked
 def nontransformed_bounding_boxes(self: Dataset, _index: int) -> BoundingBoxes:
+    """Output the non-transformed bounding boxes of an image.
+
+
+    Intended for use with CustomOutput.
+    This requires the image table of the dataset.
+
+    Args:
+        self (Dataset): The wrapped dataset.
+        _index (int): The index of the data point queried.
+
+    Returns:
+        BoundingBoxes: The corresponding non-transformed bounding boxes.
+    """
     meta = image_csv_meta(self, _index)
     return BoundingBoxes.from_json(meta["boxes"], self.max_bounding_boxes)
