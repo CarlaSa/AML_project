@@ -14,6 +14,7 @@ pipenv sync  # installs the dependencies from Pipfile.lock
 to install the dependencies required into a specific virtual environment.
 (You might like to set `PIPENV_VENV_IN_PROJECT=1` before, which will place the
 virtual environment within the repository.)
+
 To start a shell within the environment, type `pipenv shell`.
 Alternatively, prepend `pipenv run` to any desired command to be executed in the
 environment.
